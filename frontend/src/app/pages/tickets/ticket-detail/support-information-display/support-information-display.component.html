@@ -1,0 +1,122 @@
+<!-- Support Information Card -->
+<div class="support-info-card">
+    <div class="support-header">
+        <!-- Support Title Section -->
+        <div class="support-title-section">
+            <div class="support-title-row">
+                <h2 class="support-title">Support Information</h2>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="support-progress-section">
+                <div class="support-progress-fill"></div>
+                <div class="support-progress-remaining"></div>
+            </div>
+        </div>
+
+        <!-- Support Details Display -->
+        <div class="support-details" *ngIf="ticketData?.ticket as ticket">
+
+            <!-- First Row: Close Estimate, Estimate Time, Due Date, Lead Time -->
+            <div class="support-row first-row">
+                <div class="support-item close-estimate">
+                    <div class="support-label">Close Estimate:</div>
+                    <div class="support-value">
+                        {{ ticket.close_estimate ? formatDateTime(ticket.close_estimate) : '-' }}
+                    </div>
+                </div>
+
+                <div class="support-divider"></div>
+
+                <div class="support-item estimate-time">
+                    <div class="support-label">Estimate time:</div>
+                    <div class="support-value">{{ estimateTime }} H</div>
+                </div>
+
+                <div class="support-divider"></div>
+
+                <div class="support-item due-date">
+                    <div class="support-label">Due date:</div>
+                    <div class="support-value">{{ formatDate(ticket.due_date) || '-' }}</div>
+                </div>
+
+                <div class="support-divider"></div>
+
+                <div class="support-item lead-time">
+                    <div class="support-label">Lead Time:</div>
+                    <div class="support-value">{{ leadTime }} H</div>
+                </div>
+            </div>
+
+            <!-- Second Row: Assignee, Related Tickets -->
+            <div class="support-row second-row">
+                <div class="support-item assignee">
+                    <div class="support-label">Assignee / Support Team:</div>
+                    <div class="support-value">{{ assignToName }}</div>
+                </div>
+
+                <div class="support-divider"></div>
+
+                <div class="support-item related-tickets">
+                    <div class="support-label">Related Tickets:</div>
+                    <div class="support-value">
+                        <span *ngIf="ticket.related_ticket_id; else noRelated">
+                            #{{ ticket.related_ticket_id }}
+                        </span>
+                        <ng-template #noRelated>-</ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Third Row: Change Request, Fix Description, Attachment -->
+            <div class="support-row third-row">
+                <div class="support-item change-request">
+                    <div class="support-label">Change Request:</div>
+                    <div class="support-value">{{ ticket.change_request || '0' }} Mandays</div>
+                </div>
+
+                <!-- Fix Description -->
+                <div class="support-item fix-description">
+                    <div class="support-label">Fix Description:</div>
+                    <div class="support-value">
+                        {{ ticket.fix_issue_description || '-' }}
+                    </div>
+                </div>
+
+                <!-- ✅ Attachment Section - ใช้ app-file-list แต่แสดงแบบ inline -->
+                <div class="support-item attachment">
+                    <div class="support-label">Attachment:</div>
+                    <div class="support-value">
+                        <!-- ✅ ใช้ app-file-list component -->
+
+                        <!-- มีไฟล์ -->
+                        <ng-container *ngIf="(ticketData?.fix_attachment || []).length > 0; else noAttachments">
+                            <app-file-list [attachments]="ticketData?.fix_attachment || []"
+                                [title]="'Fix Issue Attachments'" [showTitle]="true" [allowDelete]="false"
+                                (fileClick)="onAttachmentClick($event)">
+                            </app-file-list>
+                        </ng-container>
+
+                        <!-- ไม่มีไฟล์ -->
+                        <ng-template #noAttachments>
+                            <span class="no-attachments-text">-</span>
+                        </ng-template>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Data State -->
+        <div class="no-data-state" *ngIf="!ticketData?.ticket">
+            <i class="bi bi-info-circle"></i>
+            <p>ไม่มีข้อมูล Support Information</p>
+            <small>กำลังโหลดข้อมูล ticket...</small>
+        </div>
+    </div>
+
+    <!-- ✅ File Preview Modal -->
+    <app-file-preview-modal [attachment]="selectedAttachment" [show]="showFileModal" (close)="closeModal()">
+    </app-file-preview-modal>
+
+</div>

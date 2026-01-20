@@ -1,0 +1,1030 @@
+/* ===== SUPPORT INFORMATION FORM STYLES ===== */
+
+.support-info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 32px;
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #D1D5DB;  /* ✅ ใช้สีเดียวกับเส้นขอบ form controls */
+}
+
+.support-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.support-title {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 120%;
+  color: #212121;
+  margin: 0;
+}
+
+.text-center.py-5 {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ===== SUPPORTER FORM SECTION ===== */
+
+.supporter-form-section {
+  width: 100%;
+}
+
+.supporter-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #E3E7FF;
+}
+
+.supporter-form-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1E2A5E;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.supporter-form-title i {
+  color: #5873F8;
+  font-size: 28px;
+}
+
+.supporter-form {
+  width: 100%;
+}
+
+/* ===== FORM SECTIONS ===== */
+
+.form-section {
+  margin-bottom: 28px;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group label i {
+  color: #5873F8;
+  font-size: 18px;
+}
+
+.form-group label .text-danger {
+  color: #DC3545;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.required::after {
+  content: " *";
+  color: #DC3545;
+  font-weight: 400;
+}
+
+/* ===== INPUT FIELDS ===== */
+
+.form-control,
+.form-select {
+  border-radius: 6px;
+  border: 1px solid #D1D5DB;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #374151;
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+  height: 38px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3B82F6;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.form-control::placeholder {
+  color: #9CA3AF;
+  font-weight: 400;
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 10px;
+  padding-right: 36px;
+  appearance: none;
+}
+
+/* ===== INVALID STATES ===== */
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: #DC3545;
+  background: #FFF5F5;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.invalid-feedback {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 4px;
+  color: #DC3545;
+}
+
+.form-text {
+  color: #6B7280;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+/* ===== SEARCH SECTION ===== */
+
+.search-section {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+/* ===== DIVIDERS ===== */
+
+.divider {
+  width: 1px;
+  background: #D1D5DB;  /* ✅ ใช้สีเดียวกับเส้นขอบ form controls */
+  height: 64px;
+}
+
+/* ===== ✅ NEW: RICH TEXT EDITOR STYLES (รวมจาก ticket-create) ===== */
+
+/* 1. Container */
+.rich-text-editor-container {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px; 
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+.rich-text-editor-container.invalid {
+  border-color: #DC3545 !important;
+}
+
+.rich-text-editor-container.disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  background-color: #F3F4F6 !important;
+  pointer-events: all !important; /* อนุญาตให้แสดง cursor */
+}
+
+.rich-text-editor-container.disabled * {
+  cursor: not-allowed !important;
+  pointer-events: none !important; /* ป้องกันการคลิก */
+}
+
+/* 2. Toolbar */
+.editor-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px; 
+  width: 100%;
+  height: 48px; 
+  padding: 0 12px;
+  border-bottom: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  border-radius: 8px 8px 0 0;
+  flex-wrap: wrap; /* NEW: เพิ่ม wrap สำหรับ responsive */
+  box-sizing: border-box;
+}
+
+.toolbar-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px; 
+}
+
+.font-select,
+.size-select {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 10px;
+  width: 150px;
+  height: 32px;
+  background: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  border-radius: 4px; 
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 100%;
+  color: #374151;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5l3 3 3-3' stroke='%23374151' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
+  cursor: pointer;
+}
+
+.size-select {
+  width: 80px;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 24px; /* ปรับให้สูงขึ้น */
+  background: #D1D5DB;
+  margin: 0 4px;
+}
+
+.toolbar-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px; 
+  height: 28px;
+  background: none;
+  border: 1px solid transparent; 
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #737373;
+  /* color: #5873F8; ใช้สีหลักของระบบ */
+}
+
+.toolbar-btn:hover {
+  background-color: #F3F4F6;
+  border-color: #E5E7EB;
+  color: #3B82F6;
+}
+
+.toolbar-btn.active {
+  background: #5873F8;
+  border-color: #5873F8;
+  color: #FFFFFF;
+}
+
+.toolbar-btn i {
+  font-size: 14px;
+}
+
+/* 3. Editor Content (DIV contenteditable) */
+.rich-editor {
+  /* ⚠️ NOTE: เปลี่ยนจาก .editor-content เป็น .rich-editor (เหมือนใน ticket-create) */
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 120px; 
+  border: none;
+  padding: 12px;
+  background-color: #ffffff;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-size: 14px;
+  color: #374151;
+  outline: none;
+  overflow-y: auto;
+  line-height: 1.5;
+  resize: vertical; 
+}
+
+/* Placeholder for rich-editor (DIV) */
+.rich-editor:empty:not(:focus)::before {
+  content: attr(placeholder);
+  color: #9CA3AF;
+  pointer-events: none;
+  display: block;
+}
+
+/* ⚠️ NOTE: ลบ .editor-content style เก่าออก */
+
+/* 4. Editor Footer (เดิม) */
+.editor-footer {
+  border-top: 1px solid #E5E7EB; 
+  border-radius: 0 0 8px 8px;
+}
+
+/* ===== ⚠️ DEPRECATED/OLD STYLES (ลบออกหรือแทนที่) ===== */
+
+/* ⚠️ ลบ .text-editor ที่เคยใช้กับ fieldset ออก และใช้ .rich-text-editor-container แทน */
+/* .text-editor { */
+  /* DEPRECATED - ใช้ .rich-text-editor-container แทน */
+  /* border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #FFFFFF; */
+/* } */
+
+
+/* ===== ATTACHMENTS SECTION ===== */
+
+/* Attachment Container - Horizontal Layout */
+.attachment-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #FFFFFF;  /* ✅ เปลี่ยนจาก #FAFAFA เป็นสีขาวเหมือน form อื่นๆ */
+  border: 1px solid #D1D5DB;  /* ✅ ใช้สีเส้นขอบเดียวกับ form controls */
+  border-radius: 8px;
+  min-height: 120px;
+}
+
+/* ✅ ปรับให้ไฟล์เก่าใน app-file-list มีขนาดเท่ากับไฟล์ใหม่ */
+app-file-list .attachment-item,
+app-file-list .attachment-preview,
+app-file-list img {
+  width: 120px !important;
+  height: 120px !important;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* ✅ เพิ่มปุ่มลบไฟล์เก่าให้สไตล์เหมือนกัน */
+app-file-list .remove-attachment-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(220, 53, 69, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+app-file-list .attachment-item:hover .remove-attachment-btn {
+  opacity: 1;
+}
+
+app-file-list .remove-attachment-btn:hover {
+  background: #DC3545;
+  transform: scale(1.1);
+}
+
+/* Attachment Card */
+.attachment-card {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.attachment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.attachment-card.new {
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+/* Remove Button */
+.remove-attachment-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(220, 53, 69, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.attachment-card:hover .remove-attachment-btn {
+  opacity: 1;
+}
+
+.remove-attachment-btn:hover {
+  background: #DC3545;
+  transform: scale(1.1);
+}
+
+.remove-attachment-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.remove-attachment-btn i {
+  font-size: 14px;
+}
+
+/* Attachment Preview */
+.attachment-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #FFFFFF;  /* ✅ เปลี่ยนจาก #F5F5F5 เป็นสีขาวเหมือน form อื่นๆ */
+  overflow: hidden;
+}
+
+.attachment-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+}
+
+.attachment-icon-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #FFFFFF;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.attachment-icon {
+  font-size: 48px;
+  color: #6c757d;
+}
+
+/* File Type Specific Colors */
+.bi-file-earmark-pdf-fill { color: #DC3545; }
+.bi-file-earmark-word-fill { color: #2B579A; }
+.bi-file-earmark-excel-fill { color: #217346; }
+.bi-file-earmark-text-fill { color: #6c757d; }
+.bi-file-earmark-zip-fill { color: #FFA500; }
+.bi-image-fill { color: #6f42c1; }
+
+.file-type-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Upload Card */
+.attachment-upload-card {
+  width: 120px;
+  height: 120px;
+  border: 2px dashed #3B82F6;
+  border-radius: 8px;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.attachment-upload-card:hover:not(.disabled) {
+  background: #F0F7FF;
+  border-color: #2563EB;
+}
+
+.attachment-upload-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #D1D5DB;
+}
+
+.upload-icon {
+  font-size: 28px;
+  color: #3B82F6;
+}
+
+.attachment-upload-card.disabled .upload-icon {
+  color: #9CA3AF;
+}
+
+.upload-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #3B82F6;
+}
+
+.attachment-upload-card.disabled .upload-label {
+  color: #9CA3AF;
+}
+
+/* ===== FORM ACTIONS ===== */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #D1D5DB;  /* ✅ ใช้สีเดียวกับเส้นขอบ form controls */
+  gap: 12px;
+}
+
+.save-btn {
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  border: 1px solid #3B82F6;
+  background: #3B82F6;
+  color: #FFFFFF;
+  min-width: 80px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-btn:hover:not(.disabled):not(.loading) {
+  background: #2563EB;
+  border-color: #2563EB;
+}
+
+.save-btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #9CA3AF;
+  border-color: #9CA3AF;
+}
+
+.save-btn.loading {
+  cursor: wait;
+  background: #3B82F6;
+  border-color: #3B82F6;
+}
+
+/* ===== ALERT IMPROVEMENTS ===== */
+
+.alert {
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+}
+
+.alert-danger {
+  background: #FEF2F2;
+  color: #B91C1C;
+  border-color: #FECACA;
+}
+
+.alert-success {
+  background: #F0FDF4;
+  color: #166534;
+  border-color: #BBF7D0;
+}
+
+.alert-warning {
+  background: #FFFBEB;
+  color: #92400E;
+  border-color: #FDE68A;
+}
+
+.alert i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* ===== WIDTH CLASSES ===== */
+
+.width-172 { width: 172px; }
+.width-171 { width: 171px; }
+.width-226 { width: 226px; }
+.width-363 { width: 363px; }
+.width-364 { width: 364px; }
+
+/* ===== LOADING STATES ===== */
+
+.spinner-border-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+/* ... (existing styles) ... */
+
+/* ===== ✅ UPDATED: Disabled States & RBAC Styles (with !important) ===== */
+
+/* 1. Form Controls (Inputs, Selects, Textareas, Buttons) */
+/* ใช้ !important เพื่อบังคับใช้ทับสไตล์เดิมของ form control */
+.form-control[disabled],
+.form-control:disabled,
+.form-select[disabled],
+.form-select:disabled,
+/* ⚠️ ลบ .editor-content[disabled] ออก เพราะใช้ .rich-editor แทน */
+.toolbar-btn[disabled],
+.toolbar-btn:disabled,
+.toolbar-select[disabled],
+.toolbar-select:disabled,
+.input-duedate[disabled],
+.input-duedate:disabled,
+.remove-attachment-btn[disabled],
+.remove-attachment-btn:disabled,
+input[disabled],
+input:disabled,
+select[disabled],
+select:disabled,
+textarea[disabled],
+textarea:disabled,
+button[disabled],
+button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  background-color: #F3F4F6 !important; /* สีพื้นหลังทึบเล็กน้อย */
+  pointer-events: auto !important; /* อนุญาตให้แสดง cursor */
+}
+
+/* ✅ เพิ่ม: สำหรับ label ของ field ที่ disabled */
+.form-group:has(input:disabled) label,
+.form-group:has(select:disabled) label,
+/* ⚠️ ใช้ .rich-text-editor-container.disabled แทน */
+.form-group:has(.rich-text-editor-container.disabled) label {
+  opacity: 0.6;
+}
+
+/* 2. Custom Visual-Only Disabled (เช่น Change Request div) */
+/* อันนี้เป็น div ธรรมดา ต้องใช้ pointer-events: none */
+.disabled-visual {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  background-color: #F3F4F6 !important;
+  pointer-events: auto !important; /* ✅ อนุญาตให้แสดง cursor */
+}
+
+/* ✅ เพิ่ม: ป้องกันการเลือกข้อความใน disabled-visual */
+.disabled-visual * {
+  pointer-events: none !important;
+}
+
+/* 3. Custom Upload Area Disabled */
+/* พื้นที่อัปโหลด (div, app-file-list) ไม่ใช่ form control แท้
+  จึงต้องใช้ pointer-events: none เพื่อหยุดการคลิกและ drag/drop 
+*/
+.disabled-upload,
+.disabled-upload app-file-list,
+.disabled-upload .attachment-upload-card,
+.attachment-upload-card.disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  background-color: #F3F4F6 !important; /* ✅ เพิ่ม: สีเทาอ่อนเหมือน disabled อื่นๆ */
+  pointer-events: none !important; /* ✅ สำคัญ: หยุดการคลิก, drop, hover */
+}
+
+/* ✅ เพิ่ม: ให้ทั้ง attachment container แสดง cursor not-allowed */
+.attachment-container.disabled-upload {
+  cursor: not-allowed !important;
+  background-color: #F3F4F6 !important; /* ✅ เพิ่ม: สีเทาอ่อนเหมือน disabled อื่นๆ */
+}
+
+.attachment-container.disabled-upload * {
+  cursor: not-allowed !important;
+}
+
+/* 4. ทำให้ปุ่มลบไฟล์ (ของเก่า) หายไปเมื่อ disabled */
+.disabled-upload .remove-attachment-btn {
+  display: none !important;
+}
+
+/* 5. ทำให้การ hover ไม่มีผลเมื่อ upload card disabled */
+.attachment-upload-card.disabled:hover {
+  background: #FFFFFF !important;
+  border-color: #D1D5DB !important;
+}
+
+/* ✅ ทำให้ input ดูเหมือนข้อความธรรมดา แต่ยังเป็น input อยู่ */
+.form-control-as-text {
+  border: none !important;
+  background: transparent !important;
+  height: auto !important;
+  cursor: default !important;
+  pointer-events: none; /* ป้องกันผู้ใช้คลิกแก้ แต่ยังอัปเดตค่าในโค้ดได้ */
+  color: #111827; /* สีตัวอักษรหลัก */
+  font-size: 14px;
+  font-weight: 500;
+  width: auto;
+  display: inline;
+}
+
+/* ✅ เพิ่ม: cursor not-allowed สำหรับ input, select, textarea ที่ disabled */
+.form-control:disabled,
+.form-control[disabled],
+.form-select:disabled,
+.form-select[disabled],
+textarea:disabled,
+textarea[disabled],
+input:disabled,
+input[disabled],
+select:disabled,
+select[disabled] {
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+/* ✅ เพิ่ม: cursor not-allowed สำหรับ form-group ที่มี disabled field */
+.form-group:has(input:disabled),
+.form-group:has(select:disabled),
+.form-group:has(textarea:disabled) {
+  cursor: not-allowed;
+}
+
+/* ✅ เพิ่ม: สำหรับ input-field (Change Request, etc.) */
+.input-field {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  background: #FFFFFF;
+  min-height: 38px;
+}
+
+/* ✅ เพิ่ม: สำหรับ days-display ที่ disabled */
+.input-field.days-display.disabled-visual {
+  background-color: #F3F4F6 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* ซ่อนปุ่มขึ้น/ลงของ number input */
+.form-control-as-text::-webkit-outer-spin-button,
+.form-control-as-text::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ✅ กล่อง Priority แบบ readonly */
+.readonly-box {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  pointer-events: auto !important; /* ✅ อนุญาตให้แสดง cursor */
+  background-color: #F3F4F6 !important;
+  border: 1px solid #d1d5db;        /* เส้นขอบเทาอ่อน */
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+/* ✅ เพิ่ม: ป้องกันการเลือกข้อความใน readonly-box */
+.readonly-box * {
+  pointer-events: none !important;
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 768px) {
+  .support-info-card {
+    padding: 24px;
+    gap: 24px;
+    min-height: auto;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .form-row .form-group {
+    width: 100%;
+  }
+  
+  .divider {
+    display: none;
+  }
+  
+  .search-section {
+    flex-direction: column;
+  }
+  
+  .search-section .form-group {
+    width: 100%;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .save-btn {
+    width: 100%;
+  }
+  
+  /* Responsive for rich editor */
+  .editor-toolbar {
+    height: auto;
+    padding: 8px;
+    gap: 6px;
+  }
+  
+  .toolbar-section {
+    gap: 6px;
+  }
+  
+  .font-select,
+  .size-select {
+    width: 120px;
+    font-size: 12px;
+  }
+  
+  .rich-editor {
+    min-height: 80px;
+  }
+
+  /* Responsive for attachment */
+  .attachment-container {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .attachment-card,
+  .attachment-upload-card {
+    width: 90px;
+    height: 90px;
+  }
+
+  .attachment-icon {
+    font-size: 32px;
+  }
+
+  .remove-attachment-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .remove-attachment-btn i {
+    font-size: 12px;
+  }
+
+  .upload-icon {
+    font-size: 24px;
+  }
+
+  .upload-label {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 576px) {
+  .support-info-card {
+    padding: 20px;
+  }
+  
+  .form-control,
+  .form-select {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .save-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  
+  .editor-toolbar {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .toolbar-section {
+    gap: 4px;
+  }
+  
+  .font-select,
+  .size-select {
+    width: 100px;
+  }
+  
+  .toolbar-separator {
+    height: 20px;
+  }
+  
+  .rich-editor {
+    min-height: 60px;
+    padding: 10px;
+  }
+
+  /* Responsive for attachment */
+  .attachment-container {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .attachment-card,
+  .attachment-upload-card {
+    width: 70px;
+    height: 70px;
+  }
+
+  .attachment-icon {
+    font-size: 24px;
+  }
+
+  .file-type-label {
+    font-size: 8px;
+  }
+
+  .upload-icon {
+    font-size: 20px;
+  }
+
+  .upload-label {
+    font-size: 9px;
+  }
+
+  .remove-attachment-btn {
+    width: 20px;
+    height: 20px;
+    top: 4px;
+    right: 4px;
+  }
+
+  .remove-attachment-btn i {
+    font-size: 10px;
+  }
+}

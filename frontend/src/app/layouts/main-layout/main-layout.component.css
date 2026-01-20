@@ -1,0 +1,311 @@
+.main-layout {
+  min-height: 100vh;
+  background-color: #F5F5F9;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Main Content Area - ปรับให้สอดคล้องกับ header */
+.main-content {
+  margin-left: 250px; /* เปลี่ยนจาก 250px เป็น 267px */
+  margin-top: 70px;
+  min-height: calc(100vh - 70px);
+  background-color: #F5F5F9;
+  transition: margin-left 0.3s ease;
+  position: relative;
+}
+
+.content-wrapper {
+  padding: 2rem;
+  max-width: none;
+  min-height: calc(100vh - 70px - 4rem);
+  animation: fadeIn 0.3s ease-in;
+  background-color: #F5F5F9;
+  margin: 0;
+}
+
+/* Animation for content loading */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.mobile-overlay.show {
+  display: block;
+  opacity: 1;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Layout States */
+.main-layout.sidebar-collapsed .main-content {
+  margin-left: 0;
+}
+
+.main-layout.fullscreen .main-content {
+  margin-left: 0;
+  margin-top: 0;
+}
+
+/* Content Loading States */
+.content-wrapper.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.content-wrapper.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(245, 245, 249, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-wrapper.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #6c5ce7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1001;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Scrollbar Styling for Content */
+.content-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content-wrapper::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb {
+  background: #e9ecef;
+  border-radius: 4px;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #dee2e6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    margin-top: 70px;
+    background-color: #F5F5F9;
+  }
+  
+  .content-wrapper {
+    padding: 1rem;
+    min-height: calc(100vh - 70px - 2rem);
+    background-color: #F5F5F9;
+  }
+  
+  .mobile-overlay.show {
+    display: block;
+  }
+}
+
+@media (max-width: 576px) {
+  .content-wrapper {
+    padding: 0.75rem;
+    min-height: calc(100vh - 70px - 1.5rem);
+    background-color: #F5F5F9;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-wrapper {
+    padding: 0.5rem;
+    min-height: calc(100vh - 70px - 1rem);
+    background-color: #F5F5F9;
+  }
+}
+
+/* Tablet Portrait */
+@media (max-width: 1024px) and (orientation: portrait) {
+  .content-wrapper {
+    padding: 1.5rem;
+    background-color: #F5F5F9;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1400px) {
+  .content-wrapper {
+    padding: 2.5rem;
+    max-width: none;
+    margin: 0;
+    background-color: #F5F5F9;
+  }
+}
+
+/* Body scroll lock when mobile menu is open */
+:global(body.mobile-menu-open) {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Print Styles */
+@media print {
+  .main-content {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    background-color: #ffffff !important;
+  }
+  
+  .content-wrapper {
+    padding: 0 !important;
+    background-color: #ffffff !important;
+  }
+  
+  .mobile-overlay {
+    display: none !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .main-layout {
+    background-color: #ffffff;
+  }
+  
+  .main-content {
+    background-color: #ffffff;
+  }
+  
+  .mobile-overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .main-content,
+  .content-wrapper,
+  .mobile-overlay {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Focus Management */
+.main-layout:focus-within .content-wrapper {
+  outline: none;
+}
+
+/* Safe Area for iOS devices with notch */
+@supports(padding: max(0px)) {
+  .content-wrapper {
+    padding-left: max(2rem, env(safe-area-inset-left));
+    padding-right: max(2rem, env(safe-area-inset-right));
+  }
+  
+  @media (max-width: 768px) {
+    .content-wrapper {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
+  }
+}
+
+/* New Background Theme Specific Enhancements */
+.main-layout {
+  border: none;
+}
+
+.main-content {
+  box-shadow: none;
+}
+
+.content-wrapper {
+  border-radius: 0;
+}
+
+/* ===== NEW TICKET PAGE FIXES ===== */
+/* Fix for New Ticket Page */
+.main-layout .main-content {
+  background-color: #F5F5F9;
+  margin-left: 250px; /* อัพเดทให้ตรงกับ header */
+  margin-top: 70px;
+  min-height: calc(100vh - 70px);
+  transition: margin-left 0.3s ease;
+  position: relative;
+  padding: 0;
+}
+
+.main-layout .content-wrapper {
+  padding: 2rem;
+  max-width: none;
+  min-height: calc(100vh - 70px - 4rem);
+  animation: fadeIn 0.3s ease-in;
+  background-color: #F5F5F9;
+  margin: 0;
+}
+
+/* Specific fix for ticket create page */
+.main-layout app-ticket-create .content-wrapper {
+  padding: 2rem !important;
+  background-color: #F5F5F9 !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* For large screens, remove the centering (Updated) */
+@media (min-width: 1400px) {
+  .main-layout .content-wrapper {
+    padding: 2.5rem;
+    max-width: none;
+    margin: 0;
+    background-color: #F5F5F9;
+  }
+}

@@ -1,0 +1,474 @@
+<div class="breadcrumb">
+  <span class="breadcrumb-item inactive">{{ languageService.translate('userAccount.breadcrumb') }}</span>
+  <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M6.5 3L11 8l-4.5 5" />
+  </svg>
+  <span class="breadcrumb-item active">{{ languageService.translate('userAccount.title') }}</span>
+</div>
+
+<div class="search-filter-section">
+  <div class="search-filters">
+    <div class="search-box">
+      <label class="search-label">{{ languageService.translate('common.search') }}</label>
+      <div class="search-input">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M8.11 1C12.59 1 16.22 4.63 16.22 9.11C16.22 10.81 15.63 12.37 14.65 13.62L17.76 16.73L16.35 18.14L13.24 15.03C11.99 16.01 10.43 16.6 8.73 16.6C4.25 16.6 0.62 12.97 0.62 8.49C0.62 4.01 4.25 0.38 8.73 0.38" stroke="currentColor" stroke-width="1.5" />
+        </svg>
+        <input type="text" [placeholder]="languageService.translate('userAccount.searchPlaceholder')" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+      </div>
+    </div>
+  </div>
+
+  <button class="create-button" (click)="onCreateNewUser()" *ngIf="canCreateUser()">
+    <svg class="create-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+    </svg>
+    {{ languageService.translate('userAccount.createButton') }}
+  </button>
+
+  <div class="permission-denied" *ngIf="!canCreateUser()">
+    <svg class="warning-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+    </svg>
+    <span>{{ languageService.translate('userAccount.permissionDenied') }}</span>
+  </div>
+</div>
+
+<div class="stats-section" *ngIf="!isLoading">
+  <div class="stat-card">
+    <div class="stat-number">{{ getStatsDisplay().total }}</div>
+    <div class="stat-label">{{ languageService.translate('userAccount.stats.total') }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ getStatsDisplay().active }}</div>
+    <div class="stat-label">{{ languageService.translate('userAccount.stats.active') }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ getStatsDisplay().inactive }}</div>
+    <div class="stat-label">{{ languageService.translate('userAccount.stats.inactive') }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ getStatsDisplay().newThisMonth }}</div>
+    <div class="stat-label">{{ languageService.translate('userAccount.stats.newThisMonth') }}</div>
+  </div>
+</div>
+
+<div class="user-table-container">
+  <div class="table-loading" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>{{ languageService.translate('common.loading') }}</p>
+  </div>
+
+  <div class="error-state" *ngIf="hasError && !isLoading">
+    <div class="error-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="#DC3545">
+        <path d="M16 3L3 16l13 13 13-13L16 3zm0 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm2-6h-4v-8h4v8z"/>
+      </svg>
+    </div>
+    <h3 style="margin-bottom: 8px; color: #DC3545;">{{ languageService.translate('common.error') }}</h3>
+    <p style="color: #6C757D;">{{ errorMessage }}</p>
+    <button class="retry-button" (click)="refreshData()">{{ languageService.translate('tickets.tryAgain') }}</button>
+  </div>
+
+  <table class="user-table" *ngIf="!isLoading && !hasError">
+    <thead class="table-header">
+      <tr>
+        <th>{{ languageService.translate('userAccount.table.no') }}</th>
+        <th>{{ languageService.translate('userAccount.table.user') }}</th>
+        <th>{{ languageService.translate('userAccount.table.company') }}</th>
+        <th>{{ languageService.translate('userAccount.table.phone') }}</th>
+        <th>{{ languageService.translate('userAccount.table.roles') }}</th>
+        <th>{{ languageService.translate('userAccount.table.actions') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="table-row" *ngFor="let user of filteredUsers; trackBy: trackByUserId; let i = index">
+        <td class="table-cell">
+          <div class="user-number">{{ i + 1 }}</div>
+        </td>
+        <td class="table-cell">
+          <div class="user-info-cell">
+            <div class="user-avatar" [style.background-color]="'#5873F8'">
+              {{ getUserInitial(user) }}
+            </div>
+            <div class="user-details">
+              <div class="user-name">{{ getUserDisplayName(user) }}</div>
+              <div class="user-email">
+                <a [href]="'mailto:' + (user.user_email || '')" class="email-link">{{ user.user_email || 'No email' }}</a>
+              </div>
+              <div class="user-username" *ngIf="user.username">
+                <span class="username-badge">{{ user.username }}</span>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="table-cell">
+          <div class="company-info">
+            <div class="company-name">{{ user.company || 'No company' }}</div>
+            <div class="company-address">{{ user.company_address || 'No address provided' }}</div>
+          </div>
+        </td>
+        <td class="table-cell">
+          <div class="phone-info">
+            <div class="user-phone" *ngIf="user.user_phone">
+              <span class="phone-label">User:</span>
+              <a [href]="'tel:' + user.user_phone" class="phone-link">{{ user.user_phone }}</a>
+            </div>
+            <div class="company-phone" *ngIf="user.company_phone">
+              <span class="phone-label">Company:</span>
+              <a [href]="'tel:' + user.company_phone" class="phone-link">{{ user.company_phone }}</a>
+            </div>
+            <div class="no-phone" *ngIf="!user.user_phone && !user.company_phone">
+              No phone provided
+            </div>
+          </div>
+        </td>
+        <td class="table-cell">
+          <div class="user-roles">
+            <div class="roles-badges" *ngIf="getUserImportantRoles(user).length > 0">
+              <span *ngFor="let role of getUserImportantRoles(user)" 
+                    class="role-badge" 
+                    [class]="'role-badge-' + role.type">
+                {{ languageService.translate('roles.' + role.type) }}
+              </span>
+            </div>
+            <div class="no-roles" *ngIf="getUserImportantRoles(user).length === 0">
+              {{ languageService.translate('userAccount.form.noRoles') }}
+            </div>
+          </div>
+        </td>
+        <td class="table-cell">
+          <div class="action-buttons">
+            <button class="action-button edit-button" (click)="onEditUser(getUserId(user))" *ngIf="hasValidId(user) && canEditUser(user)" [disabled]="isLoading">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                <path d="M11.5 2.5a1.5 1.5 0 0 0-2.12 0L3 8.88V12h3.12l6.38-6.38a1.5 1.5 0 0 0 0-2.12l-1-1z" />
+              </svg>
+              {{ languageService.translate('common.edit') }}
+            </button>
+            <button class="action-button delete-button" (click)="onDeleteUser(getUserId(user))" *ngIf="hasValidId(user) && canDeleteUser(user)" [disabled]="isLoading">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                <path d="M5.5 1a.5.5 0 0 0-.5.5v.5h4v-.5a.5.5 0 0 0-.5-.5h-3zM3 3v9a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3H3z" />
+              </svg>
+              {{ languageService.translate('common.delete') }}
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="empty-state" *ngIf="filteredUsers.length === 0 && !isLoading && !hasError">
+    <div class="empty-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="#ADB5BD">
+        <path d="M16 4C9.373 4 4 9.373 4 16s5.373 12 12 12 12-5.373 12-12S22.627 4 16 4zm0 18c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z" />
+      </svg>
+    </div>
+    <h3 style="margin-bottom: 8px; color: #495057;">{{ languageService.translate('userAccount.table.noData') }}</h3>
+    <p style="color: #6C757D;">{{ searchTerm ? languageService.translate('userAccount.table.noDataDesc') : languageService.translate('common.noData') }}</p>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="isCreateModalVisible" (click)="onBackdropClick()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ languageService.translate('userAccount.form.createTitle') }}</h2>
+      <button class="close-button" (click)="onModalClose()" type="button" [disabled]="isSubmitting">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z"/>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="modal-body">
+        <div class="form-section">
+          <div class="form-group full-width">
+            <label class="form-label" for="username">
+              {{ languageService.translate('userAccount.form.username') }} <span class="required">*</span>
+            </label>
+            <input id="username" type="text" class="form-input" formControlName="username" [placeholder]="languageService.translate('userAccount.form.username')" [class.error]="isFieldInvalid('username')" [disabled]="isSubmitting" autocomplete="username" />
+            <div class="error-message" *ngIf="isFieldInvalid('username')">
+              {{ getFieldError('username') }}
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="password">
+              {{ languageService.translate('userAccount.form.password') }} <span class="required">*</span>
+            </label>
+            <input id="password" type="password" class="form-input" formControlName="password" [placeholder]="languageService.translate('userAccount.form.password')" [class.error]="isFieldInvalid('password')" [disabled]="isSubmitting" autocomplete="new-password" />
+            <div class="error-message" *ngIf="isFieldInvalid('password')">
+              {{ getFieldError('password') }}
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="confirmPassword">
+              {{ languageService.translate('userAccount.form.confirmPassword') }} <span class="required">*</span>
+            </label>
+            <input id="confirmPassword" type="password" class="form-input" formControlName="confirmPassword" [placeholder]="languageService.translate('userAccount.form.confirmPassword')" [class.error]="isFieldInvalid('confirmPassword')" [disabled]="isSubmitting" autocomplete="new-password" />
+            <div class="error-message" *ngIf="isFieldInvalid('confirmPassword')">
+              {{ getFieldError('confirmPassword') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-section">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="firstname">
+                {{ languageService.translate('userAccount.form.firstname') }} <span class="required">*</span>
+              </label>
+              <input id="firstname" type="text" class="form-input" formControlName="firstname" [placeholder]="languageService.translate('userAccount.form.firstname')" [class.error]="isFieldInvalid('firstname')" [disabled]="isSubmitting" autocomplete="given-name" />
+              <div class="error-message" *ngIf="isFieldInvalid('firstname')">
+                {{ getFieldError('firstname') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="lastname">
+                {{ languageService.translate('userAccount.form.lastname') }} <span class="required">*</span>
+              </label>
+              <input id="lastname" type="text" class="form-input" formControlName="lastname" [placeholder]="languageService.translate('userAccount.form.lastname')" [class.error]="isFieldInvalid('lastname')" [disabled]="isSubmitting" autocomplete="family-name" />
+              <div class="error-message" *ngIf="isFieldInvalid('lastname')">
+                {{ getFieldError('lastname') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="email">
+                {{ languageService.translate('userAccount.form.email') }} <span class="required">*</span>
+              </label>
+              <input id="email" type="email" class="form-input" formControlName="email" [placeholder]="languageService.translate('userAccount.form.email')" [class.error]="isFieldInvalid('email')" [disabled]="isSubmitting" autocomplete="email" />
+              <div class="error-message" *ngIf="isFieldInvalid('email')">
+                {{ getFieldError('email') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="phone">
+                {{ languageService.translate('userAccount.form.phone') }} <span class="required">*</span>
+              </label>
+              <input id="phone" type="tel" class="form-input" formControlName="phone" [placeholder]="languageService.translate('userAccount.form.phone')" [class.error]="isFieldInvalid('phone')" [disabled]="isSubmitting" autocomplete="tel" />
+              <div class="error-message" *ngIf="isFieldInvalid('phone')">
+                {{ getFieldError('phone') }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-section">
+          <div class="form-group full-width">
+            <label class="form-label">
+              {{ languageService.translate('userAccount.form.roles') }} <span class="required">*</span>
+            </label>
+            <div class="roles-container">
+              <div class="role-checkbox" *ngFor="let role of availableRoles; trackBy: trackRoleById">
+                <label class="checkbox-label">
+                  <input type="checkbox" [checked]="isRoleSelected(role.id)" (change)="toggleRoleSelection(role.id)" class="checkbox-input" [disabled]="isSubmitting" />
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-text">{{ role.name }}</span>
+                </label>
+              </div>
+              <div *ngIf="availableRoles.length === 0" style="color: #6C757D; font-style: italic;">
+                {{ languageService.translate('userAccount.form.noRoles') }}
+              </div>
+            </div>
+            <div class="selected-roles-preview">
+              <span class="preview-label">{{ languageService.translate('userAccount.form.selected') }}</span>
+              <span class="preview-text">{{ getSelectedRoleNames() }}</span>
+            </div>
+            <div class="error-message" *ngIf="isFieldInvalid('role_id')">
+              {{ getFieldError('role_id') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="onModalClose()" [disabled]="isSubmitting">
+          {{ languageService.translate('userAccount.form.cancel') }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || isSubmitting">
+          <span *ngIf="isSubmitting" class="loading-spinner"></span>
+          {{ isSubmitting ? languageService.translate('userAccount.form.creating') : languageService.translate('userAccount.form.create') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="isEditModalVisible" (click)="onEditBackdropClick()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ languageService.translate('userAccount.form.editTitle') }}</h2>
+      <button class="close-button" (click)="onEditModalClose()" type="button" [disabled]="isSubmitting">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z"/>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="editForm" (ngSubmit)="onEditSubmit()" novalidate>
+      <div class="modal-body">
+        <div class="form-section">
+          <div class="form-group full-width">
+            <label class="form-label" for="editUsername">
+              {{ languageService.translate('userAccount.form.username') }} <span class="required">*</span>
+            </label>
+            <input id="editUsername" type="text" class="form-input" formControlName="username" [placeholder]="languageService.translate('userAccount.form.username')" [class.error]="isFieldInvalid('username', editForm)" [disabled]="isSubmitting" autocomplete="username" />
+            <div class="error-message" *ngIf="isFieldInvalid('username', editForm)">
+              {{ getFieldError('username', editForm) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-section">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="editFirstname">
+                {{ languageService.translate('userAccount.form.firstname') }} <span class="required">*</span>
+              </label>
+              <input id="editFirstname" type="text" class="form-input" formControlName="firstname" [placeholder]="languageService.translate('userAccount.form.firstname')" [class.error]="isFieldInvalid('firstname', editForm)" [disabled]="isSubmitting" autocomplete="given-name" />
+              <div class="error-message" *ngIf="isFieldInvalid('firstname', editForm)">
+                {{ getFieldError('firstname', editForm) }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editLastname">
+                {{ languageService.translate('userAccount.form.lastname') }} <span class="required">*</span>
+              </label>
+              <input id="editLastname" type="text" class="form-input" formControlName="lastname" [placeholder]="languageService.translate('userAccount.form.lastname')" [class.error]="isFieldInvalid('lastname', editForm)" [disabled]="isSubmitting" autocomplete="family-name" />
+              <div class="error-message" *ngIf="isFieldInvalid('lastname', editForm)">
+                {{ getFieldError('lastname', editForm) }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editEmail">
+                {{ languageService.translate('userAccount.form.email') }} <span class="required">*</span>
+              </label>
+              <input id="editEmail" type="email" class="form-input" formControlName="email" [placeholder]="languageService.translate('userAccount.form.email')" [class.error]="isFieldInvalid('email', editForm)" [disabled]="isSubmitting" autocomplete="email" />
+              <div class="error-message" *ngIf="isFieldInvalid('email', editForm)">
+                {{ getFieldError('email', editForm) }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editPhone">
+                {{ languageService.translate('userAccount.form.phone') }} <span class="required">*</span>
+              </label>
+              <input id="editPhone" type="tel" class="form-input" formControlName="phone" [placeholder]="languageService.translate('userAccount.form.phone')" [class.error]="isFieldInvalid('phone', editForm)" [disabled]="isSubmitting" autocomplete="tel" />
+              <div class="error-message" *ngIf="isFieldInvalid('phone', editForm)">
+                {{ getFieldError('phone', editForm) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-section">
+          <div class="form-group full-width">
+            <label class="form-label">
+              {{ languageService.translate('userAccount.form.roles') }} <span class="required">*</span>
+            </label>
+            <div class="roles-container">
+              <div class="role-checkbox" *ngFor="let role of availableRoles; trackBy: trackRoleById">
+                <label class="checkbox-label">
+                  <input type="checkbox" [checked]="isRoleSelected(role.id, editForm)" (change)="toggleRoleSelection(role.id, editForm)" class="checkbox-input" [disabled]="isSubmitting" />
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-text">{{ role.name }}</span>
+                </label>
+              </div>
+              <div *ngIf="availableRoles.length === 0" style="color: #6C757D; font-style: italic;">
+                {{ languageService.translate('userAccount.form.noRoles') }}
+              </div>
+            </div>
+            <div class="selected-roles-preview">
+              <span class="preview-label">{{ languageService.translate('userAccount.form.selected') }}</span>
+              <span class="preview-text">{{ getSelectedRoleNames(editForm) }}</span>
+            </div>
+            <div class="error-message" *ngIf="isFieldInvalid('role_id', editForm)">
+              {{ getFieldError('role_id', editForm) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-section">
+          <div class="password-group">
+            <div class="password-header">
+              <label class="form-label">{{ languageService.translate('userAccount.form.changePassword') }}</label>
+              <small class="password-help">{{ languageService.translate('userAccount.form.changePasswordHint') }}</small>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="editNewPassword">
+                  {{ languageService.translate('userAccount.form.newPassword') }}
+                </label>
+                <input id="editNewPassword" type="password" class="form-input" formControlName="newPassword" [placeholder]="languageService.translate('userAccount.form.newPassword')" [class.error]="isFieldInvalid('newPassword', editForm)" [disabled]="isSubmitting" autocomplete="new-password" />
+                <div class="error-message" *ngIf="isFieldInvalid('newPassword', editForm)">
+                  {{ getFieldError('newPassword', editForm) }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="editConfirmPassword">
+                  {{ languageService.translate('userAccount.form.confirmNewPassword') }}
+                </label>
+                <input id="editConfirmPassword" type="password" class="form-input" formControlName="confirmPassword" [placeholder]="languageService.translate('userAccount.form.confirmNewPassword')" [class.error]="isFieldInvalid('confirmPassword', editForm)" [disabled]="isSubmitting" autocomplete="new-password" />
+                <div class="error-message" *ngIf="isFieldInvalid('confirmPassword', editForm)">
+                  {{ getFieldError('confirmPassword', editForm) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="onEditModalClose()" [disabled]="isSubmitting">
+          {{ languageService.translate('userAccount.form.cancel') }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isSubmitting">
+          <span *ngIf="isSubmitting" class="loading-spinner"></span>
+          {{ isSubmitting ? languageService.translate('userAccount.form.updating') : languageService.translate('userAccount.form.update') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<button class="refresh-button" (click)="refreshData()" [title]="languageService.translate('common.refresh')" [disabled]="isLoading">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
+    <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
+  </svg>
+</button>
+
+<div class="notification" *ngIf="notification" [class]="'notification-' + notification.type">
+  <div class="notification-content">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="notification-icon">
+      <path *ngIf="notification.type === 'success'" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm3.78-9.72a.75.75 0 0 0-1.06-1.06L6.75 9.19 5.28 7.72a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l4.5-4.5z"/>
+      <path *ngIf="notification.type === 'error'" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+      <path *ngIf="notification.type === 'warning'" d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+      <path *ngIf="notification.type === 'info'" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+    </svg>
+    <span>{{ notification.message }}</span>
+    <button class="notification-close" (click)="clearNotification()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+        <path d="M.293.293a1 1 0 0 1 1.414 0L6 4.586 10.293.293a1 1 0 1 1 1.414 1.414L7.414 6l4.293 4.293a1 1 0 0 1-1.414 1.414L6 7.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L5.586 6 1.293 1.707a1 1 0 0 1 0-1.414z"/>
+      </svg>
+    </button>
+  </div>
+</div>

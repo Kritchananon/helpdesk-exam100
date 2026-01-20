@@ -1,0 +1,70 @@
+<!-- file-list.component.html -->
+<div class="attachments-section">
+  <div *ngIf="showTitle" class="attachment-label">
+    <i class="bi bi-paperclip me-1"></i>
+    {{ title }}
+    <small class="text-muted">({{ attachmentsWithInfo?.length || 0 }} files)</small>
+  </div>
+
+  <div class="attachment-grid">
+    <!-- ✅ Loop attachmentsWithInfo แทน attachments -->
+    <div *ngFor="let item of attachmentsWithInfo; let i = index" class="attachment-item"
+      [class.loading]="item.isLoading" (click)="!item.isLoading && onFileClick(item)">
+
+      <!-- ปุ่มลบไฟล์ -->
+      <button type="button" 
+              class="remove-attachment-btn" 
+              *ngIf="allowDelete"
+              (click)="onDeleteClick(item, $event)" 
+              title="ลบไฟล์นี้">
+        <i class="bi bi-trash"></i>
+      </button>
+
+      <!-- Loading State -->
+      <div class="attachment-loading" *ngIf="item.isLoading">
+        <i class="bi bi-hourglass-split"></i>
+        <div class="loading-text">Analyzing...</div>
+      </div>
+
+      <!-- Image Preview -->
+      <div class="attachment-preview" *ngIf="!item.isLoading && isImage(item)">
+        <img [src]="item.attachment.path" [alt]="getFileName(item)" (error)="onImageError($event, item)"
+          (load)="onImageLoad($event)" loading="lazy"
+          style="max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px;">
+
+        <div class="file-info-overlay">
+          <div class="file-name-small">{{ getFileName(item) }}</div>
+          <div class="file-size" *ngIf="getFileSize(item)">
+            {{ getFileSize(item) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- File Icon -->
+      <div class="attachment-file" *ngIf="!item.isLoading && !isImage(item)">
+        <div class="file-icon-container">
+          <i [class]="getFileIcon(item)" [style.color]="getIconColor(item)"></i>
+        </div>
+
+        <div class="file-details">
+          <div class="file-name" [title]="getFileName(item)">
+            {{ getFileName(item) }}
+          </div>
+
+          <div class="file-meta">
+            <span class="file-type badge" [style.background-color]="getIconColor(item)">
+              {{ getFileExtension(item) }}
+            </span>
+            <span class="file-size" *ngIf="getFileSize(item)">
+              {{ getFileSize(item) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="download-indicator">
+          <i class="bi bi-download"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

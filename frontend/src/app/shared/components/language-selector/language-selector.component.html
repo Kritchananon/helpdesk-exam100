@@ -1,0 +1,110 @@
+<!-- language-selector.component.html -->
+
+<!-- Wrapper with dynamic class based on style -->
+<div [class]="getWrapperClass()" (clickOutside)="onClickOutside($event)" (keydown)="onKeyDown($event)">
+
+  <!-- ===== DROPDOWN STYLE ===== -->
+  <div *ngIf="style === 'dropdown'" class="dropdown">
+    <button 
+      [class]="getButtonClass() + ' dropdown-toggle language-btn'"
+      type="button"
+      [attr.aria-label]="ariaLabel"
+      [attr.aria-expanded]="isDropdownOpen"
+      (click)="toggleDropdown($event)">
+      
+      <!-- Flag -->
+      <span *ngIf="showFlag" class="flag-emoji me-2">
+        {{ getCurrentFlag() }}
+      </span>
+      
+      <!-- Language Name/Code -->
+      <span *ngIf="showLanguageName">
+        {{ currentLanguage === 'th' ? 'ไทย' : 'English' }}
+      </span>
+      <span *ngIf="!showLanguageName">
+        {{ currentLanguage.toUpperCase() }}
+      </span>
+    </button>
+
+    <ul [class]="getDropdownMenuClass()">
+      <li *ngFor="let lang of supportedLanguages">
+        <button 
+          class="dropdown-item"
+          [class.active]="isLanguageSelected(lang.code)"
+          type="button"
+          [attr.aria-label]="getLanguageAriaLabel(lang)"
+          [attr.aria-pressed]="getAriaPressed(lang.code)"
+          (click)="switchLanguage(lang.code, $event)">
+          
+          <!-- Flag -->
+          <span *ngIf="showFlag" class="flag-emoji me-2">
+            {{ lang.flag }}
+          </span>
+          
+          <!-- Language Name -->
+          <span *ngIf="showLanguageName">
+            {{ lang.nativeName }}
+          </span>
+          <span *ngIf="!showLanguageName">
+            {{ lang.code.toUpperCase() }}
+          </span>
+          
+          <!-- Active Indicator -->
+          <i *ngIf="isLanguageSelected(lang.code)" class="bi bi-check2 ms-auto"></i>
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ===== TOGGLE STYLE ===== -->
+  <button 
+    *ngIf="style === 'toggle'"
+    [class]="getButtonClass() + ' language-toggle-btn'"
+    type="button"
+    [attr.aria-label]="getToggleAriaLabel()"
+    (click)="toggleLanguage($event)">
+    
+    <!-- Flag -->
+    <span *ngIf="showFlag" class="flag-emoji me-2">
+      {{ getCurrentFlag() }}
+    </span>
+    
+    <!-- Language Name/Code -->
+    <span *ngIf="showLanguageName">
+      {{ getCurrentLanguageName() }}
+    </span>
+    <span *ngIf="!showLanguageName">
+      {{ currentLanguage.toUpperCase() }}
+    </span>
+    
+    <!-- Toggle Icon -->
+    <i class="bi bi-arrow-left-right ms-2"></i>
+  </button>
+
+  <!-- ===== BUTTON GROUP STYLE ===== -->
+  <div *ngIf="style === 'button-group'" class="btn-group language-btn-group" role="group" [attr.aria-label]="ariaLabel">
+    <button 
+      *ngFor="let lang of supportedLanguages"
+      type="button"
+      [class]="getButtonClass()"
+      [class.active]="isLanguageSelected(lang.code)"
+      [attr.aria-label]="getLanguageAriaLabel(lang)"
+      [attr.aria-pressed]="getAriaPressed(lang.code)"
+      (click)="switchLanguage(lang.code, $event)">
+      
+      <!-- Flag -->
+      <span *ngIf="showFlag" [class.me-2]="showLanguageName">
+        {{ lang.flag }}
+      </span>
+      
+      <!-- Language Name/Code -->
+      <span *ngIf="showLanguageName">
+        {{ lang.nativeName }}
+      </span>
+      <span *ngIf="!showLanguageName">
+        {{ lang.code.toUpperCase() }}
+      </span>
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <title>Support Ticket App</title>
+  <base href="/">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="ระบบจัดการตั๋วซัพพอร์ต สำหรับติดตามและแก้ไขปัญหาอย่างมีประสิทธิภาพ">
+  <meta name="keywords" content="support ticket, helpdesk, customer service, ตั๋วซัพพอร์ต">
+  <meta name="author" content="Support Ticket Team">
+  
+  <meta name="theme-color" content="#0d6efd">
+  <meta name="background-color" content="#ffffff">
+  
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="TicketApp">
+  <meta name="msapplication-TileColor" content="#0d6efd">
+  <meta name="msapplication-config" content="/assets/icons/browserconfig.xml">
+  
+  <link rel="manifest" href="manifest.json">
+  
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16x16.png">
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/icon-57x57.png">
+  
+  <meta name="msapplication-TileImage" content="/assets/icons/icon-144x144.png">
+  <meta name="msapplication-square70x70logo" content="/assets/icons/icon-70x70.png">
+  <meta name="msapplication-square150x150logo" content="/assets/icons/icon-150x150.png">
+  <meta name="msapplication-wide310x150logo" content="/assets/icons/icon-310x150.png">
+  <meta name="msapplication-square310x310logo" content="/assets/icons/icon-310x310.png">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Support Ticket App">
+  <meta property="og:description" content="ระบบจัดการตั๋วซัพพอร์ต สำหรับติดตามและแก้ไขปัญหาอย่างมีประสิทธิภาพ">
+  <meta property="og:image" content="/assets/icons/icon-512x512.png">
+  <meta property="og:url" content="https://your-domain.com">
+  <meta property="og:site_name" content="Support Ticket App">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Support Ticket App">
+  <meta name="twitter:description" content="ระบบจัดการตั๋วซัพพอร์ต สำหรับติดตามและแก้ไขปัญหาอย่างมีประสิทธิภาพ">
+  <meta name="twitter:image" content="/assets/icons/icon-512x512.png">
+  
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  
+  <style>
+    /* Critical CSS for initial loading */
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e3f2fd;
+      border-top: 4px solid #0d6efd;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      margin-top: 16px;
+      color: #6c757d;
+      font-size: 14px;
+    }
+    
+    /* PWA Install Button Styles */
+    .pwa-install-prompt {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0d6efd;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .pwa-install-prompt:hover {
+      background: #0b5ed7;
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    }
+    
+    .pwa-install-prompt.show {
+      display: flex;
+    }
+    
+    .offline-indicator {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #dc3545;
+      color: white;
+      text-align: center;
+      padding: 8px;
+      z-index: 1001;
+      display: none;
+      font-size: 14px;
+    }
+    
+    .offline-indicator.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="initial-loader" class="loading-container">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">กำลังโหลด Support Ticket App...</div>
+  </div>
+  
+  <div id="offline-indicator" class="offline-indicator">
+    <i class="bi bi-wifi-off"></i>
+    คุณออฟไลน์อยู่ - บางฟีเจอร์อาจไม่สามารถใช้งานได้
+  </div>
+  
+  <div id="pwa-install-prompt" class="pwa-install-prompt">
+    <i class="bi bi-download"></i>
+    <span>ติดตั้งแอปเพื่อประสบการณ์ที่ดีขึ้น</span>
+    <button id="install-button" style="background: transparent; border: 1px solid white; color: white; padding: 4px 12px; border-radius: 4px; margin-left: 8px; cursor: pointer;">ติดตั้ง</button>
+    <button id="dismiss-install" style="background: transparent; border: none; color: white; cursor: pointer; margin-left: 4px;">✕</button>
+  </div>
+  
+  <app-root></app-root>
+  
+  <script>
+    // Hide loading screen when app loads
+    document.addEventListener('DOMContentLoaded', function() {
+      const loader = document.getElementById('initial-loader');
+      const appRoot = document.querySelector('app-root');
+      
+      // Check if Angular has loaded
+      const checkAppLoaded = () => {
+        if (appRoot.children.length > 0) {
+          loader.style.display = 'none';
+        } else {
+          setTimeout(checkAppLoaded, 100);
+        }
+      };
+      
+      setTimeout(checkAppLoaded, 1000);
+    });
+    
+    // Network status monitoring
+    function updateOnlineStatus() {
+      const offlineIndicator = document.getElementById('offline-indicator');
+      if (navigator.onLine) {
+        offlineIndicator.classList.remove('show');
+      } else {
+        offlineIndicator.classList.add('show');
+      }
+    }
+    
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus(); // Initial check
+    
+    // PWA Install Prompt
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      const installPrompt = document.getElementById('pwa-install-prompt');
+      const installButton = document.getElementById('install-button');
+      const dismissButton = document.getElementById('dismiss-install');
+      
+      // Don't show if already dismissed
+      if (localStorage.getItem('pwa-install-dismissed') === 'true') {
+        return;
+      }
+      
+      installPrompt.classList.add('show');
+      
+      installButton.addEventListener('click', async () => {
+        installPrompt.classList.remove('show');
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to install prompt: ${outcome}`);
+        deferredPrompt = null;
+      });
+      
+      dismissButton.addEventListener('click', () => {
+        installPrompt.classList.remove('show');
+        localStorage.setItem('pwa-install-dismissed', 'true');
+      });
+    });
+    
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed');
+      const installPrompt = document.getElementById('pwa-install-prompt');
+      installPrompt.classList.remove('show');
+    });
+    
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    
+    // Handle Service Worker updates
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
+    }
+  </script>
+  
+  <noscript>
+    <div style="padding: 20px; text-align: center; background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;">
+      <h3>JavaScript ถูกปิดใช้งาน</h3>
+      <p>แอปนี้ต้องการ JavaScript เพื่อทำงาน กรุณาเปิดใช้งาน JavaScript ในเบราว์เซอร์ของคุณ</p>
+    </div>
+  </noscript>
+</body>
+</html>

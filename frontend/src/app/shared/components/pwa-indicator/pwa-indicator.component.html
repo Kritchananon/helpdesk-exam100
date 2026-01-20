@@ -1,0 +1,277 @@
+<!-- ✅ PWA Floating Action Button (ใช้หน้าตาเก่า) -->
+<div class="pwa-fab" 
+     [class.offline]="!isOnline"
+     [class.has-notifications]="notifications.length > 0"
+     (click)="toggleInfoPanel()"
+     title="PWA Status: {{ isOnline ? 'Online' : 'Offline' }}">
+  
+  <!-- Main FAB Icon -->
+  <div class="fab-icon">
+    <!-- Online Icon -->
+    <i class="bi bi-wifi" *ngIf="isOnline"></i>
+    <!-- Offline Icon -->
+    <i class="bi bi-wifi-off" *ngIf="!isOnline"></i>
+    
+    <!-- Notification Badge -->
+    <span class="notification-badge" *ngIf="notifications.length > 0">
+      {{ notifications.length }}
+    </span>
+  </div>
+  
+  <!-- Status Text (Hidden by default, show on hover) -->
+  <div class="fab-tooltip">
+    <span *ngIf="isOnline">ออนไลน์</span>
+    <span *ngIf="!isOnline">ออฟไลน์</span>
+    <small *ngIf="!isOnline && cacheInfo" class="cache-count">
+      {{ cacheInfo.itemCount }} แคช
+    </small>
+  </div>
+</div>
+
+<!-- ✅ Quick Action Buttons (แสดงเมื่อ hover หรือ click) -->
+<div class="pwa-quick-actions" 
+     *ngIf="isInstallable || hasUpdate"
+     [class.show]="showQuickActions">
+  
+  <!-- Install Button -->
+  <button 
+    class="quick-action-btn install-btn" 
+    *ngIf="isInstallable"
+    (click)="installApp()"
+    title="ติดตั้งแอปบนหน้าจอหลัก">
+    <i class="bi bi-download"></i>
+  </button>
+  
+  <!-- Update Button -->
+  <button 
+    class="quick-action-btn update-btn" 
+    *ngIf="hasUpdate"
+    (click)="updateApp()"
+    title="อัปเดตแอปเป็นเวอร์ชั่นใหม่">
+    <i class="bi bi-arrow-clockwise"></i>
+  </button>
+</div>
+
+<!-- ✅ Notifications Toast (ย้ายไปมุมล่างซ้าย) -->
+<div class="pwa-notifications">
+  <div 
+    class="notification-toast" 
+    *ngFor="let notification of notifications; trackBy: trackNotification"
+    [ngClass]="'toast-' + notification.type">
+    
+    <div class="toast-content">
+      <!-- Icon -->
+      <div class="toast-icon">
+        <i class="bi" [ngClass]="{
+          'bi-wifi-off text-warning': notification.type === 'offline',
+          'bi-wifi text-success': notification.type === 'online',
+          'bi-database text-info': notification.type === 'cache-used',
+          'bi-arrow-clockwise text-primary': notification.type === 'update-available',
+          'bi-exclamation-triangle text-danger': notification.type === 'error' || notification.type === 'sync-failed'
+        }"></i>
+      </div>
+      
+      <!-- Content -->
+      <div class="toast-body">
+        <div class="toast-title">{{ notification.title }}</div>
+        <div class="toast-message">{{ notification.message }}</div>
+        <div class="toast-time">
+          <small class="text-muted">{{ formatTime(notification.timestamp) }}</small>
+        </div>
+        
+        <!-- Metadata from new version -->
+        <div class="notification-metadata" *ngIf="notification.metadata">
+          <small *ngIf="notification.metadata.syncItemsCount">
+            ซิงค์: {{ notification.metadata.syncItemsCount }} รายการ
+          </small>
+          <small *ngIf="notification.metadata.cacheSize">
+            ขนาด: {{ notification.metadata.cacheSize }}
+          </small>
+        </div>
+      </div>
+      
+      <!-- Close Button -->
+      <button 
+        class="btn-close"
+        (click)="dismissNotification(notification.id)"
+        title="ปิดการแจ้งเตือน">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ PWA Info Panel (แสดงเมื่อคลิก FAB) - รวม content ใหม่ -->
+<div class="pwa-info-panel" *ngIf="showInfoPanel" (click)="toggleInfoPanel()">
+  <div class="info-panel-content" (click)="$event.stopPropagation()">
+    <div class="panel-header">
+      <h5>
+        <i class="bi bi-phone me-2"></i>
+        สถานะแอปพลิเคชัน
+      </h5>
+      <button class="btn-close" (click)="toggleInfoPanel()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    
+    <div class="panel-body">
+      <!-- Network Status -->
+      <div class="info-item">
+        <div class="info-label">
+          <i class="bi bi-globe me-2"></i>
+          สถานะเครือข่าย:
+        </div>
+        <div class="info-value">
+          <i class="bi" [ngClass]="isOnline ? 'bi-wifi text-success' : 'bi-wifi-off text-warning'"></i>
+          <span [class]="isOnline ? 'text-success' : 'text-warning'">
+            {{ isOnline ? 'ออนไลน์' : 'ออฟไลน์' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Sync Status (ใหม่) -->
+      <div class="info-item" *ngIf="syncStatus">
+        <div class="info-label">
+          <i class="bi bi-arrow-repeat me-2"></i>
+          สถานะซิงค์:
+        </div>
+        <div class="info-value">
+          <span *ngIf="syncStatus.isSyncing" class="text-primary">
+            <i class="bi bi-arrow-clockwise me-1"></i>กำลังซิงค์...
+          </span>
+          <span *ngIf="!syncStatus.isSyncing && syncStatus.pendingCount > 0" class="text-warning">
+            <i class="bi bi-clock me-1"></i>{{ syncStatus.pendingCount }} รายการรอ
+          </span>
+          <span *ngIf="!syncStatus.isSyncing && syncStatus.pendingCount === 0" class="text-success">
+            <i class="bi bi-check-circle me-1"></i>ซิงค์เรียบร้อย
+          </span>
+        </div>
+      </div>
+
+      <!-- Last Sync Time (ใหม่) -->
+      <div class="info-item" *ngIf="syncStatus?.lastSyncTime && !syncStatus?.isSyncing">
+        <div class="info-label">
+          <i class="bi bi-clock-history me-2"></i>
+          ซิงค์ล่าสุด:
+        </div>
+        <div class="info-value">
+          <small class="text-muted">{{ formatLastSync(syncStatus?.lastSyncTime!) }}</small>
+        </div>
+      </div>
+      
+      <!-- Cache Info -->
+      <div class="info-item" *ngIf="cacheInfo">
+        <div class="info-label">
+          <i class="bi bi-database me-2"></i>
+          ข้อมูลแคช:
+        </div>
+        <div class="info-value">
+          <span class="text-info">
+            {{ cacheInfo.itemCount }} รายการ ({{ formatBytes(cacheInfo.totalSize) }})
+          </span>
+        </div>
+      </div>
+      
+      <!-- PWA Features -->
+      <div class="info-item">
+        <div class="info-label">
+          <i class="bi bi-app me-2"></i>
+          PWA Features:
+        </div>
+        <div class="info-value">
+          <div class="feature-badges">
+            <span class="badge bg-success" *ngIf="isInstallable">
+              <i class="bi bi-download me-1"></i>ติดตั้งได้
+            </span>
+            <span class="badge bg-warning" *ngIf="hasUpdate">
+              <i class="bi bi-arrow-clockwise me-1"></i>มีอัปเดต
+            </span>
+            <span class="badge bg-info" *ngIf="!isOnline">
+              <i class="bi bi-cloud-slash me-1"></i>ออฟไลน์
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Cache Details (รวมจาก version ใหม่) -->
+      <div class="cache-details" *ngIf="cacheInfo && showCacheDetails">
+        <h6 class="cache-details-title">
+          <i class="bi bi-info-circle me-2"></i>
+          รายละเอียดแคช
+        </h6>
+        
+        <div class="cache-item" *ngIf="cacheInfo.tickets">
+          <span class="cache-label">
+            <i class="bi bi-ticket me-1"></i>ตั๋ว:
+          </span>
+          <span class="cache-value">
+            {{ cacheInfo.tickets.dataCount }} รายการ
+            <span [class.cache-stale]="cacheInfo.tickets.isStale">
+              {{ cacheInfo.tickets.isStale ? '(เก่า)' : '(ใหม่)' }}
+            </span>
+          </span>
+        </div>
+        
+        <div class="cache-item" *ngIf="cacheInfo.categories">
+          <span class="cache-label">
+            <i class="bi bi-tags me-1"></i>หมวดหมู่:
+          </span>
+          <span class="cache-value">
+            {{ cacheInfo.categories.dataCount }} รายการ
+          </span>
+        </div>
+        
+        <div class="cache-item" *ngIf="cacheInfo.projects">
+          <span class="cache-label">
+            <i class="bi bi-folder me-1"></i>โครงการ:
+          </span>
+          <span class="cache-value">
+            {{ cacheInfo.projects.dataCount }} รายการ
+          </span>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="panel-actions">
+        <button 
+          class="btn btn-sm btn-success" 
+          *ngIf="isInstallable"
+          (click)="installApp()">
+          <i class="bi bi-download me-2"></i>
+          ติดตั้งแอป
+        </button>
+        
+        <button 
+          class="btn btn-sm btn-warning" 
+          *ngIf="hasUpdate"
+          (click)="updateApp()">
+          <i class="bi bi-arrow-clockwise me-2"></i>
+          อัปเดต
+        </button>
+
+        <button 
+          class="btn btn-sm btn-primary" 
+          (click)="refreshData()"
+          [disabled]="!isOnline || (syncStatus?.isSyncing)"
+          title="รีเฟรชข้อมูล">
+          <i class="bi bi-arrow-clockwise me-2" [class.spinning]="syncStatus?.isSyncing"></i>
+          รีเฟรชข้อมูล
+        </button>
+
+        <button 
+          class="btn btn-sm btn-outline-secondary" 
+          (click)="toggleCacheDetails()">
+          <i class="bi bi-info-circle me-2"></i>
+          {{ showCacheDetails ? 'ซ่อน' : 'แสดง' }}รายละเอียด
+        </button>
+        
+        <button 
+          class="btn btn-sm btn-outline-danger" 
+          (click)="clearAllCache()">
+          <i class="bi bi-trash me-2"></i>
+          ล้างแคช
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

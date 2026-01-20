@@ -1,0 +1,356 @@
+/* sidebar.component.css */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #ffffff;
+  border-right: 1px solid #e9ecef;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 1rem 1rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #ffffff;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #2d3436;
+}
+
+.logo i {
+  font-size: 1.5rem;
+  color: #6c5ce7;
+}
+
+.logo-text {
+  background: linear-gradient(135deg, #6c5ce7 0%, #5a4fcf 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-nav {
+  padding: 1rem 0;
+}
+
+.nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin-bottom: 0.25rem;
+}
+
+/* Regular Nav Links and Buttons */
+.nav-link,
+.nav-link.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #6c757d;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-radius: 0;
+  font-weight: 500;
+  position: relative;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-link:hover,
+.nav-link.dropdown-toggle:hover {
+  background-color: #f8f9fa;
+  color: #6c5ce7;
+  transform: translateX(5px);
+}
+
+/* =========================================
+   UPDATED: Active State Logic
+   ========================================= */
+
+/* 1. Active State สำหรับลิงก์เดี่ยว (Dashboard, New Ticket) */
+.nav-link.active {
+  background: linear-gradient(135deg, #6c5ce7 0%, #5a4fcf 100%);
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(108, 92, 231, 0.3);
+  
+  /* แก้ไข: ปรับเป็นสี่เหลี่ยมผืนผ้า */
+  border-radius: 0 !important;
+  margin-right: 0 !important;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: #ffffff;
+}
+
+/* 2. Active State สำหรับหัวข้อ Dropdown (Parent) */
+.menu-item.active {
+  background-image: none !important;
+  background-color: #f3f0ff !important;
+  color: #6c5ce7 !important;
+  font-weight: 700;
+  
+  /* แก้ไข: ปรับเป็นสี่เหลี่ยมผืนผ้า */
+  border-radius: 0 !important;
+  margin-right: 0 !important;
+  
+  box-shadow: none !important;
+}
+
+.menu-item.active::before {
+  display: none;
+}
+
+.menu-item.active i {
+  color: #6c5ce7 !important;
+}
+
+.nav-link i {
+  width: 20px;
+  font-size: 1.1rem;
+}
+
+/* Menu Section Styles */
+.menu-section {
+  margin-bottom: 0.5rem;
+}
+
+.menu-item {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.menu-item:hover {
+  background-color: #f8f9fa;
+  color: #6c5ce7;
+}
+
+/* Chevron rotation */
+.bi-chevron-down {
+  transition: transform 0.3s ease;
+}
+
+.bi-chevron-down.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Submenu Styles */
+.submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  background-color: #f8f9fa;
+  opacity: 0;
+}
+
+.submenu.show {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.submenu-item {
+  color: #6c757d !important;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.submenu-item:hover {
+  background-color: #e9ecef !important;
+  color: #6c5ce7 !important;
+  border-left-color: #6c5ce7;
+  padding-left: 2.2rem !important;
+}
+
+/* 3. Active State สำหรับลูกเมนู (Child) */
+.submenu-item.active {
+  background: linear-gradient(135deg, #6c5ce7 0%, #5a4fcf 100%) !important;
+  color: #ffffff !important;
+  
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  
+  margin-right: 0;
+}
+
+/* Cursor pointer utility */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 300px;
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.nav-link.active,
+.menu-item.active {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Hover Effects */
+.nav-link:hover i {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+.nav-link.active:hover {
+  transform: translateX(0);
+}
+
+.nav-section-title {
+  padding: 1rem 1.5rem 0.5rem;
+}
+
+.nav-section-title small {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-divider {
+  margin: 1rem 1.5rem;
+  border-color: #e9ecef;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    background-color: #ffffff;
+  }
+  
+  .sidebar.show {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar {
+    width: 280px;
+    background-color: #ffffff;
+  }
+  
+  .nav-link,
+  .menu-item {
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .submenu-item {
+    padding: 0.6rem 1.2rem 0.6rem 2.5rem !important;
+    font-size: 0.85rem;
+  }
+  
+  .logo {
+    font-size: 1rem;
+  }
+  
+  .logo i {
+    font-size: 1.3rem;
+  }
+}
+
+/* Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}
+
+/* Focus States for Accessibility */
+.nav-link:focus,
+.submenu-item:focus,
+.menu-item:focus {
+  outline: none !important; 
+  box-shadow: none !important;
+  background-color: transparent;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .sidebar {
+    border-right: 2px solid #000;
+    background-color: #ffffff;
+  }
+  
+  .nav-link:hover,
+  .submenu-item:hover,
+  .menu-item:hover {
+    background-color: #000;
+    color: #fff;
+  }
+  
+  .nav-link.active,
+  .submenu-item.active,
+  .menu-item.active {
+    background: #000;
+    color: #fff;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .sidebar {
+    display: none;
+  }
+}

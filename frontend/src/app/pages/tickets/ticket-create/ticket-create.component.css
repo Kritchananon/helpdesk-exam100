@@ -1,0 +1,963 @@
+/* Error border สำหรับ dropdown components */
+app-project-dropdown.is-invalid .form-select,
+app-category-dropdown.is-invalid .form-select {
+  border-color: #DC3545 !important;
+}
+
+/* Error border สำหรับ rich text editor */
+.rich-text-editor-container.invalid {
+  border-color: #DC3545 !important;
+}
+
+.rich-editor.invalid {
+  border-color: #DC3545 !important;
+}
+
+/* เพิ่มการปรับปรุง validation state */
+.form-select.is-invalid {
+  border-color: #DC3545;
+}
+
+.form-select.is-invalid:focus {
+  border-color: #DC3545;
+}
+
+/* ปรับปรุงการแสดง error ใน dropdown components */
+app-project-dropdown .form-select.is-invalid,
+app-category-dropdown .form-select.is-invalid {
+  border-color: #DC3545 !important;
+}
+
+/* Custom Alert Styles - รวมอยู่ใน component เดียวกัน */
+.custom-alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(217, 217, 217, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.custom-alert-modal {
+  width: 357px;
+  height: 310px;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 8px rgba(134, 134, 134, 0.25);
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: alertSlideIn 0.3s ease-out;
+}
+
+@keyframes alertSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  width: 245.2px;
+  height: 126px;
+}
+
+.alert-icon {
+  width: 83px;
+  height: 83px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-icon {
+  width: 83px;
+  height: 83px;
+  background: #EC0000;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.error-icon i {
+  font-size: 48px;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.success-icon {
+  width: 83px;
+  height: 83px;
+  background: #28a745;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.success-icon i {
+  font-size: 48px;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.alert-message {
+  width: 245.2px;
+  height: 19px;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 120%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #212121;
+}
+
+/* CSS เดิมทั้งหมดยังคงอยู่ */
+.new-ticket-page {
+  padding: 0 !important;
+  background-color: #F5F5F9 !important;
+  min-height: calc(100vh - 70px);
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.new-ticket-page * {
+  box-sizing: border-box;
+}
+
+.new-ticket-page .content-wrapper {
+  padding: 2rem !important;
+  background-color: #F5F5F9 !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* Breadcrumb */
+.breadcrumb-container {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 11px 12px;
+  gap: 6px;
+  width: 100%;
+  height: 38px;
+  background: #FFFFFF;
+  border: 1px solid #ECECEC;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.breadcrumb {
+  margin: 0;
+  background: none;
+  padding: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumb-item {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 100%;
+  color: #737373;
+}
+
+.breadcrumb-item.active {
+  color: #000000;
+  font-weight: 500;
+}
+
+.breadcrumb-item a {
+  color: #737373;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: "›";
+  color: #414141;
+  font-weight: normal;
+  margin: 0 6px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 100%;
+  color: #212121;
+  margin: 0;
+}
+
+/* Content Card */
+.content-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 21px;
+  box-shadow: none;
+  border: none;
+}
+
+/* Form Styles */
+.ticket-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.form-label {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 100%;
+  color: #212121;
+}
+
+.required {
+  color: #DC3545;
+}
+
+/* Dropdown Styles */
+.dropdown-container {
+  position: relative;
+  width: 453px;
+  max-width: 100%;
+}
+
+.form-select {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  gap: 10px;
+  width: 100%;
+  height: 38px;
+  background: #FFFFFF;
+  border: 1px solid #D9D9D9;
+  border-radius: 8px;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 100%;
+  color: #212121;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-select:hover {
+  border-color: #B0B0B0;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #5873F8;
+  box-shadow: 0 0 0 0.2rem rgba(88, 115, 248, 0.25);
+}
+
+.form-select.invalid {
+  border-color: #DC3545;
+}
+
+.form-select option {
+  color: #212121;
+  background-color: #ffffff;
+  font-weight: 400;
+  padding: 8px 12px;
+}
+
+.form-select option:disabled {
+  color: #B5B5B5;
+}
+
+/* Rich Text Editor */
+.rich-text-editor-container {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #D9D9D9;
+  border-radius: 6px;
+  background: #FFFFFF;
+}
+
+.editor-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  height: 50px;
+  padding: 0 16px;
+  border-bottom: 1px solid #D9D9D9;
+  background: #FFFFFF;
+  border-radius: 6px 6px 0 0;
+}
+
+.toolbar-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.font-select,
+.size-select {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 10px;
+  width: 150px;
+  height: 32px;
+  background: #FFFFFF;
+  border: 1px solid #D9D9D9;
+  border-radius: 6px;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 100%;
+  color: #212121;
+}
+
+.size-select {
+  width: 80px;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 24px;
+  background: #D9D9D9;
+}
+
+.toolbar-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #737373;
+}
+
+.toolbar-btn:hover {
+  background-color: #f8f9fa;
+  color: #5873F8;
+}
+
+.toolbar-btn.active {
+  background: #5873F8;
+  color: #F5F5F9;
+}
+
+.toolbar-btn i {
+  font-size: 14px;
+}
+
+.rich-editor {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100px;
+  border: none;
+  border-radius: 0 0 6px 6px;
+  padding: 16px;
+  background-color: #ffffff;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-size: 14px;
+  color: #212121;
+  outline: none;
+  overflow-y: auto;
+  line-height: 1.5;
+  resize: none;
+}
+
+.rich-editor.invalid {
+  border-color: #DC3545;
+}
+
+.rich-editor:empty::before {
+  content: attr(placeholder);
+  color: #B5B5B5;
+  pointer-events: none;
+  position: absolute;
+}
+
+.rich-editor:focus {
+  outline: none;
+}
+
+/* ===== UNIFIED ATTACHMENTS STYLES ===== */
+
+/* Unified File Upload Area */
+.file-upload-area.unified-attachments {
+  min-height: 140px;
+  padding: 20px;
+  border: 2px dashed #D9D9D9;
+  border-radius: 8px;
+  background: #FFFFFF;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.file-upload-area.unified-attachments.has-files {
+  border-style: solid;
+  border-color: #E0E0E0;
+  background: #FAFAFA;
+}
+
+.file-upload-area.unified-attachments.has-errors {
+  border-color: #DC3545;
+  background: rgba(220, 53, 69, 0.05);
+}
+
+/* Unified Files Grid */
+.unified-files-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+}
+
+/* File Item Base Styles - ปรับให้คลีน */
+.file-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 120px;
+  height: 120px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E0E0E0; /* เปลี่ยนจากสีแดง/เขียว เป็นสีเทา */
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* ลบ Gradient Background ออกเพื่อให้รูปชัดเจน */
+.file-item.existing-file,
+.file-item.new-file,
+.file-item.uploaded,
+.file-item.uploading,
+.file-item.error {
+  background: #FFFFFF;
+}
+
+/* แก้สีขอบตอน Error เป็นสีเทาแทน */
+.file-item.error {
+  border-color: #E0E0E0; 
+}
+
+.file-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-color: #5873F8;
+}
+
+/* File Preview Area - ปรับให้เต็มพื้นที่ */
+.file-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  overflow: hidden;
+  position: absolute; /* ยึดเต็มกรอบ */
+  top: 0;
+  left: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+.file-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ขยายรูปเต็มกรอบโดยไม่เสียสัดส่วน (ตัดส่วนเกิน) */
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.file-item:hover .file-preview-img {
+  transform: scale(1.1); /* ซูมรูปเล็กน้อยเมื่อชี้ */
+}
+
+/* Icon สำหรับไฟล์ที่ไม่ใช่รูป */
+.file-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(248, 249, 250, 0.8);
+  margin-bottom: 4px;
+}
+
+.file-icon-large {
+  font-size: 32px;
+  color: #6c757d;
+}
+
+/* File Type Specific Icons */
+.file-type-image .file-icon-large { color: #6f42c1; }
+.file-type-pdf .file-icon-large { color: #dc3545; }
+.file-type-excel .file-icon-large { color: #198754; }
+.file-type-word .file-icon-large { color: #0d6efd; }
+.file-type-text .file-icon-large { color: #6c757d; }
+.file-type-archive .file-icon-large { color: #ffc107; }
+.file-type-video .file-icon-large { color: #e83e8c; }
+.file-type-audio .file-icon-large { color: #fd7e14; }
+
+/* File Info - ปรับให้แสดงเฉพาะตอน Hover */
+.file-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%); /* พื้นหลังไล่ระดับดำ */
+  border-top: none;
+  opacity: 0; /* ซ่อนเป็นค่าเริ่มต้น */
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* เพื่อให้คลิกทะลุได้ */
+}
+
+.file-item:hover .file-info {
+  opacity: 1; /* แสดงเมื่อ Hover */
+}
+
+.file-name {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  color: #FFFFFF; /* สีขาว */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  line-height: 1.3;
+  margin-bottom: 2px;
+  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-size {
+  font-size: 9px;
+  color: #DDDDDD; /* สีเทาอ่อน */
+}
+
+.file-type-info {
+  display: none; /* ซ่อน Badge ประเภทไฟล์ เพราะมี Icon และสีบอกแล้ว */
+}
+
+/* Selection Checkbox */
+.selection-checkbox {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 25;
+}
+
+.selection-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #5873F8;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* File Actions (Buttons) - ย้ายไปมุมขวาบน */
+.file-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  bottom: auto; /* ยกเลิกค่าเดิม */
+  left: auto;   /* ยกเลิกค่าเดิม */
+  z-index: 20;
+  
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  backdrop-filter: none;
+  
+  opacity: 0; /* ซ่อนเป็นค่าเริ่มต้น */
+  transition: all 0.3s ease;
+  transform: translateY(-5px);
+}
+
+.file-item:hover .file-actions {
+  opacity: 1; /* แสดงเมื่อ Hover */
+  transform: translateY(0);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 10px;
+  color: white;
+  background: rgba(0, 0, 0, 0.6); /* พื้นหลังดำโปร่งแสง */
+  backdrop-filter: blur(2px);
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+  background: rgba(88, 115, 248, 0.9);
+  border-color: transparent;
+}
+
+.download-btn:hover {
+  background: #28a745;
+}
+
+.remove-btn:hover {
+  background: #dc3545;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Upload Progress */
+.upload-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 15;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #5873F8; /* สีเดียว เรียบๆ */
+  animation: progressAnimation 2s infinite;
+}
+
+@keyframes progressAnimation {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Bulk Actions & Others */
+.bulk-actions {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.bulk-actions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.bulk-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bulk-selection input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #5873F8;
+}
+
+.bulk-selection label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3436;
+  margin: 0;
+}
+
+.bulk-action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Upload Progress Section */
+.upload-progress-section {
+  margin-top: 12px;
+  padding: 12px;
+  background: #F8F9FA;
+  border-radius: 6px;
+  border: 1px solid #E9ECEF;
+}
+
+.upload-progress-section .progress {
+  height: 8px;
+  background: #E9ECEF;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.upload-progress-section .progress-bar {
+  background: linear-gradient(90deg, #5873F8, #7B8EF9);
+  transition: width 0.3s ease;
+}
+
+/* File Upload Button */
+.files-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.file-upload-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+  background: rgba(88, 115, 248, 0.05);
+  border: 2px dashed rgba(88, 115, 248, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-upload-button:hover {
+  background: rgba(88, 115, 248, 0.1);
+  border-color: rgba(88, 115, 248, 0.5);
+  transform: translateY(-2px);
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #5873F8;
+}
+
+.upload-icon i {
+  font-size: 24px;
+}
+
+.upload-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.file-input {
+  display: none;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.file-item {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 13px 16px;
+  gap: 10px;
+  width: 119px;
+  height: 42px;
+  background: #707070;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 100%;
+  color: #F0F0F0;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #707070;
+  color: #F0F0F0;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #5a5a5a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn:disabled {
+  background: #d6d8db;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* File Upload Instructions */
+.file-upload-instructions {
+  margin-bottom: 12px;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .new-ticket-page { padding: 1rem; }
+  .content-card { padding: 16px; }
+  .dropdown-container { width: 100%; }
+  
+  .editor-toolbar {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .toolbar-section { gap: 8px; }
+  .font-select, .size-select { width: 120px; }
+  .rich-editor { min-height: 80px; }
+  
+  .form-actions { margin-top: 24px; }
+  .btn { width: 100%; max-width: 300px; }
+  
+  .files-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .file-upload-area { height: auto; min-height: 134px; }
+
+  .unified-files-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+  }
+  
+  .file-item, .file-upload-button {
+    width: 100px;
+    height: 100px;
+  }
+  
+  /* ใน Mobile ให้แสดง info ตลอดเวลาเพราะไม่มี Hover */
+  .file-info {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  }
+  
+  .file-actions {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title { font-size: 16px; }
+  .content-card { padding: 12px; }
+  .editor-toolbar { padding: 6px; gap: 4px; }
+  .toolbar-section { gap: 4px; }
+  .toolbar-btn { width: 20px; height: 20px; }
+  .toolbar-separator { height: 20px; }
+  .rich-editor { min-height: 60px; padding: 12px; }
+  
+  .file-item, .file-upload-button {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .file-icon-large { font-size: 24px; }
+  
+  .bulk-actions { padding: 8px 12px; }
+}
+
+@media (max-width: 768px) {
+  .custom-alert-modal {
+    width: 90vw;
+    max-width: 357px;
+    margin: 20px;
+  }
+  .alert-content { width: 80%; }
+  .alert-message { width: 100%; font-size: 14px; }
+}

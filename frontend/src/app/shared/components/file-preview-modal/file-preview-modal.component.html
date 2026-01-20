@@ -1,0 +1,129 @@
+<!-- shared/components/file-preview-modal/file-preview-modal.component.html -->
+
+<div class="modal fade" [class.show]="show" [style.display]="show ? 'block' : 'none'"
+    [style.z-index]="show ? '99999' : 'auto'" tabindex="-1" *ngIf="show">
+    <div class="modal-dialog modal-dialog-centered modal-xl" [class.modal-fullscreen-md-down]="needsViewer">
+        <div class="modal-content attachment-modal">
+
+            <!-- ===== HEADER ===== -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i [class]="fileIcon" class="me-2"></i>
+                    {{ attachment?.filename || 'Attachment Preview' }}
+                    <span class="badge bg-light text-dark ms-2">{{ fileType }}</span>
+                </h5>
+
+                <!-- Viewer Switcher (เฉพาะ documents) -->
+                <div class="viewer-switcher" *ngIf="isDocument && !isImage && !isPdf">
+                    <button class="btn btn-sm" [class.btn-light]="viewerType === 'google'"
+                        [class.btn-outline-light]="viewerType !== 'google'" (click)="switchViewer('google')">
+                        <i class="bi bi-google me-1"></i>
+                        Google
+                    </button>
+                    <button class="btn btn-sm ms-1" [class.btn-light]="viewerType === 'office'"
+                        [class.btn-outline-light]="viewerType !== 'office'" (click)="switchViewer('office')">
+                        <i class="bi bi-microsoft me-1"></i>
+                        Office
+                    </button>
+                </div>
+
+                <button type="button" class="btn-close" (click)="onClose()"></button>
+            </div>
+
+            <!-- ===== BODY ===== -->
+            <div class="modal-body">
+
+                <!-- ✅ DETECTING STATE -->
+                <div *ngIf="isDetecting" class="preview-container detecting-state">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Detecting file type...</span>
+                        </div>
+                        <h5>Detecting file type...</h5>
+                        <p class="text-muted">Please wait while we analyze the file.</p>
+                    </div>
+                </div>
+
+                <!-- ===== 1. IMAGE PREVIEW ===== -->
+                <div *ngIf="!isDetecting && isImage && !isPdf && !isDocument" class="preview-container image-preview">
+                    <img [src]="attachment?.path" [alt]="detectedFileInfo?.filename || 'Image'" class="img-fluid"
+                        (error)="onImageError($event)">
+                </div>
+
+                <!-- ===== 2. PDF PREVIEW ===== -->
+                <div *ngIf="!isDetecting && isPdf && !isImage" class="preview-container pdf-preview">
+                    <iframe [src]="getPdfViewerUrl()" class="preview-iframe" frameborder="0" (load)="onIframeLoad()"
+                        (error)="onIframeError()">
+                    </iframe>
+                    <div class="viewer-info">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>
+                        PDF Viewer
+                    </div>
+                </div>
+
+                <!-- ===== 3. DOCUMENT PREVIEW (GOOGLE) ===== -->
+                <div *ngIf="!isDetecting && isDocument && !isImage && !isPdf && viewerType === 'google'"
+                    class="preview-container document-preview">
+                    <iframe [src]="getGoogleDocsViewerUrl()" class="preview-iframe" frameborder="0"
+                        (load)="onIframeLoad()" (error)="onIframeError()">
+                    </iframe>
+                    <div class="viewer-info">
+                        <i class="bi bi-google me-1"></i>
+                        Google Docs Viewer
+                    </div>
+                </div>
+
+                <!-- ===== 4. DOCUMENT PREVIEW (OFFICE) ===== -->
+                <div *ngIf="!isDetecting && isDocument && !isImage && !isPdf && viewerType === 'office'"
+                    class="preview-container document-preview">
+                    <iframe [src]="getOfficeWebViewerUrl()" class="preview-iframe" frameborder="0"
+                        (load)="onIframeLoad()" (error)="onIframeError()">
+                    </iframe>
+                    <div class="viewer-info">
+                        <i class="bi bi-microsoft me-1"></i>
+                        Office Web Viewer
+                    </div>
+                </div>
+
+                <!-- ===== 5. OTHER FILES ===== -->
+                <div *ngIf="!isDetecting && !isViewable" class="preview-container other-files">
+                    <div class="text-center py-5">
+                        <i [class]="fileIcon" class="file-icon-large mb-3"></i>
+                        <h4>{{ detectedFileInfo?.filename || 'Unknown File' }}</h4>
+                        <p class="text-muted mb-4">{{ fileType }}</p>
+                        <button class="btn btn-primary btn-lg" (click)="onDownload()">
+                            <i class="bi bi-download me-2"></i>
+                            Download File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Note -->
+                <div class="viewer-note" *ngIf="!isDetecting && needsViewer">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        If the document doesn't load, try downloading it.
+                    </small>
+                </div>
+            </div>
+
+            <!-- ===== FOOTER ===== -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="onClose()">
+                    <i class="bi bi-x-lg me-2"></i>
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary" (click)="onDownload()">
+                    <i class="bi bi-download me-2"></i>
+                    Download
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ===== BACKDROP ===== -->
+<div class="modal-backdrop fade" [class.show]="show" [style.z-index]="show ? '99998' : 'auto'" *ngIf="show"
+    (click)="onBackdropClick($event)">
+</div>

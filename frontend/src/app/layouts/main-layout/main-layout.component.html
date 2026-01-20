@@ -1,0 +1,21 @@
+<div class="main-layout">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+  
+  <!-- Header -->
+  <app-header></app-header>
+  
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- Mobile Overlay -->
+  <div 
+    class="mobile-overlay" 
+    (click)="onOverlayClick($event)"
+    [class.show]="isMobileMenuOpen">
+  </div>
+</div>

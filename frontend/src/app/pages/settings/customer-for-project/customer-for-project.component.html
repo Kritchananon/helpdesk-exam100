@@ -1,0 +1,111 @@
+<div class="breadcrumb">
+  <span class="breadcrumb-item inactive">{{ languageService.translate('menu.settings') }}</span>
+  <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M6.5 3L11 8l-4.5 5" />
+  </svg>
+  <span class="breadcrumb-item active">{{ languageService.translate('customerProject.title') }}</span>
+</div>
+
+<div class="customer-selector-section">
+  <div class="selector-header">
+    <div>
+      <h2 class="selector-title">{{ languageService.translate('customerProject.selectProject') }}</h2>
+      <p class="selector-subtitle">{{ languageService.translate('customerProject.subtitle') }}</p>
+    </div>
+  </div>
+
+  <div class="customer-search-bar">
+    <div class="search-input-large">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M7.333 12.667A5.333 5.333 0 1 0 7.333 2a5.333 5.333 0 0 0 0 10.667ZM14 14l-2.9-2.9" stroke="#9CA3AF"
+          stroke-width="1.333" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <input type="text" 
+             [placeholder]="languageService.translate('customerProject.searchPlaceholder')" 
+             [(ngModel)]="projectSearchTerm"
+             (input)="onProjectSearchChange()">
+    </div>
+    <select class="customer-dropdown" [(ngModel)]="selectedStatusFilter" (change)="onStatusFilterChange()">
+      <option *ngFor="let option of statusOptions" [value]="option.value">
+        {{ option.label }}
+      </option>
+    </select>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>{{ languageService.translate('customerProject.loading') }}</p>
+  </div>
+
+  <div class="error-state" *ngIf="hasError && !isLoading">
+    <div class="error-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="#DC3545">
+        <path d="M16 3L3 16l13 13 13-13L16 3zm0 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm2-6h-4v-8h4v8z" />
+      </svg>
+    </div>
+    <h3>{{ languageService.translate('customerProject.errorLoading') }}</h3>
+    <p>{{ errorMessage }}</p>
+    <button class="retry-button" (click)="loadCFPData()">{{ languageService.translate('tickets.tryAgain') }}</button>
+  </div>
+
+  <div class="customer-grid" *ngIf="!isLoading && !hasError">
+    <div class="customer-card" *ngFor="let project of filteredProjects; trackBy: trackByProjectId"
+      (click)="navigateToProjectDetail(project)">
+      <div class="card-header">
+        <div class="card-avatar" [style.background]="project.status === 'active' ? '#6366F1' : '#8B5CF6'">
+          {{ getProjectAvatarLetter(project.name) }}
+        </div>
+        <div class="card-info">
+          <h3>{{ project.name }}</h3>
+          <div class="card-tier" [ngClass]="getStatusBadgeClass(project.status)">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" style="margin-right: 4px;">
+              <circle cx="4" cy="4" r="3" />
+            </svg>
+            {{ project.status === 'active' ? languageService.translate('customerProject.active') : languageService.translate('customerProject.inactive') }}
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-contact">
+         {{ project.total_customers }} {{ languageService.translate('customerProject.customers') }}, 
+         {{ project.total_users }} {{ languageService.translate('customerProject.users') }}
+      </div>
+
+      <div class="card-stats">
+        <div class="stat-item">
+          <div class="stat-number">{{ languageService.formatNumber(project.total_customers || 0) }}</div>
+          <div class="stat-label">{{ languageService.translate('customerProject.customers') }}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ languageService.formatNumber(project.total_users || 0) }}</div>
+          <div class="stat-label">{{ languageService.translate('customerProject.users') }}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ languageService.formatNumber(project.total_open_tickets || 0) }}</div>
+          <div class="stat-label">{{ languageService.translate('customerProject.tickets') }}</div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn btn-view-details" (click)="navigateToProjectDetail(project); $event.stopPropagation()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+            <path
+              d="M7 4.667a2.333 2.333 0 1 0 0 4.666 2.333 2.333 0 0 0 0-4.666zM7 2C4.333 2 2.067 3.733 1 7c1.067 3.267 3.333 5 6 5s4.933-1.733 6-5c-1.067-3.267-3.333-5-6-5z" />
+          </svg>
+          {{ languageService.translate('customerProject.viewDetails') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && !hasError && filteredProjects.length === 0">
+    <div class="empty-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="#ADB5BD">
+        <path
+          d="M16 4C9.373 4 4 9.373 4 16s5.373 12 12 12 12-5.373 12-12S22.627 4 16 4zm0 18c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z" />
+      </svg>
+    </div>
+    <h3>{{ languageService.translate('customerProject.noProjects') }}</h3>
+    <p>{{ languageService.translate('customerProject.tryAdjusting') }}</p>
+  </div>
+</div>

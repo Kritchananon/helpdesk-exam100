@@ -1,0 +1,147 @@
+<div class="login-container">
+  <!-- Left Panel -->
+  <div class="login-left-panel">
+    <div class="login-content">
+      <div class="login-brand">
+        <h2 class="brand-title">SUPPORT TICKET</h2>
+        <p class="brand-subtitle">of KHONTAMWEB</p>
+      </div>
+
+      <form (ngSubmit)="onLogin()" #loginForm="ngForm" class="login-form" (keydown)="onKeyDown($event)">
+        <!-- Username Field -->
+        <div class="form-group mb-3">
+          <label for="username" class="form-label">
+            {{ translate('login.username') }} 
+            <span class="text-danger">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="username"
+            name="username"
+            class="form-control" 
+            [(ngModel)]="loginData.username"
+            [placeholder]="translate('login.username')"
+            [attr.aria-label]="translate('login.username')"
+            [attr.aria-describedby]="getErrorAriaDescribedBy()"
+            required
+            maxlength="50"
+            autocomplete="username"
+            [disabled]="isLoading">
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group mb-3">
+          <label for="password" class="form-label">
+            {{ translate('login.password') }} 
+            <span class="text-danger">*</span>
+          </label>
+          <div class="password-input-group">
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              id="password"
+              name="password"
+              class="form-control" 
+              [(ngModel)]="loginData.password"
+              [placeholder]="translate('login.password')"
+              [attr.aria-label]="translate('login.password')"
+              [attr.aria-describedby]="getErrorAriaDescribedBy()"
+              required
+              maxlength="50"
+              autocomplete="current-password"
+              [disabled]="isLoading">
+            <button 
+              type="button" 
+              class="password-toggle"
+              (click)="togglePassword()"
+              [attr.aria-label]="getPasswordToggleAriaLabel()"
+              [disabled]="isLoading"
+              tabindex="0">
+              <i class="bi" [class]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember Me -->
+        <div class="form-check mb-4">
+          <input 
+            type="checkbox" 
+            id="rememberMe"
+            name="rememberMe"
+            class="form-check-input" 
+            [(ngModel)]="loginData.rememberMe"
+            [disabled]="isLoading">
+          <label for="rememberMe" class="form-check-label">
+            {{ translate('login.rememberMe') }}
+          </label>
+        </div>
+
+        <!-- Error Message -->
+        <div 
+          *ngIf="errorMessage" 
+          id="login-error"
+          class="alert alert-danger" 
+          role="alert"
+          [attr.aria-live]="'assertive'">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Login Button -->
+        <button 
+          type="submit" 
+          class="btn btn-primary btn-login w-100"
+          [disabled]="isLoading || !loginData.username || !loginData.password"
+          [attr.aria-busy]="isLoading">
+          <span 
+            *ngIf="isLoading" 
+            class="spinner-border spinner-border-sm me-2" 
+            role="status" 
+            aria-hidden="true">
+          </span>
+          <span *ngIf="!isLoading">
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+          </span>
+          {{ isLoading ? translate('login.loggingIn') : translate('login.loginButton') }}
+        </button>
+      </form>
+
+      <!-- Language Selector Component -->
+      <div class="language-selector-wrapper mt-4">
+        <app-language-selector 
+          [style]="'dropdown'"
+          [size]="'md'"
+          [showLanguageName]="true"
+          [showFlag]="true"
+          [buttonStyle]="'link'"
+          [dropdownPosition]="'start'"
+          [ariaLabel]="getText('เลือกภาษา', 'Select Language')"
+          (languageChanged)="onLanguageChanged($event)">
+        </app-language-selector>
+      </div>
+
+      <!-- Footer Info (Optional) -->
+      <div class="login-footer mt-4 text-center">
+        <small class="text-muted">
+          {{ getText('© 2024 KHONTAMWEB. สงวนลิขสิทธิ์', '© 2024 KHONTAMWEB. All rights reserved') }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="login-right-panel">
+    <div class="background-overlay">
+      <div class="support-icon">
+        <div class="icon-circle">
+          <i class="bi bi-headset"></i>
+        </div>
+        <h3 class="support-title mt-3">
+          {{ getText('ระบบจัดการตั๋วสนับสนุน', 'Support Ticket System') }}
+        </h3>
+        <p class="support-subtitle">
+          {{ getText('จัดการและติดตามปัญหาได้อย่างมีประสิทธิภาพ', 'Manage and track issues efficiently') }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

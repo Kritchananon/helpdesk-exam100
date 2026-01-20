@@ -1,0 +1,545 @@
+<div class="support-info-card">
+    <div class="support-header">
+        <h2 class="support-title">Support Information</h2>
+        <div class="debug-controls" *ngIf="false" style="margin-top: 0.5rem;">
+            <button type="button" class="btn btn-outline-light btn-sm me-2" (click)="manualSaveFormData()"
+                [disabled]="!hasFormData()">
+                Manual Save
+            </button>
+            <button type="button" class="btn btn-outline-light btn-sm"
+                (click)="debugLog('Debug Info:', getFormDebugInfo())">
+                Debug Info
+            </button>
+        </div>
+    </div>
+
+    <div class="text-center py-4" *ngIf="isLoadingTicketData">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">กำลังโหลด...</span>
+        </div>
+        <p class="text-muted mt-2">กำลังโหลดข้อมูล ticket...</p>
+        <small class="text-muted">ระบบจะเก็บข้อมูลที่กรอกไว้ให้คุณ</small>
+    </div>
+
+    <div id="supporterFormSection" class="supporter-form-section" *ngIf="canShowSupporterForm()">
+
+        <div class="alert alert-success d-flex align-items-start"
+            *ngIf="getFormPersistenceStatus().hasPersistedData && !isJustSaved && getFormPersistenceStatus().isValidForCurrentTicket"
+            role="alert">
+            <i class="bi bi-cloud-check me-2 mt-1"></i>
+            <div>
+                <strong>🔒 ข้อมูลถูกเก็บไว้อัตโนมัติ</strong>
+                <div class="mt-1">
+                    <small class="text-muted">
+                        เก็บไว้เมื่อ: {{ getFormPersistenceStatus().lastSaved | date:'dd/MM/yyyy HH:mm:ss' }}
+                        <span *ngIf="getFormPersistenceStatus().dataAge < 60">
+                            ({{ getFormPersistenceStatus().dataAge }} วินาทีที่แล้ว)
+                        </span>
+                        <span *ngIf="getFormPersistenceStatus().dataAge >= 60">
+                            ({{ (getFormPersistenceStatus().dataAge / 60) | number:'1.0-0' }} นาทีที่แล้ว)
+                        </span>
+                    </small>
+                </div>
+                <div class="mt-1">
+                    <small class="text-success">
+                        <i class="bi bi-shield-check me-1"></i>
+                        ข้อมูลจะไม่หายแม้ว่าหน้าเว็บจะรีเฟรช
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-danger d-flex align-items-center" *ngIf="supporterFormState.error" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>{{ supporterFormState.error }}</div>
+        </div>
+
+        <div class="alert alert-success d-flex align-items-center" *ngIf="supporterFormState.successMessage"
+            role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <div>{{ supporterFormState.successMessage }}</div>
+        </div>
+
+        <div class="alert alert-info d-flex align-items-center" *ngIf="!isFormReady() && !isLoadingTicketData">
+            <i class="bi bi-info-circle me-2"></i>
+            <div>
+                <strong>สถานะฟอร์ม:</strong> {{ getFormStatusMessage() }}
+                <div class="mt-1" *ngIf="!ticketData?.ticket">
+                    <small class="text-muted">รอการโหลดข้อมูล ticket เพื่อแสดงฟอร์ม</small>
+                </div>
+            </div>
+        </div>
+
+        <form class="supporter-form" [formGroup]="supporterForm" [class.form-disabled]="!isFormReady()"
+            [class.form-saving]="supporterFormState.isSaving">
+
+            <div class="form-section">
+                <div class="row g-3">
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="required">Actions</label>
+
+                            <div *ngIf="isLoadingActions" class="form-control d-flex align-items-center">
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                <span class="text-muted">กำลังโหลดตัวเลือก...</span>
+                            </div>
+
+                            <div *ngIf="actionError && !isLoadingActions" class="alert alert-warning p-2 mb-2"
+                                role="alert">
+                                <small class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    <span>{{ actionError }}</span>
+                                    <button type="button" class="btn btn-outline-warning btn-sm ms-auto"
+                                        (click)="refreshActionDropdown()" [disabled]="!isFormReady()"
+                                        title="โหลดตัวเลือก Action ใหม่">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>
+                                        โหลดใหม่
+                                    </button>
+                                </small>
+                            </div>
+
+                            <select id="action" class="form-select" formControlName="action"
+                                [class.is-invalid]="supporterForm.get('action')?.invalid && supporterForm.get('action')?.touched"
+                                [disabled]="!isFormReady() || isLoadingActions || supporterFormState.isSaving || (!isAdmin && !isSupporter)"
+                                *ngIf="!isLoadingActions">
+                                <option value="">เลือก Action...</option>
+                                <option *ngFor="let option of actionDropdownOptions; trackBy: trackByActionOption"
+                                    [value]="option.statusId" [disabled]="option.disabled">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+
+                            <small class="form-text text-muted" *ngIf="supporterForm.get('action')?.value">
+                                การเลือก Action นี้จะเปลี่ยนสถานะ ticket
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3" *ngIf="canUserChangePriority">
+                        <div class="form-group">
+                            <label class="required">Priority</label>
+
+                            <div *ngIf="isLoadingPriorities" class="form-control d-flex align-items-center">
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                <span class="text-muted">กำลังโหลดตัวเลือก...</span>
+                            </div>
+
+                            <div *ngIf="priorityError && !isLoadingPriorities" class="form-control readonly-box">
+                                {{ getPriorityName(supporterForm.get('priority')?.value) || '-' }}
+                            </div>
+
+                            <select id="priority" class="form-select" formControlName="priority"
+                                [disabled]="!isFormReady() || isLoadingPriorities || supporterFormState.isSaving || !isAdmin"
+                                *ngIf="!isLoadingPriorities && !priorityError">
+                                <option [value]="null">เลือกระดับความสำคัญ...</option>
+                                <option *ngFor="let option of priorityDropdownOptions; trackBy: trackByPriorityOption"
+                                    [value]="option.id">
+                                    {{ option.name }}
+                                </option>
+                            </select>
+
+                            <small class="form-text text-muted">
+                                ระดับความสำคัญของ ticket (Low, Medium, High)
+                            </small>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="required">Close Estimate:</label>
+                    <input type="datetime-local" id="close_estimate" class="form-control"
+                        formControlName="close_estimate" [class.is-invalid]="hasFieldError('close_estimate')"
+                        [disabled]="!isFormReady() || supporterFormState.isSaving || isAdmin">
+
+                    <div *ngIf="supporterForm.get('close_estimate')?.dirty && hasFieldError('close_estimate')"
+                        class="invalid-feedback">
+                        {{ getFieldError('close_estimate') }}
+                    </div>
+
+                    <small class="form-text text-muted"
+                        *ngIf="!supporterForm.get('close_estimate')?.dirty || !hasFieldError('close_estimate')">
+                        วันเวลาที่คาดว่าจะแก้ไขเสร็จสิ้น
+                    </small>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="form-group">
+                    <label>Estimate time:</label>
+                    <input type="text" class="form-control form-control-as-text" 
+                        [value]="(supporterForm.get('estimate_time')?.value || 0) + ' H'"
+                        [class.is-invalid]="hasFieldError('estimate_time')" 
+                        readonly />
+                    <div *ngIf="hasFieldError('estimate_time')" class="invalid-feedback">
+                        {{ getFieldError('estimate_time') }}
+                    </div>
+                </div>
+
+
+                <div class="divider"></div>
+
+                <div class="form-group">
+                    <label class="required">Due Date:</label>
+                    <input type="datetime-local" id="due_date" class="form-control input-duedate"
+                        formControlName="due_date" [class.is-invalid]="hasFieldError('due_date')"
+                        [disabled]="!isSupporter || supporterFormState.isSaving || !isFormReady()" />
+
+                    <div *ngIf="supporterForm.get('due_date')?.dirty && hasFieldError('due_date')"
+                        class="invalid-feedback">
+                        {{ getFieldError('due_date') }}
+                    </div>
+
+                    <small class="form-text text-muted"
+                        *ngIf="!supporterForm.get('due_date')?.dirty || !hasFieldError('due_date')">
+                        วันเวลาที่จบงานจริง (กรอกเมื่อเสร็จงาน)
+                    </small>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="form-group">
+                    <label>Lead Time:</label>
+                    <input type="text" class="form-control form-control-as-text" 
+                        [value]="(supporterForm.get('lead_time')?.value || 0) + ' H'"
+                        [class.is-invalid]="hasFieldError('lead_time')" 
+                        readonly />
+                    <div *ngIf="hasFieldError('lead_time')" class="invalid-feedback">
+                        {{ getFieldError('lead_time') }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <div class="form-group width-364" *ngIf="canAssignTicket()">
+                    <label class="required">Assign</label>
+
+                    <div *ngIf="isLoadingAssignees" class="form-control d-flex align-items-center">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span class="text-muted">กำลังโหลดรายชื่อ...</span>
+                    </div>
+
+                    <div *ngIf="assigneeError && !isLoadingAssignees" class="alert alert-warning p-2 mb-2" role="alert">
+                        <small class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            <span>{{ assigneeError }}</span>
+                            <button type="button" class="btn btn-outline-warning btn-sm ms-auto"
+                                (click)="refreshAssigneeList()" [disabled]="!isFormReady()"
+                                title="โหลดรายชื่อผู้รับผิดชอบใหม่">
+                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                ลองใหม่
+                            </button>
+                        </small>
+                    </div>
+
+                    <select class="form-control select-field" [(ngModel)]="selectedAssigneeId"
+                        [ngModelOptions]="{standalone: true}" (change)="onAssigneeChanged()"
+                        [disabled]="!isFormReady() || !isAssigneeDropdownReady() || supporterFormState.isSaving || !isAdmin"
+                        *ngIf="!isLoadingAssignees && !assigneeError">
+                        <option [ngValue]="null" [disabled]="getSelectedAssigneeName()">
+                            {{ getSelectedAssigneeName() || 'เลือกผู้รับผิดชอบใหม่' }}
+                        </option>
+                        <option *ngFor="let user of assigneeList; trackBy: trackByUser" [ngValue]="user.id"
+                            [selected]="user.id === selectedAssigneeId">
+                            {{ getUserDisplayName(user) }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group width-363">
+                    <label>Related Tickets</label>
+                    <input type="text" id="related_ticket_id" class="form-control" formControlName="related_ticket_id"
+                        [class.is-invalid]="hasFieldError('related_ticket_id')"
+                        placeholder="หมายเลข ticket ที่เกี่ยวข้อง เช่น T-001, T-002"
+                        [disabled]="!isFormReady() || supporterFormState.isSaving || !isAdmin">
+                    <div *ngIf="hasFieldError('related_ticket_id')" class="invalid-feedback">
+                        {{ getFieldError('related_ticket_id') }}
+                    </div>
+                    <small class="form-text text-muted" *ngIf="!hasFieldError('related_ticket_id')">
+                        ระบุหมายเลข ticket อื่นที่เกี่ยวข้อง (ถ้ามี)
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-group width-364">
+                    <label>Change Request:</label>
+                    <div class="input-field days-display" [class.disabled-visual]="!isAdmin">
+                        <i class="bi bi-calendar-days me-2 text-muted"></i>
+                        <span class="fw-bold">{{ ticketData?.ticket?.change_request || '0' }}</span>
+                        <span class="unit-text">Days</span>
+                    </div>
+                    <small class="form-text text-muted">
+                        จำนวนวันที่ใช้ในการเปลี่ยนแปลง
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-group">
+                    <label class="required">Issue Resolution</label>
+
+                    <div class="rich-text-editor-container" 
+                        [class.invalid]="hasFieldError('fix_issue_description')"
+                        [class.disabled]="!isFormReady() || supporterFormState.isSaving || !isSupporter">
+                        
+                        <div class="editor-toolbar">
+                            <div class="toolbar-section">
+                                <select class="font-select width-172" [disabled]="!isFormReady() || !isSupporter">
+                                    <option>Noto Sans Thai</option>
+                                    <option>Arial</option>
+                                    <option>Times New Roman</option>
+                                </select>
+                                <select class="size-select width-171" [disabled]="!isFormReady() || !isSupporter">
+                                    <option>14</option>
+                                    <option>12</option>
+                                    <option>16</option>
+                                    <option>18</option>
+                                </select>
+                            </div>
+
+                            <div class="toolbar-separator"></div>
+
+                            <div class="toolbar-section">
+                                <button type="button" class="toolbar-btn" (click)="richImgInput.click()" title="Upload Image"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-image"></i>
+                                </button>
+                                <input type="file" #richImgInput style="display: none" (change)="onRichTextConfigImage($event)" accept="image/*">
+                            </div>
+
+                            <div class="toolbar-separator"></div>
+
+                            <div class="toolbar-section">
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.bold" (click)="formatText('bold')" title="Bold"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-type-bold"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.italic" (click)="formatText('italic')" title="Italic"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-type-italic"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.underline" (click)="formatText('underline')" title="Underline"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-type-underline"></i>
+                                </button>
+                            </div>
+
+                            <div class="toolbar-separator"></div>
+
+                            <div class="toolbar-section">
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.justifyLeft" (click)="formatText('justifyLeft')" title="Align Left"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-text-left"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.justifyCenter" (click)="formatText('justifyCenter')" title="Align Center"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-text-center"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.justifyRight" (click)="formatText('justifyRight')" title="Align Right"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-text-right"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.justifyFull" (click)="formatText('justifyFull')" title="Justify"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-justify"></i>
+                                </button>
+                            </div>
+
+                            <div class="toolbar-separator"></div>
+
+                            <div class="toolbar-section">
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.insertUnorderedList" (click)="insertList(false)" title="Bullet List"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-list-ul"></i>
+                                </button>
+
+                                <button type="button" class="toolbar-btn" [class.active]="toolbarState.insertOrderedList" (click)="insertList(true)" title="Numbered List"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-list-ol"></i>
+                                </button>
+                            </div>
+
+                            <div class="toolbar-separator"></div>
+
+                            <div class="toolbar-section">
+                                <button type="button" class="toolbar-btn" (click)="insertLink()" title="Insert Link"
+                                    [disabled]="!isFormReady() || !isSupporter">
+                                    <i class="bi bi-link-45deg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="rich-editor" 
+                            #fixIssueEditor
+                            [class.invalid]="hasFieldError('fix_issue_description')"
+                            contenteditable="true" 
+                            (input)="onDescriptionInput($event)"
+                            (click)="onEditorEvent()"
+                            (keyup)="onEditorEvent()"
+                            (mouseup)="onEditorEvent()"
+                            [attr.placeholder]="'อธิบายการแก้ไขปัญหา วิธีการดำเนินการ และผลลัพธ์ที่ได้...'"
+                            [attr.disabled]="!isFormReady() || supporterFormState.isSaving || !isSupporter ? true : null">
+                        </div>
+                        <div class="editor-footer p-2 bg-light d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                อธิบายวิธีการแก้ไขและผลลัพธ์
+                            </small>
+                            <small class="text-muted">
+                                {{ supporterForm.get('fix_issue_description')?.value?.length || 0 }}/5000 ตัวอักษร
+                            </small>
+                        </div>
+
+                        <div *ngIf="hasFieldError('fix_issue_description')" class="invalid-feedback">
+                            {{ getFieldError('fix_issue_description') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-group">
+                    <label class="required">Attachment</label>
+
+                    <div class="attachment-container" [class.dragover]="isDraggingFiles"
+                        [class.disabled-upload]="!isSupporter" (dragover)="onAttachmentsDragOver($event)"
+                        (dragleave)="onAttachmentsDragLeave($event)" (drop)="onAttachmentsDrop($event)">
+
+                        <div class="attachment-upload-card"
+                            (click)="isFormReady() && isSupporter && selectedFiles.length < maxFiles && fileInputNew.click()"
+                            [class.disabled]="!isFormReady() || supporterFormState.isSaving || (existingFixAttachments.length + selectedFiles.length) >= maxFiles || !isSupporter"
+                            title="คลิกเพื่อเลือกไฟล์ หรือ ลากมาวางที่นี่">
+                            <i class="bi bi-plus-lg upload-icon"></i>
+                            <span class="upload-label">Choose file</span>
+                            <small class="text-muted" *ngIf="maxFiles">
+                                ({{ existingFixAttachments.length + selectedFiles.length }}/{{ maxFiles }})
+                            </small>
+                        </div>
+
+                        <ng-container>
+                            <app-file-list [attachments]="existingFixAttachments" [title]="'Support Attachments'"
+                                [showTitle]="false" (fileClick)="onAttachmentClick($event)"
+                                (fileDelete)="onExistingAttachmentDelete($event)">
+                            </app-file-list>
+
+                            <div *ngFor="let file of selectedFiles; let i = index; trackBy: trackByFile"
+                                class="attachment-card new">
+                                <button type="button" class="remove-attachment-btn" (click)="removeSelectedFile(i)"
+                                    title="ลบไฟล์นี้" [disabled]="!isSupporter">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <div class="attachment-preview">
+                                    <img *ngIf="ticketService.isImageFile(file)" [src]="getFilePreview(file)"
+                                        alt="Preview" class="attachment-img" />
+                                    <div *ngIf="!ticketService.isImageFile(file)" class="attachment-icon-wrapper">
+                                        <i [class]="ticketService.getFileIcon(file.name)" class="attachment-icon"></i>
+                                        <span class="file-type-label">
+                                            {{ getFileTypeFromExtension(file.name).toUpperCase() }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+
+                        <input #fileInputNew type="file" id="fileInputNew" (change)="onFileSelected($event)" multiple
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xlsx,.csv" style="display: none;"
+                            [disabled]="isFileLimitReached() || !isSupporter" />
+                    </div>
+
+                    <small class="form-text text-muted mt-2 d-block">
+                        รองรับลาก-แล้ว-วางไฟล์ (drag & drop) หรือคลิกที่กล่องหัวมุมซ้าย —
+                        ไฟล์ที่รองรับ: PDF, DOC, DOCX, JPG, PNG, GIF, TXT, XLSX, CSV
+                    </small>
+                </div>
+            </div>
+
+
+            <div class="form-actions">
+                <button type="button" class="save-btn" (click)="onSaveAll()" [disabled]="!canSaveAll()"
+                    [class]="getSaveAllButtonClass()" [title]="getSaveAllButtonTooltip()">
+
+                    <span *ngIf="supporterFormState.isSaving">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        กำลังบันทึก...
+                    </span>
+
+                    <span *ngIf="!supporterFormState.isSaving">
+                        <i class="bi me-2" [class.bi-floppy]="!selectedAssigneeId"
+                            [class.bi-floppy2]="selectedAssigneeId && hasSupporterFormChanges()"
+                            [class.bi-person-plus]="selectedAssigneeId && !hasSupporterFormChanges()">
+                        </i>
+                        {{ getSaveAllButtonText() }}
+                    </span>
+                </button>
+
+                <button type="button" class="btn btn-outline-info ms-2" (click)="persistAllFormData()"
+                    [disabled]="!isFormReady() || !hasFormData()" *ngIf="false"
+                    title="บันทึกข้อมูลลง LocalStorage ทันที">
+                    <i class="bi bi-cloud-arrow-up me-2"></i>
+                    Force Save
+                </button>
+
+                <div class="form-status-info ms-auto d-flex align-items-center" *ngIf="!supporterFormState.isSaving">
+                    <small class="text-success d-flex align-items-center me-3"
+                        *ngIf="hasFormData() && getPersistedDataInfo()">
+                        <i class="bi bi-cloud-check me-1"></i>
+                        <span>บันทึกอัตโนมัติ</span>
+                    </small>
+
+                    <small class="text-muted d-flex align-items-center me-3">
+                        <i class="bi me-1" [class.bi-circle-fill]="!hasFormData()"
+                            [class.bi-circle-half]="hasFormData() && !canSaveAll()"
+                            [class.bi-check-circle]="canSaveAll()" [class.text-secondary]="!hasFormData()"
+                            [class.text-warning]="hasFormData() && !canSaveAll()" [class.text-success]="canSaveAll()">
+                        </i>
+                        <span *ngIf="!hasFormData()">ฟอร์มว่าง</span>
+                        <span *ngIf="hasFormData() && !canSaveAll()">มีข้อมูล</span>
+                        <span *ngIf="canSaveAll()">พร้อมบันทึก</span>
+                    </small>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="text-center py-5" *ngIf="!canShowSupporterForm() && !isLoadingTicketData">
+        <i class="bi bi-shield-exclamation text-muted" style="font-size: 4rem;"></i>
+        <h5 class="text-muted mt-3">ไม่มีสิทธิ์เข้าใช้งาน</h5>
+        <p class="text-muted">คุณไม่มีสิทธิ์ในการใช้งานฟีเจอร์ Supporter</p>
+        <small class="text-muted">
+            ต้องการ permission: <strong>VIEW_ALL_TICKETS</strong>, <strong>CHANGE_STATUS</strong>, หรือ
+            <strong>ASSIGNEE</strong>
+        </small>
+    </div>
+
+    <div class="alert alert-warning mt-3" *ngIf="false" role="alert">
+        <strong>🐛 Debug Mode</strong>
+        <div class="mt-2">
+            <button type="button" class="btn btn-sm btn-outline-warning me-2" (click)="debugFormState()">
+                <i class="bi bi-bug me-1"></i>
+                Debug Form State
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-info me-2" (click)="updateFormWithTicketData()">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                Force Reload Form
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-success" (click)="loadTicketDataFromBackend()">
+                <i class="bi bi-cloud-download me-1"></i>
+                Reload from Backend
+            </button>
+        </div>
+        <div class="mt-2">
+            <small class="text-muted">
+                Form Ready: {{ isFormReady() }} |
+                Has Ticket: {{ hasTicketData() }} |
+                Has Form Data: {{ hasFormData() }}
+            </small>
+        </div>
+    </div>
+
+    <app-file-preview-modal [attachment]="selectedAttachment" [show]="showFileModal" (close)="closeModal()">
+    </app-file-preview-modal>
+
+</div>

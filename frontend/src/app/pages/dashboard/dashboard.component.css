@@ -1,0 +1,551 @@
+.dashboard {
+  /* padding: 2rem; */
+  background-color: #F5F5F9;
+  /* ตรงกับ Figma */
+  min-height: calc(100vh - 70px);
+}
+
+/* Stats Cards - ปรับสีให้ตรงกับ Figma */
+.stats-card {
+  border: none;
+  border-radius: 12px;
+  /* ตรงกับ Figma */
+  box-shadow: 0 2px 4px rgba(134, 134, 134, 0.25);
+  /* ตรงกับ Figma */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  position: relative;
+  background-color: #ffffff;
+  width: 350px;
+  /* ตรงกับ Figma */
+  height: 80px;
+  /* ตรงกับ Figma */
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(134, 134, 134, 0.35);
+}
+
+.stats-card .card-body {
+  padding: 10px 20px;
+  /* ตรงกับ Figma */
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* ตรงกับ Figma */
+  height: 100%;
+}
+
+/* Icon Container */
+.stats-icon-container {
+  width: 60px;
+  height: 60px;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.25);
+  border-radius: 35px;
+  /* ตรงกับ Figma */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.stats-icon {
+  font-size: 2.5rem;
+  color: inherit;
+  /* ใช้สีของ card */
+}
+
+/* Text Container */
+.stats-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  /* ตรงกับ Figma */
+  flex: 1;
+  gap: 10px;
+}
+
+.stats-card h4 {
+  font-size: 24px;
+  /* ตรงกับ Figma */
+  font-weight: 600;
+  margin: 0;
+  color: #FFFFFF;
+  text-align: right;
+}
+
+.stats-card p {
+  font-size: 20px;
+  /* ตรงกับ Figma */
+  font-weight: 600;
+  margin: 0;
+  color: #FFFFFF;
+  text-align: right;
+}
+
+/* Stats Cards Colors - ตรงกับ Figma */
+.bg-primary {
+  background: #5873F8 !important;
+  /* สีน้ำเงินจาก Figma */
+}
+
+.bg-warning {
+  background: #FFC107 !important;
+  /* สีเหลืองจาก Figma */
+}
+
+.bg-info {
+  background: #1FBCD5 !important;
+  /* สีฟ้าจาก Figma */
+}
+
+.bg-success {
+  background: #28A745 !important;
+  /* สีเขียวจาก Figma */
+}
+
+/* .bg-primary {
+  background: linear-gradient(135deg, #6c5ce7 0%, #5a4fcf 100%) !important;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%) !important;
+}
+
+.bg-info {
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #00b894 0%, #00a085 100%) !important;
+} */
+
+/* Chart Cards */
+.chart-card {
+  border: 1px solid #ECECEC;
+  /* ตรงกับ Figma */
+  border-radius: 12px !important;
+  /* บังคับ border-radius ทั้ง 4 ด้าน */
+  box-shadow: none;
+  /* ไม่มี shadow ใน Figma */
+  background-color: #ffffff;
+  overflow: hidden;
+  /* ป้องกัน content ล้นออกมาจาก border-radius */
+}
+
+.chart-card .card-header {
+  background-color: #ffffff;
+  border-bottom: none;
+  /* ไม่มี border ใน Figma */
+  padding: 20px 20px 10px 20px;
+  /* ตรงกับ Figma */
+  border-radius: 12px 12px 0 0 !important;
+  /* บังคับ border-radius บนเท่านั้น */
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.chart-card .card-title {
+  font-weight: 500;
+  /* Medium ตรงกับ Figma */
+  color: #212121;
+  /* ตรงกับ Figma */
+  font-size: 16px;
+  /* ตรงกับ Figma */
+  line-height: 120%;
+  margin: 0;
+}
+
+.chart-card .card-body {
+  padding: 10px 20px 20px 20px;
+  /* ตรงกับ Figma */
+  background-color: #ffffff;
+  border-radius: 0 0 12px 12px !important;
+  /* บังคับ border-radius ล่างเท่านั้น */
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}
+
+.card-body.text-center {
+  margin: 13px;
+}
+
+/* Chart Container */
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  height: 276px;
+  /* ตรงกับ Figma */
+}
+
+.chart-container canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Chart Controls */
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* ตรงกับ Figma */
+}
+
+.chart-legend {
+  display: flex;
+  gap: 28px;
+  /* ตรงกับ Figma */
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  /* ตรงกับ Figma */
+  color: #737373;
+  /* ตรงกับ Figma */
+  font-weight: 400;
+}
+
+.legend-color {
+  width: 10px;
+  /* ตรงกับ Figma */
+  height: 10px;
+  /* ตรงกับ Figma */
+  border-radius: 50%;
+  margin-right: 6px;
+  /* ตรงกับ Figma */
+  display: inline-block;
+}
+
+/* Pie Chart Legend */
+.pie-legend {
+  display: flex;
+  flex-direction: row;
+  /* เปลี่ยนเป็น row ตรงกับ Figma */
+  gap: 37px;
+  /* ตรงกับ Figma */
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 29px;
+  /* ตรงกับ Figma */
+}
+
+.pie-legend-column {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  /* ตรงกับ Figma */
+}
+
+.pie-legend .legend-item {
+  font-size: 14px;
+  /* ตรงกับ Figma */
+  color: #737373;
+  /* ตรงกับ Figma */
+  justify-content: flex-start;
+}
+
+.pie-legend .legend-color {
+  width: 10px;
+  /* ตรงกับ Figma */
+  height: 10px;
+  /* ตรงกับ Figma */
+  border-radius: 50%;
+  margin-right: 6px;
+  /* ตรงกับ Figma */
+  flex-shrink: 0;
+}
+
+/* Dropdown Styles - ตรงกับ Figma */
+.btn-outline-secondary {
+  border: 1px solid #D9D9D9;
+  /* ตรงกับ Figma */
+  color: #212121;
+  /* ตรงกับ Figma */
+  font-size: 14px;
+  /* ตรงกับ Figma */
+  padding: 11px 16px;
+  /* ตรงกับ Figma */
+  border-radius: 8px;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+  font-weight: 400;
+  gap: 12px;
+  /* ตรงกับ Figma */
+}
+
+.btn-outline-secondary:hover {
+  border-color: #5873F8;
+  color: #5873F8;
+  background-color: #f8f9fa;
+}
+
+.dropdown-menu {
+  border: 1px solid #ECECEC;
+  /* ตรงกับ Figma */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+  background-color: #ffffff;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  /* ตรงกับ Figma */
+  color: #212121;
+  /* ตรงกับ Figma */
+  transition: all 0.2s ease;
+  font-weight: 400;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #5873F8;
+}
+
+/* Breadcrumb - ตรงกับ Figma */
+.breadcrumb-container {
+  background-color: #ffffff;
+  border: 1px solid #ECECEC;
+  /* ตรงกับ Figma */
+  border-radius: 8px;
+  padding: 9px 12px;
+  /* ตรงกับ Figma */
+  margin-bottom: 20px;
+  /* ตรงกับ Figma */
+  height: 38px;
+  /* ตรงกับ Figma */
+}
+
+.breadcrumb {
+  margin: 0;
+  background: none;
+  padding: 0;
+  font-size: 14px;
+  /* ตรงกับ Figma */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* ตรงกับ Figma */
+}
+
+.breadcrumb-item {
+  color: #737373;
+  /* ตรงกับ Figma */
+  font-weight: 500;
+}
+
+.breadcrumb-item.active {
+  color: #000000;
+  /* ตรงกับ Figma */
+  font-weight: 500;
+}
+
+.breadcrumb-item a {
+  color: #737373;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+  content: "›";
+  color: #414141;
+  /* ตรงกับ Figma */
+  font-weight: normal;
+  margin: 0 6px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+/* Dashboard Header Card - ตรงกับ Figma */
+.dashboard-header-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  /* ตรงกับ Figma */
+  margin-bottom: 20px;
+  /* ตรงกับ Figma */
+  gap: 16px;
+  /* ตรงกับ Figma */
+  height: 155px;
+  /* ตรงกับ Figma */
+}
+
+.dashboard-header-card h1 {
+  color: #000000;
+  /* ตรงกับ Figma */
+  font-weight: 600;
+  /* SemiBold ตรงกับ Figma */
+  font-size: 19px;
+  /* ตรงกับ Figma */
+  margin: 0;
+  margin-bottom: 16px;
+  /* ตรงกับ Figma */
+}
+
+/* Header Section */
+.btn-outline-danger {
+  border-color: #e17055;
+  color: #e17055;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.btn-outline-danger:hover {
+  background-color: #e17055;
+  border-color: #e17055;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Loading States */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+  border-color: #e9ecef;
+  border-top-color: #5873F8;
+  /* ใช้สีหลักจาก Figma */
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-color: #e9ecef;
+  border-top-color: #5873F8;
+  /* ใช้สีหลักจาก Figma */
+}
+
+/* Chart Y-Axis Labels - ตรงกับ Figma */
+.chart-y-labels {
+  color: #737373;
+  /* ตรงกับ Figma */
+  font-size: 14px;
+  /* ตรงกับ Figma */
+  font-weight: 400;
+}
+
+/* Chart X-Axis Labels - ตรงกับ Figma */
+.chart-x-labels {
+  color: #737373;
+  /* ตรงกับ Figma */
+  font-size: 14px;
+  /* ตรงกับ Figma */
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+    background-color: #F5F5F9;
+  }
+
+  .stats-card {
+    width: 100%;
+    height: auto;
+  }
+
+  .stats-card .card-body {
+    padding: 1rem;
+  }
+
+  .chart-card .card-body {
+    padding: 1rem;
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+
+  .chart-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .chart-legend {
+    order: 2;
+    gap: 0.5rem;
+  }
+
+  .pie-legend {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-card h4 {
+    font-size: 20px;
+  }
+
+  .stats-card p {
+    font-size: 16px;
+  }
+
+  .chart-container {
+    height: 200px;
+  }
+
+  .legend-item {
+    font-size: 12px;
+  }
+}
+
+/* Animation for cards */
+.stats-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.chart-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Delay animation for each card */
+.col-md-3:nth-child(1) .stats-card {
+  animation-delay: 0.1s;
+}
+
+.col-md-3:nth-child(2) .stats-card {
+  animation-delay: 0.2s;
+}
+
+.col-md-3:nth-child(3) .stats-card {
+  animation-delay: 0.3s;
+}
+
+.col-md-3:nth-child(4) .stats-card {
+  animation-delay: 0.4s;
+}

@@ -1,0 +1,531 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: #F5F5F9; /* เปลี่ยนเป็นสีใหม่ */
+  margin: 0;
+  padding: 0;
+  color: #2d3436; /* สีตัวอักษรเทาเข้ม */
+}
+
+.main-content {
+  margin-left: var(--sidebar-width);
+  padding-top: var(--header-height);
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #F5F5F9; /* เปลี่ยนเป็นสีใหม่ */
+}
+
+.card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  background-color: #ffffff; /* รักษาสีขาวสำหรับ cards */
+  border: 1px solid #e9ecef; /* เพิ่มกรอบบางๆ */
+}
+
+/* Sidebar - รักษาสีขาว */
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #ffffff; /* รักษาสีขาวสำหรับ sidebar */
+  box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+  z-index: 1000;
+  overflow-y: auto;
+  border-right: 1px solid #e9ecef; /* กรอบสีเทาอ่อน */
+}
+
+/* Header - รักษาสีขาว */
+.header {
+  height: var(--header-height);
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  background-color: #ffffff; /* รักษาสีขาวสำหรับ header */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 999;
+  align-items: center;
+  padding: 0 2rem;
+  border-bottom: 1px solid #e9ecef; /* กรอบสีเทาอ่อน */
+}
+
+/* Button Styles */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #6c5ce7; /* สีม่วง */
+  border-color: #6c5ce7;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #5a4fcf;
+  border-color: #5a4fcf;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #636e72;
+  border-color: #636e72;
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background-color: #2d3436;
+  border-color: #2d3436;
+}
+
+.btn-success {
+  background-color: #00b894;
+  border-color: #00b894;
+}
+
+.btn-success:hover {
+  background-color: #00a085;
+  border-color: #00a085;
+}
+
+.btn-warning {
+  background-color: #fdcb6e;
+  border-color: #fdcb6e;
+  color: #2d3436;
+}
+
+.btn-warning:hover {
+  background-color: #e17055;
+  border-color: #e17055;
+  color: #ffffff;
+}
+
+.btn-danger {
+  background-color: #e17055;
+  border-color: #e17055;
+}
+
+.btn-danger:hover {
+  background-color: #d63031;
+  border-color: #d63031;
+}
+
+.btn-info {
+  background-color: #74b9ff;
+  border-color: #74b9ff;
+}
+
+.btn-info:hover {
+  background-color: #0984e3;
+  border-color: #0984e3;
+}
+
+/* Form Controls */
+.form-control {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  /* padding: 0.75rem 1rem; */
+  background-color: #ffffff;
+  color: #2d3436;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #6c5ce7; /* สีม่วง */
+  box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+  background-color: #ffffff;
+}
+
+.form-control::placeholder {
+  color: #6c757d;
+}
+
+/* Text Colors */
+.text-primary {
+  color: #6c5ce7 !important; /* สีม่วง */
+}
+
+.text-secondary {
+  color: #6c757d !important;
+}
+
+.text-success {
+  color: #00b894 !important;
+}
+
+.text-danger {
+  color: #e17055 !important;
+}
+
+.text-warning {
+  color: #fdcb6e !important;
+}
+
+.text-info {
+  color: #74b9ff !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.text-dark {
+  color: #2d3436 !important;
+}
+
+/* Background Colors - รักษาสีเดิมของ Dashboard Cards */
+.bg-primary {
+  background: linear-gradient(135deg, #6c5ce7 0%, #5a4fcf 100%) !important; /* สีม่วง */
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%) !important; /* สีส้ม */
+}
+
+.bg-info {
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important; /* สีฟ้า */
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #00b894 0%, #00a085 100%) !important; /* สีเขียว */
+}
+
+.bg-danger {
+  background: linear-gradient(135deg, #e17055 0%, #d63031 100%) !important;
+}
+
+.bg-secondary {
+  background: linear-gradient(135deg, #636e72 0%, #2d3436 100%) !important;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.bg-dark {
+  background-color: #2d3436 !important;
+}
+
+.bg-white {
+  background-color: #ffffff !important;
+}
+
+/* Border Colors */
+.border-primary {
+  border-color: #6c5ce7 !important; /* สีม่วง */
+}
+
+.border-secondary {
+  border-color: #6c757d !important;
+}
+
+.border-success {
+  border-color: #00b894 !important;
+}
+
+.border-danger {
+  border-color: #e17055 !important;
+}
+
+.border-warning {
+  border-color: #fdcb6e !important;
+}
+
+.border-info {
+  border-color: #74b9ff !important;
+}
+
+.border-light {
+  border-color: #e9ecef !important;
+}
+
+.border-dark {
+  border-color: #2d3436 !important;
+}
+
+/* Table Styles */
+.table {
+  background-color: #ffffff;
+  color: #2d3436;
+}
+
+.table th {
+  background-color: #ffffff;
+  color: #2d3436;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table td {
+  border-top: 1px solid #e9ecef;
+  background-color: #ffffff;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Modal Styles */
+.modal-content {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-footer {
+  background-color: #ffffff;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Alert Styles */
+.alert {
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.alert-primary {
+  background-color: rgba(108, 92, 231, 0.1);
+  border-color: #6c5ce7;
+  color: #5a4fcf;
+}
+
+.alert-secondary {
+  background-color: rgba(108, 117, 125, 0.1);
+  border-color: #6c757d;
+  color: #2d3436;
+}
+
+.alert-success {
+  background-color: rgba(0, 184, 148, 0.1);
+  border-color: #00b894;
+  color: #00a085;
+}
+
+.alert-danger {
+  background-color: rgba(225, 112, 85, 0.1);
+  border-color: #e17055;
+  color: #d63031;
+}
+
+.alert-warning {
+  background-color: rgba(253, 203, 110, 0.1);
+  border-color: #fdcb6e;
+  color: #e17055;
+}
+
+.alert-info {
+  background-color: rgba(116, 185, 255, 0.1);
+  border-color: #74b9ff;
+  color: #0984e3;
+}
+
+/* Dropdown Styles */
+.dropdown-menu {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+  color: #2d3436;
+  background-color: transparent;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #2d3436;
+}
+
+.dropdown-item.active {
+  background-color: #6c5ce7; /* สีม่วง */
+  color: #ffffff;
+}
+
+/* Badge Styles */
+.badge {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.badge.bg-primary {
+  background-color: #6c5ce7 !important; /* สีม่วง */
+}
+
+.badge.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+.badge.bg-success {
+  background-color: #00b894 !important;
+}
+
+.badge.bg-danger {
+  background-color: #e17055 !important;
+}
+
+.badge.bg-warning {
+  background-color: #fdcb6e !important;
+  color: #2d3436 !important;
+}
+
+.badge.bg-info {
+  background-color: #74b9ff !important;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .main-content {
+    margin-left: 0;
+    padding-top: var(--header-height);
+    background-color: #F5F5F9; /* เปลี่ยนเป็นสีใหม่ */
+  }
+  
+  .header {
+    left: 0;
+  }
+  
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.show {
+    transform: translateX(0);
+  }
+}
+
+/* Loading Spinner */
+.spinner-border {
+  border-color: #e9ecef;
+  border-top-color: #6c5ce7; /* สีม่วง */
+}
+
+.spinner-border-sm {
+  border-color: #e9ecef;
+  border-top-color: #6c5ce7; /* สีม่วง */
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e9ecef;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #dee2e6;
+}
+
+/* Selection Color */
+::selection {
+  background-color: rgba(108, 92, 231, 0.3);
+  color: #2d3436;
+}
+
+::-moz-selection {
+  background-color: rgba(108, 92, 231, 0.3);
+  color: #2d3436;
+}
+
+/* ===== NEW TICKET PAGE OVERRIDES ===== */
+/* Override main layout styles for new ticket page */
+.main-layout .main-content {
+  background-color: #F5F5F9 !important;
+}
+
+.main-layout .content-wrapper {
+  background-color: #F5F5F9 !important;
+}
+
+/* Specific overrides for new ticket page */
+app-ticket-create .new-ticket-page {
+  background-color: #ffffff !important;
+  padding: 20px !important;
+  margin: 0 !important;
+  width: 100% !important;
+  min-height: calc(100vh - 70px) !important;
+  border-radius: 12px;
+}
+
+/* Override any card or content wrapper styles */
+app-ticket-create .content-card {
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 21px !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Override breadcrumb container */
+app-ticket-create .breadcrumb-container {
+  background-color: #ffffff !important;
+  border: 1px solid #ECECEC !important;
+  border-radius: 8px !important;
+  margin-bottom: 24px !important;
+}
+
+/* Ensure proper spacing and layout */
+app-ticket-create .page-header {
+  margin-bottom: 24px !important;
+}
+
+/* Override any global form styles */
+app-ticket-create .form-group {
+  margin-bottom: 20px !important;
+}
+
+app-ticket-create .form-select {
+  width: 453px !important;
+  max-width: 100% !important;
+  border: 1px solid #D9D9D9 !important;
+  background-color: #ffffff !important;
+}
+
+/* Override rich text editor styles */
+app-ticket-create .rich-text-editor-container {
+  border: 1px solid #D9D9D9 !important;
+  background-color: #ffffff !important;
+}
+
+/* Override file upload area */
+app-ticket-create .file-upload-area {
+  border: 1px solid #D9D9D9 !important;
+  background-color: #ffffff !important;
+}
+
+/* Make sure responsive works properly */
+@media (max-width: 768px) {
+  app-ticket-create .dropdown-container {
+    width: 100% !important;
+  }
+  
+  app-ticket-create .form-select {
+    width: 100% !important;
+  }
+}

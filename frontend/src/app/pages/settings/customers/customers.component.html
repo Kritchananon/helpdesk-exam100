@@ -1,0 +1,496 @@
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+  <span class="breadcrumb-item inactive">Setting</span>
+  <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M6.5 3L11 8l-4.5 5" />
+  </svg>
+  <span class="breadcrumb-item active">Customers</span>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="search-filter-section">
+  <div class="search-filters">
+    <!-- Search Box -->
+    <div class="search-box">
+      <label class="search-label">Search</label>
+      <div class="search-input">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path
+            d="M8.11 1C12.59 1 16.22 4.63 16.22 9.11C16.22 10.81 15.63 12.37 14.65 13.62L17.76 16.73L16.35 18.14L13.24 15.03C11.99 16.01 10.43 16.6 8.73 16.6C4.25 16.6 0.62 12.97 0.62 8.49C0.62 4.01 4.25 0.38 8.73 0.38"
+            stroke="currentColor" stroke-width="1.5" />
+        </svg>
+        <input type="text" placeholder="Search for customers..." [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Create New Customer Button -->
+  <button class="create-button" (click)="onCreateNewCustomer()" *ngIf="canCreateCustomer()">
+    <svg class="create-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+    </svg>
+    Create New Customer
+  </button>
+
+  <!-- Permission Denied Message for Create Button -->
+  <div class="permission-denied" *ngIf="!canCreateCustomer()">
+    <svg class="warning-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+    </svg>
+    <span>{{ getPermissionRequiredMessage() }}</span>
+  </div>
+</div>
+
+<!-- Customer Statistics Cards -->
+<div class="stats-section" *ngIf="!isLoading">
+  <div class="stat-card">
+    <div class="stat-number">{{ getStatsDisplay().total }}</div>
+    <div class="stat-label">Total Customers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ getStatsDisplay().active }}</div>
+    <div class="stat-label">Active Customers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ getStatsDisplay().inactive }}</div>
+    <div class="stat-label">Inactive Customers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ getStatsDisplay().newThisMonth }}</div>
+    <div class="stat-label">New This Month</div>
+  </div>
+</div>
+
+<!-- Customer Table -->
+<div class="customer-table-container">
+  <!-- Loading State -->
+  <div class="table-loading" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading customers...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="hasError && !isLoading">
+    <div class="error-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="#DC3545">
+        <path d="M16 3L3 16l13 13 13-13L16 3zm0 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm2-6h-4v-8h4v8z"/>
+      </svg>
+    </div>
+    <h3 style="margin-bottom: 8px; color: #DC3545;">Error Loading Customers</h3>
+    <p style="color: #6C757D;">{{ errorMessage }}</p>
+    <button class="retry-button" (click)="refreshData()">Try Again</button>
+  </div>
+
+  <!-- Table Content -->
+  <table class="customer-table" *ngIf="!isLoading && !hasError">
+    <thead class="table-header">
+      <tr>
+        <th>รายการที่</th>
+        <th>Company</th>
+        <th>Company Address</th>
+        <th>Email</th>
+        <th>Phone Number</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="table-row" *ngFor="let customer of filteredCustomers; trackBy: trackByCustomerId; let i = index">
+        <td class="table-cell">
+          <div class="customer-number">{{ i + 1 }}</div>
+        </td>
+        <td class="table-cell">
+          <div class="customer-info-cell">
+            <div class="customer-avatar" [style.background-color]="'#5873F8'">
+              {{ getCompanyInitial(customer) }}
+            </div>
+            <div class="customer-details">
+              <div class="customer-company">{{ getCompanyDisplayName(customer) }}</div>
+              <div class="customer-status">
+                <span class="status-badge" 
+                      [class.status-active]="customer.status === true" 
+                      [class.status-inactive]="customer.status === false">
+                  {{ getCustomerStatus(customer) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="table-cell">
+          <div class="customer-address">{{ customer.address || 'No address provided' }}</div>
+        </td>
+        <td class="table-cell">
+          <div class="customer-email">
+            <a [href]="'mailto:' + (customer.email || '')" class="email-link">{{ customer.email || 'No email' }}</a>
+          </div>
+        </td>
+        <td class="table-cell">
+          <div class="customer-phone">
+            <a [href]="'tel:' + (customer.telephone || '')" class="phone-link">
+              {{ customer.telephone || 'No phone' }}
+            </a>
+          </div>
+        </td>
+        <td class="table-cell">
+          <div class="action-buttons">
+            <button class="action-button edit-button" 
+                    (click)="onEditCustomer(getCustomerId(customer))" 
+                    *ngIf="hasValidId(customer) && canEditCustomer(customer)"
+                    [disabled]="isLoading">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                <path d="M11.5 2.5a1.5 1.5 0 0 0-2.12 0L3 8.88V12h3.12l6.38-6.38a1.5 1.5 0 0 0 0-2.12l-1-1z" />
+              </svg>
+              Edit
+            </button>
+            <button class="action-button delete-button" 
+                    (click)="onDeleteCustomer(getCustomerId(customer))" 
+                    *ngIf="hasValidId(customer) && canDeleteCustomer(customer)"
+                    [disabled]="isLoading">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                <path
+                  d="M5.5 1a.5.5 0 0 0-.5.5v.5h4v-.5a.5.5 0 0 0-.5-.5h-3zM3 3v9a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3H3z" />
+              </svg>
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="filteredCustomers.length === 0 && !isLoading && !hasError">
+    <div class="empty-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="#ADB5BD">
+        <path
+          d="M16 4C9.373 4 4 9.373 4 16s5.373 12 12 12 12-5.373 12-12S22.627 4 16 4zm0 18c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z" />
+      </svg>
+    </div>
+    <h3 style="margin-bottom: 8px; color: #495057;">No customers found</h3>
+    <p style="color: #6C757D;">{{ searchTerm ? 'Try adjusting your search criteria' : 'No customers available' }}</p>
+  </div>
+</div>
+
+<!-- Create Customer Modal -->
+<div class="modal-backdrop" *ngIf="isCreateModalVisible" (click)="onBackdropClick()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Create New Customer</h2>
+      <button class="close-button" (click)="onModalClose()" type="button" [disabled]="isSubmitting">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z"/>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="modal-body">
+        <!-- Company Name -->
+        <div class="form-group">
+          <label class="form-label" for="companyName">
+            Company Name <span class="required">*</span>
+          </label>
+          <input
+            id="companyName"
+            type="text"
+            class="form-input"
+            formControlName="name"
+            placeholder="Enter company name"
+            [class.error]="isFieldInvalid('name')"
+            [disabled]="isSubmitting"
+            autocomplete="organization"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('name')">
+            {{ getFieldError('name') }}
+          </div>
+        </div>
+
+        <!-- Company Address -->
+        <div class="form-group">
+          <label class="form-label" for="companyAddress">
+            Company Address <span class="required">*</span>
+          </label>
+          <textarea
+            id="companyAddress"
+            class="form-textarea"
+            formControlName="address"
+            placeholder="Enter company address"
+            rows="3"
+            maxlength="300"
+            [class.error]="isFieldInvalid('address')"
+            [disabled]="isSubmitting"
+            autocomplete="street-address"
+          ></textarea>
+          <div class="character-count">
+            {{ getAddressLength() }}/300 characters
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('address')">
+            {{ getFieldError('address') }}
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="email">
+            Email <span class="required">*</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            class="form-input"
+            formControlName="email"
+            placeholder="Enter email address"
+            [class.error]="isFieldInvalid('email')"
+            [disabled]="isSubmitting"
+            autocomplete="email"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('email')">
+            {{ getFieldError('email') }}
+          </div>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+          <label class="form-label" for="telephone">
+            Phone Number <span class="required">*</span>
+          </label>
+          <input
+            id="telephone"
+            type="tel"
+            class="form-input"
+            formControlName="telephone"
+            placeholder="Enter phone number"
+            [class.error]="isFieldInvalid('telephone')"
+            [disabled]="isSubmitting"
+            autocomplete="tel"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('telephone')">
+            {{ getFieldError('telephone') }}
+          </div>
+        </div>
+
+        <!-- Status Selection -->
+        <div class="form-group">
+          <label class="form-label">Initial Status</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input
+                type="radio"
+                formControlName="status"
+                [value]="true"
+                class="radio-input"
+                [disabled]="isSubmitting"
+              />
+              <span class="radio-custom"></span>
+              <span class="radio-text">Active</span>
+            </label>
+            <label class="radio-label">
+              <input
+                type="radio"
+                formControlName="status"
+                [value]="false"
+                class="radio-input"
+                [disabled]="isSubmitting"
+              />
+              <span class="radio-custom"></span>
+              <span class="radio-text">Inactive</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" 
+                class="btn btn-secondary" 
+                (click)="onModalClose()" 
+                [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="btn btn-primary" 
+                [disabled]="customerForm.invalid || isSubmitting">
+          <span *ngIf="isSubmitting" class="loading-spinner"></span>
+          {{ isSubmitting ? 'Creating...' : 'Create Customer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Customer Modal -->
+<div class="modal-backdrop" *ngIf="isEditModalVisible" (click)="onEditBackdropClick()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Edit Customer</h2>
+      <button class="close-button" (click)="onEditModalClose()" type="button" [disabled]="isSubmitting">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z"/>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="editForm" (ngSubmit)="onEditSubmit()" novalidate>
+      <div class="modal-body">
+        <!-- Company Name -->
+        <div class="form-group">
+          <label class="form-label" for="editCompanyName">
+            Company Name <span class="required">*</span>
+          </label>
+          <input
+            id="editCompanyName"
+            type="text"
+            class="form-input"
+            formControlName="name"
+            placeholder="Enter company name"
+            [class.error]="isFieldInvalid('name', editForm)"
+            [disabled]="isSubmitting"
+            autocomplete="organization"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('name', editForm)">
+            {{ getFieldError('name', editForm) }}
+          </div>
+        </div>
+
+        <!-- Company Address -->
+        <div class="form-group">
+          <label class="form-label" for="editCompanyAddress">
+            Company Address <span class="required">*</span>
+          </label>
+          <textarea
+            id="editCompanyAddress"
+            class="form-textarea"
+            formControlName="address"
+            placeholder="Enter company address"
+            rows="3"
+            maxlength="300"
+            [class.error]="isFieldInvalid('address', editForm)"
+            [disabled]="isSubmitting"
+            autocomplete="street-address"
+          ></textarea>
+          <div class="character-count">
+            {{ getAddressLength(editForm) }}/300 characters
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('address', editForm)">
+            {{ getFieldError('address', editForm) }}
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="editEmail">
+            Email <span class="required">*</span>
+          </label>
+          <input
+            id="editEmail"
+            type="email"
+            class="form-input"
+            formControlName="email"
+            placeholder="Enter email address"
+            [class.error]="isFieldInvalid('email', editForm)"
+            [disabled]="isSubmitting"
+            autocomplete="email"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('email', editForm)">
+            {{ getFieldError('email', editForm) }}
+          </div>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+          <label class="form-label" for="editTelephone">
+            Phone Number <span class="required">*</span>
+          </label>
+          <input
+            id="editTelephone"
+            type="tel"
+            class="form-input"
+            formControlName="telephone"
+            placeholder="Enter phone number"
+            [class.error]="isFieldInvalid('telephone', editForm)"
+            [disabled]="isSubmitting"
+            autocomplete="tel"
+          />
+          <div class="error-message" *ngIf="isFieldInvalid('telephone', editForm)">
+            {{ getFieldError('telephone', editForm) }}
+          </div>
+        </div>
+
+        <!-- Status Selection -->
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input
+                type="radio"
+                formControlName="status"
+                [value]="true"
+                class="radio-input"
+                [disabled]="isSubmitting"
+              />
+              <span class="radio-custom"></span>
+              <span class="radio-text">Active</span>
+            </label>
+            <label class="radio-label">
+              <input
+                type="radio"
+                formControlName="status"
+                [value]="false"
+                class="radio-input"
+                [disabled]="isSubmitting"
+              />
+              <span class="radio-custom"></span>
+              <span class="radio-text">Inactive</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" 
+                class="btn btn-secondary" 
+                (click)="onEditModalClose()" 
+                [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="btn btn-primary" 
+                [disabled]="editForm.invalid || isSubmitting">
+          <span *ngIf="isSubmitting" class="loading-spinner"></span>
+          {{ isSubmitting ? 'Updating...' : 'Update Customer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Refresh Button (Floating) -->
+<button class="refresh-button" 
+        (click)="refreshData()" 
+        title="Refresh Data"
+        [disabled]="isLoading">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
+    <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
+  </svg>
+</button>
+
+<!-- Notification Display -->
+<div class="notification" *ngIf="notification" [class]="'notification-' + notification.type">
+  <div class="notification-content">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="notification-icon">
+      <!-- Success Icon -->
+      <path *ngIf="notification.type === 'success'" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm3.78-9.72a.75.75 0 0 0-1.06-1.06L6.75 9.19 5.28 7.72a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l4.5-4.5z"/>
+      <!-- Error Icon -->
+      <path *ngIf="notification.type === 'error'" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+      <!-- Warning Icon -->
+      <path *ngIf="notification.type === 'warning'" d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+      <!-- Info Icon -->
+      <path *ngIf="notification.type === 'info'" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+    </svg>
+    <span>{{ notification.message }}</span>
+    <button class="notification-close" (click)="clearNotification()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+        <path d="M.293.293a1 1 0 0 1 1.414 0L6 4.586 10.293.293a1 1 0 1 1 1.414 1.414L7.414 6l4.293 4.293a1 1 0 0 1-1.414 1.414L6 7.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L5.586 6 1.293 1.707a1 1 0 0 1 0-1.414z"/>
+      </svg>
+    </button>
+  </div>
+</div>

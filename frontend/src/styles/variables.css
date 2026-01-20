@@ -1,0 +1,18 @@
+:root {
+  --primary-color: #4285f4;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  
+  --sidebar-width: 250px;
+  --header-height: 70px;
+  
+  --border-radius: 6px;
+  --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

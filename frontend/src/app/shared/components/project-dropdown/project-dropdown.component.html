@@ -1,0 +1,37 @@
+<div class="form-group">
+  <label *ngIf="label" for="projectSelect" class="form-label">
+    {{ label }}
+    <span *ngIf="required" class="required">*</span>
+  </label>
+  
+  <div class="select-wrapper">
+    <select 
+      id="projectSelect"
+      class="form-select"
+      [class.is-invalid]="hasError"
+      [value]="selectedProjectId"
+      (change)="onSelectionChange($event)"
+      [disabled]="loading || disabled">
+      
+      <option value="">{{ placeholder }}</option>
+      <option *ngFor="let project of projects" [value]="project.id">
+        {{ getProjectDisplayName(project) }}
+      </option>
+    </select>
+  </div>
+  
+  <div *ngIf="loading" class="loading-message">
+    <span class="spinner-border spinner-border-sm me-2"></span>
+    กำลังโหลด...
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button type="button" class="retry-btn ms-2" (click)="refresh()">ลองใหม่</button>
+  </div>
+  
+  <div *ngIf="hasError && errorText" class="validation-error">
+    {{ errorText }}
+  </div>
+</div>

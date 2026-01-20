@@ -1,0 +1,149 @@
+<!-- src/app/shared/components/header/header.component.html -->
+
+<!-- ✅ Token Warning Bar -->
+<div *ngIf="showTokenWarning" class="token-warning-bar">
+  <span>⚠️ {{ getTimeLeftText() }}</span>
+  <button (click)="refreshSession()" class="btn-refresh" [disabled]="isRefreshing">
+    <span *ngIf="isRefreshing" class="spinner-border spinner-border-sm me-2"></span>
+    {{ isRefreshing ? translate('common.refreshing') : translate('common.extendSession') }}
+  </button>
+  <button (click)="dismissWarning()" class="btn-dismiss" [attr.aria-label]="translate('common.dismiss')">×</button>
+</div>
+
+<header class="header">
+  <div class="header-content">
+    <!-- Mobile Menu Toggle -->
+    <button 
+      class="mobile-menu-toggle d-md-none" 
+      (click)="toggleMobileMenu()"
+      [attr.aria-label]="translate('common.toggleMenu')">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Right Side Navigation -->
+    <div class="header-nav ms-auto">
+
+      <!-- ✅ Notifications Bell (Support team only) -->
+      <app-notification-bell></app-notification-bell>
+
+      <!-- ✅ Language Selector Component -->
+      <app-language-selector 
+        [style]="'dropdown'"
+        [size]="'md'"
+        [buttonStyle]="'outline'"
+        [dropdownPosition]="'end'"
+        [showLanguageName]="true"
+        [showFlag]="true"
+        [ariaLabel]="translate('common.selectLanguage')"
+        (languageChanged)="onLanguageChanged($event)">
+      </app-language-selector>
+
+      <!-- User Dropdown -->
+      <div class="dropdown">
+        <button 
+          class="btn-link dropdown-toggle user-dropdown" 
+          type="button" 
+          data-bs-toggle="dropdown"
+          aria-expanded="false" 
+          [attr.aria-label]="translate('common.userMenu')">
+          <div class="user-avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <span class="user-name ms-2">
+            {{ getGreeting() }}, {{ currentUser?.username || 'User' }}
+          </span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end user-menu">
+          <!-- User Info Header -->
+          <li class="dropdown-header">
+            <div class="user-info">
+              <div class="user-avatar-large">
+                <i class="bi bi-person-circle"></i>
+              </div>
+              <div class="user-details">
+                <div class="user-name-full">{{ getUserFullName() }}</div>
+                <div class="user-email">{{ getUserContact() || currentUser?.username }}</div>
+                <div class="user-role-small">
+                  <i class="bi" [ngClass]="{
+                       'bi-shield-check': isAdmin(),
+                       'bi-headset': isSupporter(),
+                       'bi-person': isUser()
+                     }"></i>
+                  {{ getRoleDisplay() }}
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+
+          <!-- Profile Link -->
+          <li>
+            <a class="dropdown-item" href="#" (click)="goToProfile($event)">
+              <i class="bi bi-person me-2"></i>
+              {{ translate('menu.myProfile') }}
+            </a>
+          </li>
+
+          <!-- Settings Link -->
+          <li>
+            <a class="dropdown-item" href="#" (click)="goToSettings($event)">
+              <i class="bi bi-gear me-2"></i>
+              {{ translate('menu.settings') }}
+            </a>
+          </li>
+
+          <!-- ✅ Role-specific menu items -->
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+
+          <!-- Admin Panel (Admin only) -->
+          <li *ngIf="hasRole(ROLES.ADMIN)">
+            <a class="dropdown-item" [routerLink]="['/admin']">
+              <i class="bi bi-shield-check me-2"></i>
+              {{ translate('menu.adminPanel') }}
+            </a>
+          </li>
+
+          <!-- Support Panel (Support team only) -->
+          <li *ngIf="hasAnyRole([ROLES.ADMIN, ROLES.SUPPORTER])">
+            <a class="dropdown-item" [routerLink]="['/support']">
+              <i class="bi bi-headset me-2"></i>
+              {{ translate('menu.supportPanel') }}
+            </a>
+          </li>
+
+          <!-- User Management (Admin only) -->
+          <li *ngIf="hasPermission(permissionEnum.ADD_USER) || hasPermission(permissionEnum.DEL_USER)">
+            <a class="dropdown-item" [routerLink]="['/admin/users']">
+              <i class="bi bi-people me-2"></i>
+              {{ translate('menu.userManagement') }}
+            </a>
+          </li>
+
+          <!-- Reports (Support team only) -->
+          <li *ngIf="hasAnyRole([ROLES.ADMIN, ROLES.SUPPORTER])">
+            <a class="dropdown-item" [routerLink]="['/reports']">
+              <i class="bi bi-graph-up me-2"></i>
+              {{ translate('menu.reports') }}
+            </a>
+          </li>
+
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+
+          <!-- Logout Link -->
+          <li>
+            <a class="dropdown-item text-danger" href="#" (click)="logout($event)">
+              <i class="bi bi-box-arrow-right me-2"></i>
+              {{ translate('common.logout') }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>

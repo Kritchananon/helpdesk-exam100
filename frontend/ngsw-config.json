@@ -1,0 +1,118 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.csr.html",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "dropdown-data",
+      "urls": [
+        "/api/getCategoriesDDL",
+        "/api/getProjectDDL"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 100,
+        "maxAge": "5m",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "dropdown-fallback",
+      "urls": [
+        "/api/getCategoriesDDL",
+        "/api/getProjectDDL"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "ticket-data",
+      "urls": [
+        "/api/getAllTicket",
+        "/api/getAllMasterFilter",
+        "/api/getTicketData"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "2m",
+        "timeout": "8s"
+      }
+    },
+    {
+      "name": "user-data",
+      "urls": [
+        "/api/users/**",
+        "/api/login",
+        "/api/refresh"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 20,
+        "maxAge": "10m",
+        "timeout": "8s"
+      }
+    },
+    {
+      "name": "static-api",
+      "urls": [
+        "/api/ticket-status",
+        "/api/ticket-categories"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 10,
+        "maxAge": "1h",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "images-api",
+      "urls": [
+        "/api/images/**",
+        "/uploads/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 200,
+        "maxAge": "1d",
+        "timeout": "15s"
+      }
+    }
+  ],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**"
+  ]
+}

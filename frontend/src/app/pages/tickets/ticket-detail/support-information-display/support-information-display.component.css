@@ -1,0 +1,318 @@
+/* ===== SUPPORT INFORMATION DISPLAY STYLES ===== */
+
+.support-info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  gap: 10px;
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.support-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  width: 100%;
+}
+
+.support-title-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 8px;
+  width: 100%;
+}
+
+.support-title-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 12px;
+  width: 100%;
+}
+
+.support-title {
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+  color: #212121;
+  margin: 0;
+  flex: none;
+}
+
+/* ===== PROGRESS BAR ===== */
+
+.support-progress-section {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0px;
+  width: 100%;
+  height: 3px;
+  margin-bottom: 16px;
+}
+
+.support-progress-fill {
+  width: 160px;
+  height: 3px;
+  background: #5873F8;
+  border-radius: 2px;
+}
+
+.support-progress-remaining {
+  height: 2px;
+  background: rgba(88, 115, 248, 0.1);
+  flex: 1;
+  border-radius: 1px;
+}
+
+/* ===== SUPPORT DETAILS LAYOUT ===== */
+
+.support-details {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.support-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 16px;
+  gap: 16px;
+  border-radius: 8px;
+  min-height: 60px;
+}
+
+/* First row: Close Estimate, Estimate Time, Due Date, Lead Time */
+.support-row.first-row {
+  width: 100%;
+}
+
+/* Second row: Assignee, Related Tickets */
+.support-row.second-row {
+  width: 100%;
+}
+
+/* Third row: Change Request, Fix Description, Attachment */
+.support-row.third-row {
+  width: 100%;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.support-row.third-row .support-item {
+  width: 100%;
+  padding-bottom: 16px;
+  margin-bottom: 0;
+}
+
+.support-row.third-row .support-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* ===== SUPPORT ITEMS ===== */
+
+.support-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 8px;
+  min-height: 48px;
+  flex: 1;
+}
+
+.support-label {
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 120%;
+  color: #737373;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.support-value {
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 120%;
+  color: #212121;
+  margin: 0;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+/* ✅ Attachment Section - ให้ support-value ใช้พื้นที่เต็ม */
+.support-item.attachment .support-value {
+  width: 100%;
+}
+
+/* ✅ No Attachments Text */
+.no-attachments-text {
+  color: #212121;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* ===== DIVIDERS ===== */
+
+.support-divider {
+  width: 1px;
+  height: 40px;
+  background: #D9D9D9;
+  margin: 0 16px;
+  flex: none;
+}
+
+/* ===== PRIORITY STYLING ===== */
+
+.priority-high {
+  color: #DC3545 !important;
+  font-weight: 700;
+}
+
+.priority-medium {
+  color: #FFC107 !important;
+  font-weight: 600;
+}
+
+.priority-low {
+  color: #28A745 !important;
+  font-weight: 500;
+}
+
+.priority-normal {
+  color: #6C757D;
+  font-weight: 500;
+}
+
+/* ===== NO DATA STATE ===== */
+
+.no-data-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  background: #F8F9FF;
+  border-radius: 8px;
+  border: 1px solid #E3E7FF;
+}
+
+.no-data-state i {
+  font-size: 2.5rem;
+  color: #737373;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.no-data-state p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212121;
+  margin-bottom: 6px;
+}
+
+.no-data-state small {
+  font-size: 12px;
+  color: #737373;
+  font-style: italic;
+}
+
+/* ===== UTILITY TEXT COLORS ===== */
+
+.text-danger { color: #DC3545 !important; }
+.text-primary { color: #0D6EFD !important; }
+.text-success { color: #198754 !important; }
+.text-info { color: #0DCAF0 !important; }
+.text-warning { color: #FFC107 !important; }
+.text-secondary { color: #6C757D !important; }
+.text-muted { color: #737373 !important; }
+.text-purple { color: #6F42C1 !important; }
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 1024px) {
+  .support-info-card {
+    padding: 16px;
+  }
+  
+  .support-row {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .support-divider {
+    margin: 0 12px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .support-info-card {
+    padding: 12px;
+  }
+  
+  .support-row {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .support-divider {
+    display: none;
+  }
+  
+  .support-item {
+    width: 100%;
+  }
+  
+  .support-label {
+    font-size: 13px;
+  }
+  
+  .support-value {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  .support-info-card {
+    padding: 10px;
+  }
+  
+  .support-row {
+    padding: 10px;
+  }
+  
+  .support-label {
+    font-size: 12px;
+  }
+  
+  .support-value {
+    font-size: 12px;
+  }
+
+  .no-attachments-text {
+    font-size: 12px;
+  }
+}

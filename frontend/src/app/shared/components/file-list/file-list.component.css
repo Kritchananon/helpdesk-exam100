@@ -1,0 +1,346 @@
+/* file-list.component.css */
+
+.attachments-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 10px;
+  width: 100%;
+  min-height: 129px;
+}
+
+.attachment-label {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 120%;
+  color: #737373;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.attachment-grid {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 10px;
+  width: 100%;
+  min-height: 100px;
+  flex-wrap: wrap;
+}
+
+.attachment-item {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #D9D9D9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  position: relative;
+  background: white;
+}
+
+.attachment-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #5873F8;
+}
+
+/* Loading State */
+.attachment-item.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.attachment-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: #F8F9FA;
+  color: #6C757D;
+  border-radius: 6px;
+}
+
+.attachment-loading i {
+  font-size: 24px;
+  margin-bottom: 8px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Badge styling */
+.file-type.badge {
+  color: white;
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+/* Image Preview */
+.attachment-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: #f8f9fa;
+}
+
+.attachment-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.file-info-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  color: white;
+  padding: 4px;
+  font-size: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.attachment-preview:hover .file-info-overlay {
+  opacity: 1;
+}
+
+.file-name-small {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 9px;
+}
+
+.file-size {
+  font-size: 8px;
+  opacity: 0.8;
+}
+
+/* File Display */
+.attachment-file {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  width: 100%;
+  height: 100%;
+  background: #FFFFFF;
+  position: relative;
+}
+
+.file-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+}
+
+.file-icon-container i {
+  font-size: 32px;
+  transition: transform 0.2s ease;
+}
+
+.attachment-file:hover .file-icon-container i {
+  transform: scale(1.1);
+}
+
+.file-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.file-name {
+  font-size: 9px;
+  font-weight: 600;
+  color: #212121;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.file-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.file-type {
+  font-size: 8px;
+  font-weight: 700;
+  color: #6C757D;
+  background: #E9ECEF;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.file-size {
+  font-size: 7px;
+  color: #6C757D;
+}
+
+.download-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background: rgba(88, 115, 248, 0.1);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.download-indicator i {
+  font-size: 8px;
+  color: #5873F8;
+}
+
+.attachment-file:hover .download-indicator {
+  opacity: 1;
+}
+
+/* No Attachments */
+.no-attachments {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100px;
+  color: #6C757D;
+  font-style: italic;
+  gap: 8px;
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 6px;
+}
+
+.no-attachments i {
+  font-size: 24px;
+  opacity: 0.5;
+}
+
+/* ✅ จัดการกรณีโหลดรูปไม่สำเร็จ */
+.attachment-item.image-load-failed .attachment-preview {
+  display: none;
+}
+
+.attachment-item.image-load-failed .attachment-file {
+  display: flex !important;
+}
+
+/* ✅ ปรับแต่ง badge */
+.file-type.badge {
+  font-size: 8px;
+  padding: 2px 6px;
+  font-weight: 700;
+}
+
+/* ✅ File icon ขนาดใหญ่ขึ้น */
+.file-icon {
+  font-size: 36px;
+  transition: all 0.3s ease;
+}
+
+.attachment-item:hover .file-icon {
+  transform: scale(1.2);
+}
+
+/* ✅ ID text */
+.file-id {
+  display: block;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* Debug Info */
+.debug-info {
+  font-size: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+/* ✅ ปรับขนาดรูปและไฟล์ให้เท่ากัน */
+.attachment-item {
+  width: 120px !important;
+  height: 120px !important;
+  position: relative;
+}
+
+.attachment-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* ✅ ปุ่มลบไฟล์ */
+.remove-attachment-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.attachment-item:hover .remove-attachment-btn {
+  opacity: 1;
+}
+
+.remove-attachment-btn:hover {
+  background: #dc3545;
+  transform: scale(1.1);
+}

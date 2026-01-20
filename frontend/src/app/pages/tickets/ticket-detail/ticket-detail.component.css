@@ -1,0 +1,2810 @@
+/* ===== ✅ SUPPORT DETAILS SECTION ===== */
+
+.support-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  /* เพิ่มจาก 0px */
+  width: 100%;
+  margin-top: 20px;
+}
+
+.support-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  /* เปลี่ยนจาก center */
+  padding: 20px;
+  /* เพิ่ม padding */
+  gap: 32px;
+  /* เพิ่มจาก 48px */
+  width: 100%;
+  min-height: 80px;
+  /* เพิ่มจาก 48px */
+  background: #F8F9FF;
+  border-radius: 12px;
+  border: 1px solid #E3E7FF;
+  margin-bottom: 16px;
+}
+
+.support-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 12px;
+  /* เพิ่มจาก 10px */
+  min-height: 60px;
+  /* เพิ่มจาก 48px */
+  flex: 1;
+}
+
+.support-label {
+  font-weight: 600;
+  /* เพิ่มจาก 500 */
+  font-size: 16px;
+  line-height: 120%;
+  color: #5873F8;
+  margin-bottom: 4px;
+}
+
+.support-value {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 140%;
+  /* เพิ่ม line-height */
+  color: #1E2A5E;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.support-divider {
+  width: 2px;
+  /* เปลี่ยนจาก 42px */
+  height: 40px;
+  /* เปลี่ยนจาก 0px */
+  background: #E3E7FF;
+  transform: none;
+  /* ลบ rotate */
+  border: none;
+  border-radius: 1px;
+}
+
+/* Fix Attachments ใน Support Details */
+.fix-attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* เพิ่มจาก 8px */
+  padding: 10px 16px;
+  /* เพิ่มจาก 4px 8px */
+  background: #FFFFFF;
+  border: 2px solid #E3E7FF;
+  border-radius: 8px;
+  /* เพิ่มจาก 4px */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+  /* เพิ่มจาก 4px */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.fix-attachment-item:hover {
+  background: #F8F9FF;
+  border-color: #5873F8;
+  transform: translateX(6px);
+  box-shadow: 0 4px 16px rgba(88, 115, 248, 0.1);
+}
+
+.fix-attachment-item i {
+  font-size: 18px;
+  /* เพิ่มจาก 14px */
+  color: #5873F8;
+}
+
+.fix-attachment-item span {
+  font-size: 14px;
+  /* เพิ่มจาก 12px */
+  font-weight: 600;
+  /* เพิ่มจาก 500 */
+  color: #1E2A5E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  /* เพิ่มจาก 120px */
+}
+
+/* ===== MAIN CONTAINER ===== */
+
+.ticket-detail-page {
+  padding: 0 !important;
+  background-color: #F5F5F9 !important;
+  min-height: calc(100vh - 70px);
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* ===== LOADING & ERROR STATES ===== */
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  background-color: #F5F5F9;
+}
+
+.loading-spinner {
+  text-align: center;
+  color: #737373;
+}
+
+/* ✅ แก้ไข: ลบ animation ออกจาก loading spinner */
+.loading-spinner .spinner-border-lg {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #5873F8;
+  border-radius: 50%;
+  /* ✅ ลบ animation ออก - ไม่ให้หมุน */
+  /* animation: spin 1s linear infinite; */
+}
+
+.loading-spinner p {
+  margin-top: 1rem;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ✅ สร้าง static loading indicator ที่ไม่หมุน */
+.static-loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #737373;
+}
+
+.static-loading-circle {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #5873F8;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  /* ไม่มี animation */
+}
+
+.static-loading-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #737373;
+}
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  background-color: #F5F5F9;
+}
+
+.error-content {
+  text-align: center;
+  color: #737373;
+}
+
+.error-icon {
+  font-size: 4rem;
+  color: #DC3545;
+  margin-bottom: 1rem;
+}
+
+/* ===== BREADCRUMB ===== */
+
+.breadcrumb-container {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 11px 12px;
+  gap: 6px;
+  width: 100%;
+  height: 38px;
+  background: #FFFFFF;
+  border: 1px solid #ECECEC;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.breadcrumb {
+  margin: 0;
+  background: none;
+  padding: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumb-item {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 100%;
+  color: #737373;
+}
+
+.breadcrumb-item.active {
+  color: #000000;
+  font-weight: 500;
+}
+
+.breadcrumb-item a {
+  color: #737373;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+  content: "›";
+  color: #414141;
+  font-weight: normal;
+  margin: 0 6px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+/* ===== LAYOUT ===== */
+
+.layout-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  position: relative;
+}
+
+.main-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== TICKET CARD ===== */
+
+.ticket-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  gap: 24px;
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 12px;
+}
+
+/* Ticket Header */
+.ticket-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 12px;
+  width: 100%;
+  height: 32px;
+}
+
+.ticket-header-left {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px;
+  gap: 12px;
+  flex: 1;
+}
+
+.ticket-title-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 12px;
+  width: 420px;
+  height: 24px;
+}
+
+.ticket-title {
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 100%;
+  color: #212121;
+  margin: 0;
+}
+
+.ticket-header-right {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0px;
+  gap: 12px;
+  width: 126px;
+  height: 24px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* Action Buttons */
+.btn-delete {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 0px;
+  gap: 4px;
+  width: 45px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  color: #DC3545;
+  cursor: pointer;
+}
+
+.btn-delete.disabled {
+  color: #adb5bd;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-edit {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 12px;
+  gap: 4px;
+  width: 69px;
+  height: 24px;
+  border: 1px solid #5873F8;
+  border-radius: 6px;
+  background: transparent;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  color: #5873F8;
+  cursor: pointer;
+}
+
+.btn-edit:hover:not(.disabled) {
+  background: #5873F8;
+  color: #FFFFFF;
+}
+
+.btn-edit.disabled {
+  border-color: #adb5bd;
+  color: #adb5bd;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ===== STATUS BADGE ===== */
+
+.status-badge {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 12px;
+  gap: 4px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.status-icon {
+  width: 14px;
+  height: 14px;
+}
+
+i.status-icon {
+  display: flex;
+  align-items: center;
+}
+
+.status-text {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+}
+
+/* Status Badge Colors */
+.badge-pending {
+  background: #FFCC00;
+}
+
+.badge-pending .status-icon,
+.badge-pending .status-text {
+  color: #414141;
+}
+
+.badge-in-progress {
+  background: #CAF3FA;
+}
+
+.badge-in-progress .status-icon,
+.badge-in-progress .status-text {
+  color: #569CD5;
+}
+
+.badge-hold {
+  background: #F5F5F9;
+}
+
+.badge-hold .status-icon,
+.badge-hold .status-text {
+  color: #414141;
+}
+
+.badge-resolved {
+  background: #AAE674;
+}
+
+.badge-resolved .status-icon,
+.badge-resolved .status-text {
+  color: #228000;
+}
+
+.badge-complete {
+  background: #009D41;
+}
+
+.badge-complete .status-icon,
+.badge-complete .status-text {
+  color: #F5F5F9;
+}
+
+.badge-cancel {
+  background: #D22B2B;
+}
+
+.badge-cancel .status-icon,
+.badge-cancel .status-text {
+  color: #F5F5F9;
+}
+
+/* ===== PROGRESS BAR ===== */
+
+.progress-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0px;
+  width: 100%;
+  height: 2px;
+}
+
+.progress-fill {
+  width: 260px;
+  height: 2px;
+  background: #5873F8;
+}
+
+.progress-remaining {
+  width: 612px;
+  height: 1px;
+  background: rgba(88, 115, 248, 0.1);
+  flex: 1;
+}
+
+/* ===== TICKET DETAILS ===== */
+
+.ticket-details {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px;
+  gap: 10px;
+  width: 100%;
+  height: 48px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 10px;
+  height: 48px;
+}
+
+.detail-label {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 120%;
+  color: #737373;
+}
+
+.detail-value {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 120%;
+  color: #212121;
+}
+
+.priority-high {
+  color: #DC3545;
+}
+
+.detail-divider {
+  width: 42px;
+  height: 0px;
+  border: 0.5px solid #D9D9D9;
+  transform: rotate(90deg);
+}
+
+/* ===== ISSUE SECTION ===== */
+
+.issue-section {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 10px;
+  gap: 12px;
+  width: 100%;
+  height: 68px;
+  background: #F5F5F9;
+  border-radius: 12px;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+}
+
+.avatar-circle {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  background: #5873F8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-circle i {
+  color: #FFFFFF;
+  font-size: 20px;
+}
+
+.issue-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 10px;
+  width: 200px;
+  height: 48px;
+  flex: 1;
+}
+
+.issue-label {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 120%;
+  color: #737373;
+}
+
+.issue-description {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 120%;
+  color: #212121;
+}
+
+/* ===== TICKET FOOTER ===== */
+
+.ticket-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 24px;
+  width: 100%;
+  height: auto; /* ✅ เปลี่ยนจาก 66px เป็น auto เพื่อรองรับเนื้อหา */
+  min-height: 66px;
+}
+
+.footer-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 10px;
+  /* width: 238px;  ❌ ลบหรือคอมเมนต์ค่าเดิมออก */
+  width: auto;      /* ✅ ปรับเป็น auto เพื่อขยายตามเนื้อหา */
+  min-width: 300px; /* ✅ กำหนดความกว้างขั้นต่ำให้มากขึ้น (เผื่อสำหรับวันที่ยาวๆ) */
+  height: auto;     /* ✅ เปลี่ยนเป็น auto */
+}
+
+.footer-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* หรือ flex-start ถ้าต้องการให้ชิดบน */
+  padding: 0px;
+  gap: 10px;
+  /* width: 238px; ❌ ลบค่าเดิม */
+  width: 100%;     /* ✅ ให้ขยายเต็ม section */
+  height: auto;    /* ✅ เปลี่ยนเป็น auto */
+  min-height: 14px;
+}
+
+.footer-label {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 100%;
+  color: #737373;
+  /* width: 67px;   ❌ ลบค่าเดิมที่น้อยเกินไป */
+  width: 110px;     /* ✅ เพิ่มความกว้างเป็น 110px (หรือมากกว่า) ให้พอดีกับ "Last Updated" */
+  min-width: 110px; /* ✅ กันไม่ให้หดลง */
+  white-space: nowrap; /* ✅ บังคับไม่ให้ตัดบรรทัด */
+}
+
+.footer-value {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 100%;
+  color: #212121;
+  /* เพิ่มส่วนนี้ถ้าต้องการให้ text ไม่ตกบรรทัดในส่วน value ด้วย */
+  white-space: nowrap; 
+}
+
+/* ===== EVALUATION SECTION ===== */
+
+.evaluation-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  gap: 6px;
+  width: 180px;
+  height: 66px;
+  background: #F5F5F9;
+  border-radius: 6px;
+}
+
+.evaluation-label {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 120%;
+  color: #737373;
+  width: 160px;
+  height: 19px;
+}
+
+.evaluation-status {
+  font-size: 12px;
+  margin: 4px 0;
+  text-align: center;
+  min-height: 16px;
+  line-height: 1.2;
+}
+
+.evaluation-status.text-success {
+  color: #28A745;
+}
+
+.evaluation-status.text-muted {
+  color: #6C757D;
+}
+
+.rating-confirmation {
+  font-size: 12px;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.rating-confirmation.text-success {
+  color: #28A745;
+}
+
+/* ===== STAR RATING SYSTEM ===== */
+
+.star-rating {
+  display: flex;
+  gap: 10px;
+  width: 160px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+}
+
+.star {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  position: relative;
+  background: none;
+  border: none;
+}
+
+/* Star Hover Effects */
+.star:not(.disabled):not(.permanent-rating):hover {
+  transform: scale(1.2);
+}
+
+.star i {
+  font-size: 24px;
+  color: #FFD700;
+  transition: all 0.2s ease;
+}
+
+/* Empty Stars */
+.star .bi-star {
+  color: #B3B3B3;
+}
+
+/* Hover States */
+.star:not(.disabled):not(.permanent-rating):hover .bi-star {
+  color: #FFD700;
+}
+
+.star:not(.disabled):not(.permanent-rating):hover i {
+  color: #FFA500;
+}
+
+/* Filled Stars (Active/Selected) */
+.star.filled i {
+  color: #FFD700 !important;
+}
+
+.star.hover i {
+  color: #FFA500 !important;
+}
+
+/* Disabled Stars */
+.star.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.star.disabled:hover {
+  transform: none;
+}
+
+.star.disabled i {
+  color: #B3B3B3 !important;
+}
+
+/* Permanent Rating (After Submission) */
+.star.permanent-rating {
+  cursor: default;
+}
+
+.star.permanent-rating:hover {
+  transform: none;
+}
+
+.star.permanent-rating i {
+  color: #FFD700 !important;
+}
+
+.star.permanent-rating.filled i {
+  color: #FFD700 !important;
+  animation: starGlow 0.3s ease-out;
+}
+
+/* Saving State */
+.star.saving {
+  cursor: wait;
+}
+
+.star.saving i {
+  color: #FFD700 !important;
+  animation: pulse 1s infinite;
+}
+
+/* ===== HISTORY SECTION ===== */
+
+.history-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  gap: 10px;
+  width: 193px;
+  height: auto;
+  background: #FFFFFF;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.history-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 2px;
+  width: 153px;
+  height: 36px;
+}
+
+.history-title {
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 100%;
+  color: #212121;
+  margin: 0;
+}
+
+.history-progress-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0px;
+  width: 153px;
+  height: 2px;
+  margin-bottom: 24px;
+}
+
+.history-progress-fill {
+  width: 49px;
+  height: 2px;
+  background: #5873F8;
+}
+
+.history-progress-remaining {
+  width: 104px;
+  height: 1px;
+  background: rgba(88, 115, 248, 0.1);
+  flex: 1;
+}
+
+/* History Loading */
+.history-loading {
+  padding: 1rem;
+  text-align: center;
+}
+
+.loading-spinner-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: #737373;
+}
+
+/* History Timeline */
+.history-timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 16px;
+  width: 153px;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 10px;
+  width: 153px;
+  min-height: 43px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Timeline Connector Lines */
+.history-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 28px;
+  width: 2px;
+  height: calc(100% + 8px);
+  background: #E0E0E0;
+  z-index: 1;
+}
+
+.history-item.completed-status:not(:last-child)::after {
+  background: #28A745;
+}
+
+/* .history-item.current-status:not(:last-child)::after {
+  background: linear-gradient(to bottom, #5873F8 50%, #E0E0E0 50%);
+} */
+
+/* History Badges */
+.history-badge {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  gap: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 20px;
+  z-index: 2;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid;
+}
+
+/* ✅ Skipped badge - เล็กแต่อยู่ตรงกลางแนวเดียวกับ icon อื่นๆ */
+.badge-skipped {
+  background: #F8F9FA;
+  border-color: #DEE2E6;
+  width: 16px;
+  /* ✅ ขนาดเล็ก */
+  height: 16px;
+  /* ✅ ขนาดเล็ก */
+  padding: 0;
+  margin: 4px;
+  /* ✅ เพิ่ม margin เพื่อชดเชยขนาดที่เล็กลง (24-12)/2 = 6px */
+}
+
+.badge-current {
+  background: #5873F8;
+  border-color: #5873F8;
+  color: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(88, 115, 248, 0.2);
+  animation: pulseBadge 2s infinite;
+}
+
+.badge-completed {
+  background: #28A745;
+  border-color: #28A745;
+  color: #FFFFFF;
+}
+
+.badge-pending {
+  background: #F8F9FA;
+  border-color: #DEE2E6;
+  color: #6C757D;
+}
+
+.badge-history {
+  background: #B5B5B5;
+  border-color: #B5B5B5;
+  color: #FFFFFF;
+}
+
+.badge-current i,
+.badge-completed i,
+.badge-pending i,
+.badge-history i {
+  font-size: 14px;
+}
+
+/* History Content */
+.history-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 6px;
+  min-height: 43px;
+  flex: 1;
+  justify-content: center;
+}
+
+.history-status {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 120%;
+  color: #212121;
+  transition: color 0.3s ease;
+}
+
+.history-status.active-status {
+  color: #212121;
+  font-weight: 500;
+}
+
+.history-date {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 100%;
+  color: #737373;
+  transition: color 0.3s ease;
+}
+
+.history-date.pending {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Current Status Highlighting */
+.current-status .history-status {
+  color: #212121;
+  font-weight: 500;
+}
+
+.current-status .history-date {
+  color: #737373;
+  font-weight: 400;
+}
+
+/* Completed Status Styling */
+.completed-status .history-status {
+  color: #212121;
+  font-weight: 500;
+}
+
+.completed-status .history-date {
+  color: #737373;
+}
+
+/* Pending Status Styling */
+.pending-status .history-status {
+  color: #212121;
+  opacity: 0.8;
+}
+
+.pending-status .history-date {
+  color: #737373;
+}
+
+/* No History State */
+.no-history {
+  padding: 2rem 1rem;
+  text-align: center;
+  border: 2px dashed #DEE2E6;
+  border-radius: 8px;
+  margin: 1rem 0;
+  background: #F8F9FA;
+  color: #6C757D;
+}
+
+.no-history i {
+  color: #ADB5BD;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes starPulse {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes starRotate {
+  from {
+    transform: rotate(-180deg) scale(0.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes textSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes buttonSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes starGlow {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+    filter: brightness(1.3);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes pulseBadge {
+  0% {
+    box-shadow: 0 0 0 0 rgba(88, 115, 248, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 6px rgba(88, 115, 248, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(88, 115, 248, 0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Card Animations */
+.ticket-card,
+.support-info-card,
+.history-card {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Modal Responsive */
+@media (min-width: 576px) {
+  .modal-dialog {
+    max-width: 500px;
+    margin: 1.75rem auto;
+  }
+
+  .modal-dialog-centered {
+    min-height: calc(100% - 3.5rem);
+  }
+}
+
+@media (max-width: 575px) {
+  .success-modal .modal-body {
+    padding: 2rem 1.5rem 1.5rem;
+  }
+
+  .success-star {
+    width: 60px;
+    height: 60px;
+  }
+
+  .success-star i {
+    font-size: 30px;
+  }
+
+  .success-title {
+    font-size: 20px;
+  }
+
+  .success-ticket-info {
+    font-size: 14px;
+  }
+
+  .success-message {
+    font-size: 14px;
+  }
+
+  .success-btn {
+    font-size: 14px;
+    padding: 10px 24px;
+  }
+}
+
+/* ===== ✅ SUPPORTER FORM RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .support-info-card {
+    padding: 24px;
+    gap: 24px;
+    min-height: auto;
+  }
+
+  .support-title {
+    font-size: 20px;
+  }
+
+  .supporter-form-section {
+    padding: 24px;
+    margin-top: 24px;
+  }
+
+  .supporter-form {
+    padding: 24px;
+  }
+
+  .supporter-form-title {
+    font-size: 20px;
+  }
+
+  .support-row {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    min-height: auto;
+  }
+
+  .support-item {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .support-divider {
+    display: none;
+  }
+
+  .supporter-form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .supporter-form-actions .btn {
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  .support-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    height: auto;
+  }
+
+  .supporter-action {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .support-info-card {
+    padding: 20px;
+  }
+
+  .supporter-form-section {
+    padding: 20px;
+  }
+
+  .supporter-form {
+    padding: 20px;
+  }
+
+  .supporter-form .form-control,
+  .supporter-form .form-select {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .supporter-form-actions .btn {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+
+  .selected-files-preview {
+    padding: 12px;
+  }
+
+  .selected-file-item .file-details {
+    margin-left: 6px;
+  }
+
+  .selected-file-item .file-name {
+    font-size: 11px;
+  }
+
+  .selected-file-item .file-meta {
+    font-size: 9px;
+  }
+}
+
+/* Star Rating Responsive */
+@media (max-width: 768px) {
+  .star-rating {
+    gap: 8px;
+    width: 140px;
+    height: 28px;
+  }
+
+  .star {
+    width: 28px;
+    height: 28px;
+  }
+
+  .star i {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .star-rating {
+    gap: 6px;
+    width: 120px;
+    height: 24px;
+  }
+
+  .star {
+    width: 24px;
+    height: 24px;
+  }
+
+  .star i {
+    font-size: 18px;
+  }
+}
+
+/* Main Layout Responsive */
+@media (max-width: 1200px) {
+  .layout-container {
+    flex-direction: column;
+  }
+
+  .history-card {
+    width: 100%;
+  }
+
+  .ticket-card,
+  .support-info-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .ticket-detail-page {
+    padding: 1rem;
+  }
+
+  .ticket-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    height: auto;
+  }
+
+  .ticket-title-container {
+    width: 100%;
+  }
+
+  .ticket-header-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .ticket-details {
+    flex-direction: column;
+    gap: 16px;
+    height: auto;
+    align-items: flex-start;
+  }
+
+  .detail-item {
+    width: 100%;
+  }
+
+  .detail-divider {
+    display: none;
+  }
+
+  .ticket-footer {
+    flex-direction: column;
+    gap: 16px;
+    height: auto;
+  }
+
+  .footer-section {
+    width: 100%;
+  }
+
+  .evaluation-section {
+    width: 100%;
+  }
+
+  .issue-content {
+    width: 100%;
+  }
+
+  /* Mobile History */
+  .history-item {
+    margin-bottom: 1rem;
+  }
+
+  .history-badge {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+  }
+
+  .history-badge i {
+    font-size: 12px;
+  }
+
+  .history-status {
+    font-size: 14px;
+  }
+
+  .history-date {
+    font-size: 12px;
+  }
+
+  .history-item:not(:last-child)::after {
+    left: 10px;
+    top: 28px;
+    height: calc(100% + 4px);
+  }
+}
+
+@media (max-width: 576px) {
+
+  /* Extra Small History */
+  .history-timeline {
+    padding: 0.5rem 0;
+    gap: 16px;
+  }
+
+  .history-badge {
+    width: 18px;
+    height: 18px;
+  }
+
+  .history-badge i {
+    font-size: 10px;
+  }
+
+  .history-status {
+    font-size: 13px;
+  }
+
+  .history-date {
+    font-size: 11px;
+  }
+
+  .history-item:not(:last-child)::after {
+    left: 9px;
+    top: 26px;
+    height: calc(100% + 2px);
+  }
+}
+
+/* ===== ✅ IMPROVED SUPPORT INFORMATION STYLES ===== */
+
+/* Support Information Card - ขนาดใหญ่ขึ้นและมีพื้นที่เพียงพอ */
+.support-info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 32px;
+  /* เพิ่มจาก 20px เป็น 32px */
+  gap: 32px;
+  /* เพิ่มจาก 24px เป็น 32px */
+  width: 100%;
+  min-height: 600px;
+  /* กำหนดความสูงขั้นต่ำ */
+  background: #FFFFFF;
+  border-radius: 16px;
+  /* เพิ่มจาก 12px เป็น 16px */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Support Header - ปรับให้สมส่วนกับการ์ด */
+.support-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.support-title {
+  font-weight: 700;
+  /* เพิ่มจาก 600 */
+  font-size: 24px;
+  /* เพิ่มจาก 19px */
+  line-height: 120%;
+  color: #212121;
+  margin: 0;
+}
+
+/* Supporter Action Button - ปรับขนาดและสี */
+.supporter-action .btn {
+  font-weight: 600;
+  font-size: 16px;
+  /* เพิ่มขนาดฟอนต์ */
+  border-radius: 10px;
+  padding: 12px 24px;
+  /* เพิ่มจาก 8px 16px */
+  border: 2px solid #5873F8;
+  background: #5873F8;
+  color: #FFFFFF;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(88, 115, 248, 0.2);
+}
+
+.supporter-action .btn:hover {
+  background: #4A63E8;
+  border-color: #4A63E8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 115, 248, 0.3);
+}
+
+/* Progress Bar - ปรับขนาด */
+.support-progress-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0px;
+  width: 100%;
+  height: 3px;
+  /* เพิ่มจาก 2px */
+  margin-bottom: 28px;
+}
+
+.support-progress-fill {
+  width: 200px;
+  /* เพิ่มจาก 160px */
+  height: 3px;
+  background: #5873F8;
+  border-radius: 2px;
+}
+
+.support-progress-remaining {
+  height: 2px;
+  background: rgba(88, 115, 248, 0.15);
+  flex: 1;
+  border-radius: 1px;
+}
+
+/* ===== ✅ SUPPORTER FORM SECTION - ปรับให้ใหญ่และสวยงาม ===== */
+
+.supporter-form-section {
+  margin-top: 32px;
+  padding: 32px;
+  /* เพิ่มจาก 24px */
+  background: linear-gradient(135deg, #F8F9FF 0%, #F0F2FF 100%);
+  border-radius: 16px;
+  /* เพิ่มจาก 12px */
+  border: 2px solid #E3E7FF;
+  animation: slideInDown 0.4s ease-out;
+  box-shadow: 0 8px 32px rgba(88, 115, 248, 0.08);
+  width: 100%;
+}
+
+/* Form Header - ปรับให้สวยงาม */
+.supporter-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  /* เพิ่มจาก 24px */
+  padding-bottom: 20px;
+  /* เพิ่มจาก 16px */
+  border-bottom: 2px solid #E3E7FF;
+}
+
+.supporter-form-title {
+  font-size: 24px;
+  /* เพิ่มจาก 20px */
+  font-weight: 700;
+  /* เพิ่มจาก 600 */
+  color: #1E2A5E;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.supporter-form-title i {
+  color: #5873F8;
+  font-size: 28px;
+}
+
+/* Form Container - ปรับขนาดและสี */
+.supporter-form {
+  background: #FFFFFF;
+  padding: 32px;
+  /* เพิ่มจาก 24px */
+  border-radius: 12px;
+  border: 1px solid #E3E7FF;
+  box-shadow: 0 4px 16px rgba(88, 115, 248, 0.05);
+}
+
+/* Form Row Spacing */
+.supporter-form .row {
+  margin-bottom: 28px;
+  /* เพิ่ม spacing ระหว่างแถว */
+}
+
+/* Form Labels - ปรับขนาดและสี */
+.supporter-form .form-label {
+  font-weight: 600;
+  font-size: 16px;
+  /* เพิ่มจาก 14px */
+  color: #1E2A5E;
+  margin-bottom: 12px;
+  /* เพิ่มจาก 8px */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.supporter-form .form-label i {
+  color: #5873F8;
+  font-size: 18px;
+}
+
+.supporter-form .form-label .text-danger {
+  color: #DC3545;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Form Inputs - ปรับขนาดและสี */
+.supporter-form .form-control,
+.supporter-form .form-select {
+  border-radius: 8px;
+  /* เพิ่มจาก 6px */
+  border: 2px solid #E3E7FF;
+  /* เพิ่มความหนาของ border */
+  padding: 16px 20px;
+  /* เพิ่มจาก 12px 16px */
+  font-size: 16px;
+  /* เพิ่มจาก 14px */
+  font-weight: 500;
+  color: #1E2A5E;
+  background: #FFFFFF;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.supporter-form .form-control:focus,
+.supporter-form .form-select:focus {
+  border-color: #5873F8;
+  background: #FAFBFF;
+  box-shadow: 0 0 0 4px rgba(88, 115, 248, 0.1), 0 4px 16px rgba(88, 115, 248, 0.08);
+  transform: translateY(-1px);
+}
+
+.supporter-form .form-control::placeholder {
+  color: #8B95B7;
+  font-weight: 400;
+}
+
+/* Invalid States */
+.supporter-form .form-control.is-invalid,
+.supporter-form .form-select.is-invalid {
+  border-color: #DC3545;
+  background: #FFF5F5;
+  box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+}
+
+.supporter-form .invalid-feedback {
+  display: block;
+  font-size: 14px;
+  /* เพิ่มจาก 12px */
+  font-weight: 500;
+  margin-top: 8px;
+  /* เพิ่มจาก 6px */
+  color: #DC3545;
+}
+
+/* Form Text */
+.supporter-form .form-text {
+  color: #8B95B7;
+  font-size: 14px;
+  /* เพิ่มจาก 12px */
+  font-weight: 500;
+  margin-top: 8px;
+  /* เพิ่มจาก 4px */
+}
+
+/* Textarea Specific */
+.supporter-form textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+  /* เพิ่มจาก 100px */
+  line-height: 1.6;
+  font-family: inherit;
+}
+
+/* Select Dropdown */
+.supporter-form .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%235873F8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px 12px;
+  padding-right: 48px;
+}
+
+/* ===== ✅ FILE UPLOAD SECTION ===== */
+
+/* File Input */
+.supporter-form input[type="file"] {
+  padding: 20px;
+  border: 2px dashed #5873F8;
+  border-radius: 12px;
+  background: #FAFBFF;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  color: #5873F8;
+  font-weight: 600;
+}
+
+.supporter-form input[type="file"]:hover {
+  border-color: #4A63E8;
+  background: #F0F2FF;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(88, 115, 248, 0.15);
+}
+
+/* Selected Files Preview - ปรับขนาดและสี */
+.selected-files-preview {
+  background: #FFFFFF;
+  border: 2px solid #E3E7FF;
+  border-radius: 12px;
+  padding: 24px;
+  /* เพิ่มจาก 16px */
+  margin-top: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.selected-files-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  /* เพิ่มจาก 12px */
+}
+
+.selected-files-header h6 {
+  color: #1E2A5E;
+  font-weight: 700;
+  font-size: 18px;
+  /* เพิ่มขนาด */
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-files-header i {
+  color: #5873F8;
+  font-size: 20px;
+}
+
+.selected-files-header .btn {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+/* Selected File Items */
+.selected-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  /* เพิ่มจาก 12px */
+  background: #F8F9FF;
+  border: 2px solid #E9ECFF;
+  border-radius: 10px;
+  /* เพิ่มจาก 6px */
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+}
+
+.selected-file-item:hover {
+  background: #E9ECFF;
+  border-color: #D1D6FF;
+  transform: translateX(6px);
+  box-shadow: 0 4px 12px rgba(88, 115, 248, 0.1);
+}
+
+.selected-file-item .file-icon {
+  font-size: 24px;
+  /* เพิ่มจาก 18px */
+  margin-right: 12px;
+}
+
+.selected-file-item .file-name {
+  font-weight: 600;
+  font-size: 15px;
+  /* เพิ่มจาก 13px */
+  color: #1E2A5E;
+  margin-bottom: 4px;
+}
+
+.selected-file-item .file-meta {
+  display: flex;
+  gap: 12px;
+  /* เพิ่มจาก 8px */
+  font-size: 13px;
+  /* เพิ่มจาก 11px */
+  color: #8B95B7;
+}
+
+.selected-file-item .file-type {
+  background: #E3E7FF;
+  color: #5873F8;
+  padding: 2px 8px;
+  /* เพิ่มจาก 1px 6px */
+  border-radius: 6px;
+  /* เพิ่มจาก 3px */
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== ✅ FORM ACTIONS ===== */
+
+.supporter-form-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 32px;
+  /* เพิ่มจาก 24px */
+  padding-top: 24px;
+  /* เพิ่มจาก 20px */
+  border-top: 2px solid #E3E7FF;
+  gap: 16px;
+  /* เพิ่ม gap ระหว่างปุ่ม */
+}
+
+.supporter-form-actions .btn {
+  font-weight: 700;
+  /* เพิ่มจาก 600 */
+  font-size: 16px;
+  border-radius: 10px;
+  /* เพิ่มจาก 6px */
+  padding: 14px 28px;
+  /* เพิ่มจาก 10px 20px */
+  transition: all 0.3s ease;
+  border: 2px solid;
+  min-width: 120px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.supporter-form-actions .btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.supporter-form-actions .btn-primary {
+  background: linear-gradient(135deg, #5873F8 0%, #4A63E8 100%);
+  border-color: #5873F8;
+  color: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(88, 115, 248, 0.3);
+}
+
+.supporter-form-actions .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4A63E8 0%, #3B52D9 100%);
+  border-color: #4A63E8;
+  box-shadow: 0 8px 32px rgba(88, 115, 248, 0.4);
+}
+
+.supporter-form-actions .btn-outline-secondary {
+  background: #FFFFFF;
+  border-color: #8B95B7;
+  color: #8B95B7;
+}
+
+.supporter-form-actions .btn-outline-secondary:hover:not(:disabled) {
+  background: #F8F9FA;
+  border-color: #6C757D;
+  color: #6C757D;
+  box-shadow: 0 8px 24px rgba(108, 117, 125, 0.2);
+}
+
+.supporter-form-actions .btn-outline-warning {
+  background: #FFFFFF;
+  border-color: #FFC107;
+  color: #FFC107;
+}
+
+.supporter-form-actions .btn-outline-warning:hover:not(:disabled) {
+  background: #FFF9E6;
+  border-color: #FFB700;
+  color: #FFB700;
+  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.25);
+}
+
+/* Disabled Button States */
+.supporter-form-actions .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ===== ✅ ALERT IMPROVEMENTS ===== */
+
+.supporter-form-section .alert {
+  border-radius: 12px;
+  /* เพิ่มจาก 8px */
+  border: none;
+  font-size: 15px;
+  /* เพิ่มจาก 14px */
+  font-weight: 500;
+  margin-bottom: 24px;
+  /* เพิ่มจาก 20px */
+  padding: 16px 20px;
+  /* เพิ่ม padding */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.supporter-form-section .alert-danger {
+  background: linear-gradient(135deg, #FDF2F2 0%, #FFEAEA 100%);
+  color: #C53030;
+  border-left: 4px solid #DC3545;
+}
+
+.supporter-form-section .alert-success {
+  background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+  color: #166534;
+  border-left: 4px solid #10B981;
+}
+
+.supporter-form-section .alert i {
+  margin-right: 12px;
+  /* เพิ่มจาก 8px */
+  font-size: 18px;
+}
+
+/* ===== ✅ SUPPORT DETAILS SECTION ===== */
+
+.support-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  /* เพิ่มจาก 0px */
+  width: 100%;
+  margin-top: 20px;
+}
+
+.support-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  /* เปลี่ยนจาก center */
+  padding: 20px;
+  /* เพิ่ม padding */
+  gap: 32px;
+  /* เพิ่มจาก 48px */
+  width: 100%;
+  min-height: 80px;
+  /* เพิ่มจาก 48px */
+  background: #F8F9FF;
+  border-radius: 12px;
+  border: 1px solid #E3E7FF;
+  margin-bottom: 16px;
+}
+
+.support-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 12px;
+  /* เพิ่มจาก 10px */
+  min-height: 60px;
+  /* เพิ่มจาก 48px */
+  flex: 1;
+}
+
+.support-label {
+  font-weight: 600;
+  /* เพิ่มจาก 500 */
+  font-size: 16px;
+  line-height: 120%;
+  color: #5873F8;
+  margin-bottom: 4px;
+}
+
+.support-value {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 140%;
+  /* เพิ่ม line-height */
+  color: #1E2A5E;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.support-divider {
+  width: 2px;
+  /* เปลี่ยนจาก 42px */
+  height: 40px;
+  /* เปลี่ยนจาก 0px */
+  background: #E3E7FF;
+  transform: none;
+  /* ลบ rotate */
+  border: none;
+  border-radius: 1px;
+}
+
+/* Fix Attachments ใน Support Details */
+.fix-attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* เพิ่มจาก 8px */
+  padding: 10px 16px;
+  /* เพิ่มจาก 4px 8px */
+  background: #FFFFFF;
+  border: 2px solid #E3E7FF;
+  border-radius: 8px;
+  /* เพิ่มจาก 4px */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+  /* เพิ่มจาก 4px */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.fix-attachment-item:hover {
+  background: #F8F9FF;
+  border-color: #5873F8;
+  transform: translateX(6px);
+  box-shadow: 0 4px 16px rgba(88, 115, 248, 0.1);
+}
+
+.fix-attachment-item i {
+  font-size: 18px;
+  /* เพิ่มจาก 14px */
+  color: #5873F8;
+}
+
+.fix-attachment-item span {
+  font-size: 14px;
+  /* เพิ่มจาก 12px */
+  font-weight: 600;
+  /* เพิ่มจาก 500 */
+  color: #1E2A5E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  /* เพิ่มจาก 120px */
+}
+
+/* ===== ✅ LOADING STATES ===== */
+
+.supporter-form-loading {
+  display: flex;
+  align-items: center;
+  color: #5873F8;
+  font-size: 16px;
+  /* เพิ่มจาก 14px */
+  font-weight: 600;
+  /* เพิ่มจาก 500 */
+  gap: 10px;
+}
+
+.supporter-form-loading .spinner-border-sm {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+  color: #5873F8;
+}
+
+.supporter-form.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+/* ===== ✅ RESPONSIVE IMPROVEMENTS ===== */
+
+@media (max-width: 768px) {
+  .support-info-card {
+    padding: 24px;
+    gap: 24px;
+    min-height: auto;
+  }
+
+  .support-title {
+    font-size: 20px;
+  }
+
+  .supporter-form-section {
+    padding: 24px;
+    margin-top: 24px;
+  }
+
+  .supporter-form {
+    padding: 24px;
+  }
+
+  .supporter-form-title {
+    font-size: 20px;
+  }
+
+  .support-row {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    min-height: auto;
+  }
+
+  .support-item {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .support-divider {
+    display: none;
+  }
+
+  .supporter-form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .supporter-form-actions .btn {
+    width: 100%;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .support-info-card {
+    padding: 20px;
+  }
+
+  .supporter-form-section {
+    padding: 20px;
+  }
+
+  .supporter-form {
+    padding: 20px;
+  }
+
+  .supporter-form .form-control,
+  .supporter-form .form-select {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .supporter-form-actions .btn {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+}
+
+/* ===== 📄 PDF EXPORT STYLES ===== */
+
+/* Export Button Styles - ปรับให้เท่ากับปุ่ม Edit */
+.btn-export-pdf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  /* เท่ากับ btn-edit */
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  /* เท่ากับ btn-edit */
+  transition: all 0.3s ease;
+  border: 1px solid #17A2B8;
+  /* เปลี่ยนจาก 2px เป็น 1px เท่ากับ btn-edit */
+  background: transparent;
+  /* เปลี่ยนเป็น transparent เหมือน btn-edit */
+  color: #17A2B8;
+  text-decoration: none;
+  cursor: pointer;
+  height: 24px;
+  /* เท่ากับ btn-edit */
+  min-width: auto;
+  /* ลบ min-width เพื่อให้ขนาดเท่ากับ btn-edit */
+  gap: 4px;
+  /* เท่ากับ btn-edit */
+}
+
+.btn-export-pdf:hover:not(:disabled) {
+  background: #17A2B8;
+  /* เปลี่ยนสีเมื่อ hover เหมือน btn-edit */
+  border-color: #17A2B8;
+  color: #FFFFFF;
+  transform: none;
+  /* ลบ transform เพื่อให้เหมือน btn-edit */
+  box-shadow: none;
+  /* ลบ box-shadow เพื่อให้เหมือน btn-edit */
+}
+
+.btn-export-pdf:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  border-color: #adb5bd;
+  color: #adb5bd;
+}
+
+.btn-export-pdf.exporting {
+  background: #6C757D;
+  border-color: #6C757D;
+  color: #FFFFFF;
+  cursor: wait;
+}
+
+.btn-export-pdf.exporting:hover {
+  background: #6C757D;
+  border-color: #6C757D;
+  transform: none;
+}
+
+/* Export Dropdown Styles */
+.export-dropdown {
+  position: relative;
+}
+
+.export-dropdown .dropdown-menu {
+  border-radius: 12px;
+  border: 1px solid #E3E7FF;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  min-width: 280px;
+}
+
+.export-dropdown .dropdown-item {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1E2A5E;
+  border-radius: 8px;
+  margin: 4px 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.export-dropdown .dropdown-item:hover {
+  background: #F8F9FF;
+  color: #5873F8;
+  transform: translateX(4px);
+}
+
+.export-dropdown .dropdown-item i {
+  font-size: 16px;
+  color: #5873F8;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.export-dropdown .dropdown-item small {
+  display: block;
+  font-size: 12px;
+  color: #8B95B7;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.export-dropdown .dropdown-divider {
+  margin: 8px 16px;
+  border-color: #E3E7FF;
+}
+
+/* Export Status Alert */
+.export-status-alert {
+  background: linear-gradient(135deg, #FFF3CD 0%, #FFEAA7 100%);
+  border: 1px solid #FFEAA7;
+  border-left: 4px solid #FFC107;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.export-status-alert.success {
+  background: linear-gradient(135deg, #D4EDDA 0%, #C3E6CB 100%);
+  border-color: #C3E6CB;
+  border-left-color: #28A745;
+}
+
+.export-status-alert.error {
+  background: linear-gradient(135deg, #F8D7DA 0%, #F5C6CB 100%);
+  border-color: #F5C6CB;
+  border-left-color: #DC3545;
+}
+
+/* Export Options Panel */
+.export-options .card {
+  border: 1px solid #E3E7FF;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.export-options .card-header {
+  background: linear-gradient(135deg, #F8F9FF 0%, #F0F2FF 100%);
+  border-bottom: 1px solid #E3E7FF;
+  padding: 8px 12px;
+  border-radius: 12px 12px 0 0;
+}
+
+.export-options .card-header small {
+  color: #5873F8;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.export-options .card-body {
+  padding: 12px;
+}
+
+.export-options .form-label {
+  color: #1E2A5E;
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.export-options .form-select {
+  border: 1px solid #E3E7FF;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #1E2A5E;
+  background: #FFFFFF;
+}
+
+.export-options .form-select:focus {
+  border-color: #5873F8;
+  box-shadow: 0 0 0 2px rgba(88, 115, 248, 0.1);
+}
+
+.export-options .form-check {
+  margin-bottom: 6px;
+}
+
+.export-options .form-check-input {
+  border-color: #E3E7FF;
+  border-radius: 4px;
+  width: 16px;
+  height: 16px;
+}
+
+.export-options .form-check-input:checked {
+  background-color: #5873F8;
+  border-color: #5873F8;
+}
+
+.export-options .form-check-input:focus {
+  box-shadow: 0 0 0 2px rgba(88, 115, 248, 0.1);
+}
+
+.export-options .form-check-label {
+  color: #1E2A5E;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+/* Loading States for Export */
+.export-loading {
+  display: inline-flex;
+  align-items: center;
+  color: #5873F8;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 8px;
+}
+
+.export-loading .spinner-border-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+  color: #5873F8;
+}
+
+.export-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.export-loading-content {
+  background: #FFFFFF;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+}
+
+.export-loading-content .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #5873F8;
+  margin-bottom: 16px;
+}
+
+.export-loading-content p {
+  color: #1E2A5E;
+  font-weight: 600;
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Export Success Animation */
+@keyframes exportSuccess {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.export-success {
+  animation: exportSuccess 0.5s ease-out;
+}
+
+/* Export Progress Bar (Optional) */
+.export-progress {
+  background: #F8F9FF;
+  border: 1px solid #E3E7FF;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.export-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #E3E7FF;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.export-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5873F8 0%, #4A63E8 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  animation: progressPulse 2s infinite;
+}
+
+@keyframes progressPulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.export-progress-text {
+  color: #5873F8;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Responsive Design for Export Features */
+@media (max-width: 768px) {
+  .export-dropdown .dropdown-menu {
+    min-width: 250px;
+  }
+
+  .export-dropdown .dropdown-item {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .export-dropdown .dropdown-item small {
+    font-size: 11px;
+  }
+
+  .export-options .card-body {
+    padding: 10px;
+  }
+
+  .export-loading-overlay {
+    padding: 20px;
+  }
+
+  .export-loading-content {
+    padding: 20px;
+    min-width: 180px;
+  }
+
+  .export-loading-content p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .btn-export-pdf {
+    padding: 5px 12px;
+    /* คงขนาดเท่าเดิม */
+    font-size: 14px;
+    height: 24px;
+  }
+
+  .export-dropdown .dropdown-menu {
+    min-width: 220px;
+  }
+
+  .export-dropdown .dropdown-item {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .export-loading-content {
+    padding: 16px;
+    min-width: 160px;
+  }
+
+  .export-loading-content .spinner-border {
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 12px;
+  }
+
+  .export-loading-content p {
+    font-size: 13px;
+  }
+}
+
+/* Export Feature Integration with Existing Styles - ปรับให้เหมือนปุ่ม Edit */
+.action-buttons .dropdown {
+  display: inline-block;
+}
+
+.action-buttons .btn-export-pdf {
+  height: 24px;
+  /* เท่ากับ btn-edit */
+  line-height: 100%;
+  /* เท่ากับ btn-edit */
+  padding: 5px 12px;
+  /* เท่ากับ btn-edit */
+  font-size: 14px;
+  /* เท่ากับ btn-edit */
+  font-weight: 600;
+  /* เท่ากับ btn-edit */
+  min-width: auto;
+  /* ลบ min-width */
+  border-radius: 6px;
+  /* เท่ากับ btn-edit */
+  gap: 4px;
+  /* เท่ากับ btn-edit */
+  border: 1px solid #17A2B8;
+  /* เปลี่ยนจาก 2px เป็น 1px */
+  background: transparent;
+  /* เหมือน btn-edit */
+  color: #17A2B8;
+}
+
+.action-buttons .btn-export-pdf:hover:not(:disabled) {
+  background: #17A2B8;
+  /* เหมือน btn-edit hover */
+  color: #FFFFFF;
+  border-color: #17A2B8;
+}
+
+.action-buttons .btn-export-pdf:disabled {
+  border-color: #adb5bd;
+  /* เหมือน btn-edit disabled */
+  color: #adb5bd;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Dark Mode Support for Export Features */
+@media (prefers-color-scheme: dark) {
+  .export-dropdown .dropdown-menu {
+    background: #2D3748;
+    border-color: #4A5568;
+  }
+
+  .export-dropdown .dropdown-item {
+    color: #E2E8F0;
+  }
+
+  .export-dropdown .dropdown-item:hover {
+    background: #4A5568;
+    color: #81C784;
+  }
+
+  .export-options .card {
+    background: #2D3748;
+    border-color: #4A5568;
+  }
+
+  .export-options .card-header {
+    background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
+    border-bottom-color: #4A5568;
+  }
+
+  .export-options .form-select {
+    background: #2D3748;
+    color: #E2E8F0;
+    border-color: #4A5568;
+  }
+
+  .export-options .form-check-label {
+    color: #E2E8F0;
+  }
+
+  .export-loading-content {
+    background: #2D3748;
+    color: #E2E8F0;
+  }
+
+  .export-status-alert {
+    background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
+    color: #E2E8F0;
+  }
+}
+
+/* ===== PRIORITY STYLING ===== ✅ */
+.priority-low {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.priority-medium {
+  color: #ffc107;
+  font-weight: 500;
+}
+
+.priority-high {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+/* Optional: Priority Badge Style */
+.priority-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.priority-badge.priority-low {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.priority-badge.priority-medium {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.priority-badge.priority-high {
+  background-color: #f8d7da;
+  color: #721c24;
+}
