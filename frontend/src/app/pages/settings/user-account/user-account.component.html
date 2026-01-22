@@ -320,7 +320,17 @@
             <label class="form-label" for="editUsername">
               {{ languageService.translate('userAccount.form.username') }} <span class="required">*</span>
             </label>
-            <input id="editUsername" type="text" class="form-input" formControlName="username" [placeholder]="languageService.translate('userAccount.form.username')" [class.error]="isFieldInvalid('username', editForm)" [disabled]="isSubmitting" autocomplete="username" />
+            <input 
+              id="editUsername" 
+              type="text" 
+              class="form-input" 
+              formControlName="username" 
+              [placeholder]="languageService.translate('userAccount.form.username')" 
+              [class.error]="isFieldInvalid('username', editForm)" 
+              readonly
+              style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;"
+              autocomplete="username" 
+            />
             <div class="error-message" *ngIf="isFieldInvalid('username', editForm)">
               {{ getFieldError('username', editForm) }}
             </div>

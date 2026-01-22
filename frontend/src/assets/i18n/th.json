@@ -49,6 +49,47 @@
     "supportPanel": "แผงสนับสนุน",
     "userManagement": "จัดการผู้ใช้"
   },
+  "ticketCategories": {
+    "title": "หมวดหมู่ตั๋ว",
+    "breadcrumb": "การตั้งค่า",
+    "searchPlaceholder": "ค้นหาหมวดหมู่...",
+    "createButton": "สร้างหมวดหมู่ใหม่",
+    "permissionDenied": "ต้องมีสิทธิ์ \"จัดการหมวดหมู่\" เพื่อดำเนินการนี้",
+    "stats": {
+      "total": "หมวดหมู่ทั้งหมด",
+      "totalTickets": "ตั๋วทั้งหมด",
+      "newThisMonth": "ใหม่ในเดือนนี้",
+      "avgPerCategory": "เฉลี่ยต่อหมวดหมู่"
+    },
+    "table": {
+      "no": "ลำดับ",
+      "category": "หมวดหมู่",
+      "ticketCount": "จำนวนตั๋ว",
+      "actions": "ดำเนินการ",
+      "tickets": "ตั๋ว",
+      "emptyTitle": "ไม่พบหมวดหมู่",
+      "emptyDesc": "ลองปรับเปลี่ยนคำค้นหาของคุณ"
+    },
+    "messages": {
+      "createSuccess": "สร้างหมวดหมู่ \"{{name}}\" สำเร็จ!",
+      "updateSuccess": "อัปเดตหมวดหมู่ \"{{name}}\" สำเร็จ!",
+      "deleteConfirm": "คุณต้องการลบหมวดหมู่ \"{{name}}\" หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้",
+      "deleteSuccess": "ลบหมวดหมู่ \"{{name}}\" สำเร็จ",
+      "deleteError": "ไม่สามารถลบหมวดหมู่ \"{{name}}\" ได้",
+      "loadError": "ไม่สามารถโหลดข้อมูลหมวดหมู่ได้"
+    },
+    "modal": {
+      "createTitle": "สร้างหมวดหมู่ใหม่",
+      "editTitle": "แก้ไขหมวดหมู่",
+      "nameTh": "ชื่อหมวดหมู่ (ภาษาไทย)",
+      "nameThPlaceholder": "กรุณาใส่ชื่อหมวดหมู่เป็นภาษาไทย",
+      "nameEn": "ชื่อหมวดหมู่ (ภาษาอังกฤษ)",
+      "nameEnPlaceholder": "กรุณาใส่ชื่อหมวดหมู่เป็นภาษาอังกฤษ",
+      "required": "จำเป็นต้องกรอกข้อมูล",
+      "minLength": "ต้องมีความยาวอย่างน้อย 2 ตัวอักษร",
+      "maxLength": "ต้องไม่เกิน 100 ตัวอักษร"
+    }
+  },
   "customerProject": {
     "title": "ลูกค้าของโปรเจกต์",
     "selectProject": "เลือกโปรเจกต์",
@@ -223,7 +264,12 @@
     "refreshing": "กำลังต่ออายุ...",
     "dismiss": "ปิด",
     "unsavedChanges": "คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก คุณต้องการออกหรือไม่?",
-    "uploading": "กำลังอัปโหลด..."
+    "uploading": "กำลังอัปโหลด...",
+    "unread": "ยังไม่ได้อ่าน",
+    "allTypes": "ทุกประเภท",
+    "all": "ทั้งหมด",
+    "actions": "การดำเนินการ",
+    "unknown": "ไม่ทราบ"
   },
   "roles": {
     "admin": "ผู้ดูแลระบบ",
@@ -262,7 +308,9 @@
     "ticketUpdated": "อัพเดทตั๋วแล้ว",
     "ticketAssigned": "มีตั๋วมอบหมายให้คุณ",
     "ticketClosed": "ปิดตั๋วแล้ว",
-    "commentAdded": "เพิ่มความคิดเห็นใหม่"
+    "commentAdded": "เพิ่มความคิดเห็นใหม่",
+    "confirmDelete": "ลบการแจ้งเตือนนี้?",
+    "confirmDeleteAll": "ลบการแจ้งเตือนทั้งหมด?"
   },
   "dates": {
     "today": "วันนี้",
@@ -282,7 +330,7 @@
     "created": "วันที่สร้าง",
     "updated": "อัปเดตล่าสุด",
     "history": "ประวัติการดำเนินการ",
-    "evaluation": "การประเมินความพึงพอใจ",
+    "evaluation": "ประเมินความพึงพอใจ",
     "evaluationMessage": "กรุณาประเมินความพึงพอใจ",
     "exportPdf": "PDF",
     "loadingHistory": "กำลังโหลดประวัติ...",
@@ -324,6 +372,7 @@
       "lastname": "นามสกุล",
       "email": "อีเมล",
       "phone": "เบอร์โทรศัพท์",
+      "address": "ที่อยู่",
       "roles": "บทบาท",
       "noRoles": "ไม่มีบทบาทให้เลือก",
       "selected": "เลือกแล้ว:",
@@ -459,6 +508,73 @@
       "createUserSuccess": "สร้างผู้ใช้ใหม่สำเร็จ!",
       "createUserFail": "ไม่สามารถสร้างผู้ใช้ได้",
       "exportComingSoon": "ฟีเจอร์ส่งออกข้อมูลเร็วๆ นี้"
+    }
+  },
+  "supportInformation": {
+    "title": "ข้อมูลการดำเนินการ",
+    "manualSave": "บันทึกด้วยตนเอง",
+    "debugInfo": "ข้อมูล Debug",
+    "loading": "กำลังโหลดข้อมูล Ticket...",
+    "systemSaveMsg": "ระบบจะเก็บข้อมูลที่กรอกไว้ให้คุณโดยอัตโนมัติ",
+    "autoSaved": "บันทึกอัตโนมัติเรียบร้อย",
+    "savedAt": "บันทึกเมื่อ",
+    "safeRefresh": "ข้อมูลจะไม่หายแม้ว่าหน้าเว็บจะรีเฟรช",
+    "formStatus": "สถานะฟอร์ม",
+    "waitingForTicket": "รอการโหลดข้อมูล ticket เพื่อแสดงฟอร์ม",
+    "actions": "การดำเนินการ",
+    "chooseAction": "เลือกการดำเนินการ...",
+    "actionHint": "การเลือก Action นี้จะเปลี่ยนสถานะ Ticket",
+    "priority": "ความสำคัญ",
+    "choosePriority": "เลือกระดับความสำคัญ...",
+    "priorityHint": "ระดับความสำคัญของงาน",
+    "closeEstimate": "เวลาที่คาดว่าจะเสร็จ",
+    "closeEstimateHint": "ระบุวันเวลาที่คาดว่าจะแก้ไขปัญหาเสร็จสิ้น",
+    "estimateTime": "เวลาที่ใช้ประเมิน",
+    "dueDate": "วันกำหนดส่ง",
+    "dueDateHint": "วันเวลาที่ส่งมอบงานจริง (กรอกเมื่อเสร็จงาน)",
+    "leadTime": "ระยะเวลาดำเนินงาน",
+    "assign": "ผู้รับผิดชอบ",
+    "loadingList": "กำลังโหลดรายชื่อ...",
+    "chooseAssignee": "เลือกผู้รับผิดชอบ...",
+    "relatedTickets": "Ticket ที่เกี่ยวข้อง",
+    "relatedTicketsPlaceholder": "เช่น T-001, T-002",
+    "relatedTicketsHint": "ระบุหมายเลข ticket อื่นที่เกี่ยวข้อง (ถ้ามี)",
+    "changeRequest": "จำนวนวันขยายเวลา",
+    "days": "วัน",
+    "hoursUnit": "ชม.",
+    "changeRequestHint": "จำนวนวันที่ขอขยายเวลาดำเนินการ",
+    "issueResolution": "วิธีการแก้ไขปัญหา",
+    "resolutionPlaceholder": "อธิบายสาเหตุ, วิธีการแก้ไข, และผลลัพธ์...",
+    "resolutionHint": "รายละเอียดทางเทคนิคหรือขั้นตอนการแก้ปัญหา",
+    "attachment": "ไฟล์แนบ",
+    "dragDropHint": "คลิกเพื่อเลือกไฟล์ หรือ ลากมาวางที่นี่",
+    "fileTypeHint": "รองรับการลาก-วางไฟล์",
+    "saveBtn": "บันทึก",
+    "saveAssignBtn": "บันทึกและมอบหมาย",
+    "assignBtn": "มอบหมายงาน",
+    "saving": "กำลังบันทึก...",
+    "forceSave": "บังคับบันทึก",
+    "formEmpty": "ฟอร์มว่าง",
+    "hasData": "มีข้อมูล",
+    "readyToSave": "พร้อมบันทึก",
+    "noPermission": "ไม่มีสิทธิ์เข้าใช้งาน",
+    "noPermissionMsg": "คุณไม่มีสิทธิ์ในการใช้งานส่วน Support Information",
+    "requiredPermission": "ต้องการสิทธิ์: VIEW_ALL_TICKETS, CHANGE_STATUS, หรือ ASSIGNEE",
+    "confirmDeleteAttachment": "คุณต้องการลบไฟล์แนบนี้หรือไม่?",
+    "deleteAttachmentSuccess": "ลบไฟล์แนบเรียบร้อย",
+    "deleteAttachmentError": "ไม่สามารถลบไฟล์ได้",
+    "noPermissionDelete": "คุณไม่มีสิทธิ์ลบไฟล์แนบ",
+    "selectImageError": "กรุณาเลือกไฟล์รูปภาพเท่านั้น",
+    "errors": {
+      "dueDatePast": "วันกำหนดส่งต้องไม่เป็นวันที่ผ่านมาแล้ว",
+      "closeEstimatePast": "เวลาที่คาดว่าจะเสร็จต้องไม่เป็นเวลาที่ผ่านมาแล้ว",
+      "resolutionRequired": "ต้องระบุวิธีการแก้ไขปัญหา (Issue Resolution) เมื่อสถานะเป็น In Progress/Resolved/Completed",
+      "noPermissionSave": "คุณไม่มีสิทธิ์ในการบันทึกข้อมูล",
+      "noTicket": "ไม่พบข้อมูล Ticket",
+      "noChanges": "ไม่มีการเปลี่ยนแปลงข้อมูล",
+      "incomplete": "กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง",
+      "saveSuccess": "บันทึกข้อมูลสำเร็จแล้ว",
+      "uploadPartial": "บันทึกข้อมูลสำเร็จ แต่มีไฟล์บางไฟล์อัปโหลดไม่สำเร็จ"
     }
   }
 }

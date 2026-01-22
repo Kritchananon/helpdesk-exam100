@@ -9,6 +9,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
+import { LanguageService } from '../../services/language.service'; // ✅ Import LanguageService
 import {
   DisplayNotification,
   NotificationSummary,
@@ -31,6 +32,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  public languageService = inject(LanguageService); // ✅ Inject เป็น Public เพื่อใช้ใน HTML
 
   // State
   notifications: DisplayNotification[] = [];
@@ -51,7 +53,6 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   readonly NotificationStatus = NotificationStatus;
   readonly NotificationPriority = NotificationPriority;
   readonly ROLES = ROLES;
-  currentLanguage: 'th' | 'en' = 'th';
 
   ngOnInit(): void {
     this.initializeComponent();
@@ -63,7 +64,12 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   }
 
   private initializeComponent(): void {
-    this.loadLanguagePreference();
+    // ✅ Subscribe การเปลี่ยนภาษา เพื่ออัปเดตเวลา (Time Ago) และข้อมูลที่ขึ้นกับภาษา
+    this.languageService.currentLanguage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateTimeAgoForList();
+      });
 
     // Subscribe Notifications
     this.notificationService.notifications$
@@ -71,7 +77,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       .subscribe(notifications => {
         this.notifications = notifications.map(n => ({
           ...n,
-          timeAgo: this.formatTimeAgo(n.created_at),
+          timeAgo: this.formatTimeAgo(n.created_at), // คำนวณครั้งแรก
           icon: this.getNotificationIcon(n.notification_type),
           color: this.getNotificationColor(n.notification_type),
           route: `/tickets/${n.ticket_no}`
@@ -125,14 +131,24 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   deleteNotification(notification: DisplayNotification, event: Event): void {
     event.stopPropagation();
-    if (confirm(this.getText('Delete this notification?', 'ลบการแจ้งเตือนนี้?'))) {
+    // ✅ ใช้ translate พร้อม Fallback text กรณีไม่มี Key ใน JSON
+    const confirmMsg = this.translate('notifications.deleteConfirm', { 
+      defaultValue: this.languageService.isThaiLanguage() ? 'ลบการแจ้งเตือนนี้?' : 'Delete this notification?' 
+    });
+    
+    if (confirm(confirmMsg)) {
       this.notificationService.deleteNotification(notification.id).subscribe();
     }
   }
 
   deleteAllNotifications(event: Event): void {
     event.stopPropagation();
-    if (confirm(this.getText('Delete all notifications?', 'ลบทั้งหมด?'))) {
+    // ✅ ใช้ translate พร้อม Fallback text
+    const confirmMsg = this.translate('notifications.deleteAllConfirm', { 
+      defaultValue: this.languageService.isThaiLanguage() ? 'ลบการแจ้งเตือนทั้งหมด?' : 'Delete all notifications?' 
+    });
+
+    if (confirm(confirmMsg)) {
       this.notificationService.deleteAllNotifications().subscribe();
     }
   }
@@ -164,7 +180,6 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   hasUnreadNotifications(): boolean { return this.unreadCount > 0; }
   hasNotifications(): boolean { return this.notifications.length > 0; }
-
   canViewNotifications(): boolean { return this.authService.isAuthenticated(); }
 
   @HostListener('document:click', ['$event'])
@@ -176,6 +191,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   }
 
   onDropdownClick(event: Event): void { event.stopPropagation(); }
+  
   viewAllNotifications(event: Event): void {
     event.stopPropagation();
     this.closeDropdown();
@@ -188,25 +204,42 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     this.router.navigate(['/settings/notifications']);
   }
 
-  // Formatting & Text
-  private loadLanguagePreference(): void {
-    const saved = localStorage.getItem('language');
-    if (saved === 'en' || saved === 'th') this.currentLanguage = saved;
+  // ✅ Language Helpers
+
+  /** Wrapper function สำหรับเรียกใช้ Translation ใน TS ได้สะดวก */
+  translate(key: string, params?: any): string {
+    const translation = this.languageService.translate(key, params);
+    // กรณีหา key ไม่เจอ และมี defaultValue (fallback logic)
+    if (translation === key && params?.defaultValue) {
+        return params.defaultValue;
+    }
+    return translation;
   }
 
-  getText(en: string, th: string): string { return this.currentLanguage === 'th' ? th : en; }
+  /** อัปเดต TimeAgo ของทุก item ใน list (ใช้เมื่อเปลี่ยนภาษา) */
+  private updateTimeAgoForList(): void {
+    this.notifications = this.notifications.map(n => ({
+      ...n,
+      timeAgo: this.formatTimeAgo(n.created_at)
+    }));
+  }
 
   formatTimeAgo(dateString: string): string {
     const now = new Date();
     const date = new Date(dateString);
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (seconds < 60) return this.currentLanguage === 'th' ? 'เมื่อสักครู่' : 'Just now';
+    const isThai = this.languageService.isThaiLanguage(); // ✅ เช็คภาษาจาก Service
+
+    if (seconds < 60) return isThai ? 'เมื่อสักครู่' : 'Just now';
+    
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return this.currentLanguage === 'th' ? `${minutes} นาทีที่แล้ว` : `${minutes} m ago`;
+    if (minutes < 60) return isThai ? `${minutes} นาทีที่แล้ว` : `${minutes} m ago`;
+    
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return this.currentLanguage === 'th' ? `${hours} ชั่วโมงที่แล้ว` : `${hours} h ago`;
+    if (hours < 24) return isThai ? `${hours} ชั่วโมงที่แล้ว` : `${hours} h ago`;
+    
     const days = Math.floor(hours / 24);
-    return this.currentLanguage === 'th' ? `${days} วันที่แล้ว` : `${days} d ago`;
+    return isThai ? `${days} วันที่แล้ว` : `${days} d ago`;
   }
 
   getNotificationIcon(type: NotificationType | string): string {
@@ -232,13 +265,19 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       [NotificationPriority.LOW]: 'badge-success',
       [NotificationPriority.MEDIUM]: 'badge-info',
       [NotificationPriority.HIGH]: 'badge-warning',
-      // [NotificationPriority.URGENT]: 'badge-danger' 
     };
     return classes[priority];
   }
 
-  getNotificationTypeLabel(type: NotificationType | string): string { return getNotificationTypeLabel(type, this.currentLanguage); }
-  getNotificationPriorityLabel(priority: NotificationPriority): string { return getNotificationPriorityLabel(priority, this.currentLanguage); }
+  // ✅ ส่ง Current Language ไปให้ Helper functions ของ Model
+  getNotificationTypeLabel(type: NotificationType | string): string { 
+    return getNotificationTypeLabel(type, this.languageService.getCurrentLanguage()); 
+  }
+  
+  getNotificationPriorityLabel(priority: NotificationPriority): string { 
+    return getNotificationPriorityLabel(priority, this.languageService.getCurrentLanguage()); 
+  }
+  
   trackByNotificationId(index: number, notification: DisplayNotification): number { return notification.id; }
   truncateText(text: string, maxLength: number = 50): string { return text.length <= maxLength ? text : text.substring(0, maxLength) + '...'; }
 }

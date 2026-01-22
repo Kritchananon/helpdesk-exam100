@@ -1,31 +1,32 @@
-<!-- Breadcrumb -->
 <div class="breadcrumb">
-  <span class="breadcrumb-item inactive">Setting</span>
+  <span class="breadcrumb-item inactive">{{ t('menu.settings') }}</span>
   <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
     <path d="M6.5 3L11 8l-4.5 5" />
   </svg>
-  <span class="breadcrumb-item active">Project</span>
+  <span class="breadcrumb-item active">{{ t('menu.project') }}</span>
 </div>
 
-<!-- Search and Filter Section -->
 <div class="search-filter-section">
   <div class="search-filters">
-    <!-- Search Box -->
     <div class="search-box">
-      <label class="search-label">Search</label>
+      <label class="search-label">{{ t('common.search') }}</label>
       <div class="search-input">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path
             d="M8.11 1C12.59 1 16.22 4.63 16.22 9.11C16.22 10.81 15.63 12.37 14.65 13.62L17.76 16.73L16.35 18.14L13.24 15.03C11.99 16.01 10.43 16.6 8.73 16.6C4.25 16.6 0.62 12.97 0.62 8.49C0.62 4.01 4.25 0.38 8.73 0.38"
             stroke="currentColor" stroke-width="1.5" />
         </svg>
-        <input type="text" placeholder="Search for projects..." [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+        <input 
+          type="text" 
+          [placeholder]="t('customerProject.searchPlaceholder')" 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearchChange()" 
+        />
       </div>
     </div>
 
-    <!-- Company Filter -->
     <div class="filter-dropdown">
-      <label class="search-label">Company</label>
+      <label class="search-label">{{ t('userAccount.table.company') }}</label>
       <select class="filter-select" [(ngModel)]="selectedCompany" (change)="onCompanyChange()">
         <option *ngFor="let company of companies" [value]="company.value">
           {{ company.label }}
@@ -34,15 +35,13 @@
     </div>
   </div>
 
-  <!-- Create New Project Button -->
   <button class="create-button" (click)="onCreateNewProject()" *ngIf="canCreateProject()">
     <svg class="create-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
       <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
     </svg>
-    Create New Project
+    {{ t('common.add') }} {{ t('menu.project') }}
   </button>
 
-  <!-- Permission Denied Message for Create Button -->
   <div class="permission-denied" *ngIf="!canCreateProject()">
     <svg class="warning-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
       <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
@@ -51,54 +50,49 @@
   </div>
 </div>
 
-<!-- Project Statistics Cards -->
 <div class="stats-section" *ngIf="!isLoading">
   <div class="stat-card">
     <div class="stat-number">{{ getStatsDisplay().total }}</div>
-    <div class="stat-label">Total Projects</div>
+    <div class="stat-label">{{ t('common.all') }} {{ t('menu.project') }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-number">{{ getStatsDisplay().active }}</div>
-    <div class="stat-label">Active Projects</div>
+    <div class="stat-label">{{ t('projectDetail.header.active') }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-number">{{ getStatsDisplay().inactive }}</div>
-    <div class="stat-label">Inactive Projects</div>
+    <div class="stat-label">{{ t('projectDetail.header.inactive') }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-number">{{ getStatsDisplay().newThisMonth }}</div>
-    <div class="stat-label">New This Month</div>
+    <div class="stat-label">{{ t('userAccount.stats.newThisMonth') }}</div>
   </div>
 </div>
 
-<!-- Project Table -->
 <div class="project-table-container">
-  <!-- Loading State -->
   <div class="table-loading" *ngIf="isLoading">
     <div class="loading-spinner"></div>
-    <p>Loading projects...</p>
+    <p>{{ t('common.loading') }}</p>
   </div>
 
-  <!-- Error State -->
   <div class="error-state" *ngIf="hasError && !isLoading">
     <div class="error-icon">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="#DC3545">
         <path d="M16 3L3 16l13 13 13-13L16 3zm0 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm2-6h-4v-8h4v8z"/>
       </svg>
     </div>
-    <h3 style="margin-bottom: 8px; color: #DC3545;">Error Loading Projects</h3>
+    <h3 style="margin-bottom: 8px; color: #DC3545;">{{ t('errors.serverError') }}</h3>
     <p style="color: #6C757D;">{{ errorMessage }}</p>
-    <button class="retry-button" (click)="refreshData()">Try Again</button>
+    <button class="retry-button" (click)="refreshData()">{{ t('tickets.tryAgain') }}</button>
   </div>
 
-  <!-- Table Content -->
   <table class="project-table" *ngIf="!isLoading && !hasError">
     <thead class="table-header">
       <tr>
-        <th>รายการที่</th>
-        <th>Project</th>
-        <th>Status</th>
-        <th>Actions</th>
+        <th>{{ t('userAccount.table.no') }}</th>
+        <th>{{ t('menu.project') }}</th>
+        <th>{{ t('common.status') }}</th>
+        <th>{{ t('userAccount.table.actions') }}</th>
       </tr>
     </thead>
     <tbody>
@@ -113,7 +107,9 @@
             </div>
             <div class="project-details">
               <div class="project-name">{{ project.name }}</div>
-              <div class="project-description">{{ project.description || 'No description' }}</div>
+              <div class="project-description">
+                {{ project.description || t('customerProject.noDescription') }}
+              </div>
             </div>
           </div>
         </td>
@@ -126,36 +122,25 @@
         </td>
         <td class="table-cell">
           <div class="action-buttons">
-            <!-- Edit Button with both options -->
             <button class="action-button edit-button" 
                     (click)="openEditModal(project.id)" 
                     *ngIf="canEditProject(project)"
-                    title="Edit project using modal">
+                    [title]="t('common.edit')">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                 <path d="M11.5 2.5a1.5 1.5 0 0 0-2.12 0L3 8.88V12h3.12l6.38-6.38a1.5 1.5 0 0 0 0-2.12l-1-1z" />
               </svg>
-              Edit
+              {{ t('common.edit') }}
             </button>
             
-            <!-- Alternative: Edit via navigation (comment out openEditModal and uncomment this) -->
-            <!--
-            <button class="action-button edit-button" 
-                    (click)="onEditProject(project.id)" 
-                    *ngIf="canEditProject(project)"
-                    title="Edit project via navigation">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-                <path d="M11.5 2.5a1.5 1.5 0 0 0-2.12 0L3 8.88V12h3.12l6.38-6.38a1.5 1.5 0 0 0 0-2.12l-1-1z" />
-              </svg>
-              Edit
-            </button>
-            -->
-            
-            <button class="action-button delete-button" (click)="onDeleteProject(project.id)" *ngIf="canDeleteProject(project)">
+            <button class="action-button delete-button" 
+                    (click)="onDeleteProject(project.id)" 
+                    *ngIf="canDeleteProject(project)"
+                    [title]="t('common.delete')">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                 <path
                   d="M5.5 1a.5.5 0 0 0-.5.5v.5h4v-.5a.5.5 0 0 0-.5-.5h-3zM3 3v9a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3H3z" />
               </svg>
-              Delete
+              {{ t('common.delete') }}
             </button>
           </div>
         </td>
@@ -163,7 +148,6 @@
     </tbody>
   </table>
 
-  <!-- Empty State -->
   <div class="empty-state" *ngIf="filteredProjects.length === 0 && !isLoading && !hasError">
     <div class="empty-icon">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="#ADB5BD">
@@ -171,17 +155,14 @@
           d="M4 6h24v2H4zm0 5h24v2H4zm0 5h24v2H4zm0 5h24v2H4zm0 5h24v2H4z" />
       </svg>
     </div>
-    <h3 style="margin-bottom: 8px; color: #495057;">No projects found</h3>
-    <p style="color: #6C757D;">Try adjusting your search or filter criteria</p>
+    <h3 style="margin-bottom: 8px; color: #495057;">{{ t('customerProject.noProjects') }}</h3>
+    <p style="color: #6C757D;">{{ t('customerProject.tryAdjusting') }}</p>
   </div>
 </div>
 
-<!-- Enhanced Modal for Create/Edit Project -->
 <div class="modal-backdrop" *ngIf="isCreateModalVisible" (click)="onBackdropClick()">
-  <!-- Modal Container -->
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <!-- Dynamic Modal Title -->
       <h2 class="modal-title">{{ getModalTitle() }}</h2>
       <button class="close-button" (click)="onFormModalClose()" type="button" [disabled]="isSubmitting">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -190,49 +171,41 @@
       </button>
     </div>
 
-    <!-- Updated Form with new submit handler -->
     <form [formGroup]="projectForm" (ngSubmit)="onFormSubmit()">
       <div class="modal-body">
-        <!-- Project Name -->
         <div class="form-group">
           <label class="form-label" for="projectName">
-            Project Name <span class="required">*</span>
+            {{ t('tickets.projectName') }} <span class="required">*</span>
           </label>
           <input
             id="projectName"
             type="text"
             class="form-input"
             formControlName="name"
-            placeholder="Enter project name"
+            [placeholder]="t('tickets.projectName')"
             [class.error]="isFieldInvalid('name')"
           />
           <div class="error-message" *ngIf="isFieldInvalid('name')">
-            <span *ngIf="projectForm.get('name')?.errors?.['required']">Project name is required</span>
-            <span *ngIf="projectForm.get('name')?.errors?.['minlength']">Project name must be at least 3 characters</span>
-            <span *ngIf="projectForm.get('name')?.errors?.['maxlength']">Project name cannot exceed 100 characters</span>
+            <span *ngIf="projectForm.get('name')?.errors?.['required']">{{ t('validation.required') }}</span>
+            <span *ngIf="projectForm.get('name')?.errors?.['minlength']">{{ t('validation.minLength', {min: 3}) }}</span>
           </div>
         </div>
 
-        <!-- Company Selection -->
-        <!-- ตัดออกแล้ว -->
-
-        <!-- Project Description -->
         <div class="form-group">
-          <label class="form-label" for="description">Description</label>
+          <label class="form-label" for="description">{{ t('tickets.issue') }} (Description)</label>
           <textarea
             id="description"
             class="form-textarea"
             formControlName="description"
-            placeholder="Enter project description (optional)"
+            [placeholder]="t('tickets.issueDescriptionPlaceholder')"
             rows="3"
             maxlength="500"
           ></textarea>
           <div class="character-count">
-            {{ getDescriptionLength() }}/500 characters
+            {{ getDescriptionLength() }}/500
           </div>
         </div>
 
-        <!-- Date Range -->
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="startDate">Start Date</label>
@@ -243,13 +216,10 @@
               formControlName="start_date"
               [class.error]="isFieldInvalid('start_date')"
             />
-            <div class="error-message" *ngIf="isFieldInvalid('start_date')">
-              <span *ngIf="projectForm.get('start_date')?.errors?.['invalidDate']">Start date cannot be in the past</span>
-            </div>
           </div>
           
           <div class="form-group">
-            <label class="form-label" for="endDate">End Date</label>
+            <label class="form-label" for="endDate">{{ t('supportInformation.dueDate') }}</label>
             <input
               id="endDate"
               type="date"
@@ -257,44 +227,29 @@
               formControlName="end_date"
               [class.error]="isFieldInvalid('end_date')"
             />
-            <div class="error-message" *ngIf="isFieldInvalid('end_date')">
-              <span *ngIf="projectForm.get('end_date')?.errors?.['invalidEndDate']">End date must be after start date</span>
-            </div>
           </div>
         </div>
 
-        <!-- Status Selection -->
         <div class="form-group">
-          <label class="form-label">{{ isEditMode ? 'Project Status' : 'Initial Status' }}</label>
+          <label class="form-label">{{ t('common.status') }}</label>
           <div class="radio-group">
             <label class="radio-label">
-              <input
-                type="radio"
-                formControlName="status"
-                [value]="true"
-                class="radio-input"
-              />
+              <input type="radio" formControlName="status" [value]="true" class="radio-input" />
               <span class="radio-custom"></span>
-              <span class="radio-text">{{ getStatusText(true) }}</span>
+              <span class="radio-text">{{ t('projectDetail.header.active') }}</span>
             </label>
             <label class="radio-label">
-              <input
-                type="radio"
-                formControlName="status"
-                [value]="false"
-                class="radio-input"
-              />
+              <input type="radio" formControlName="status" [value]="false" class="radio-input" />
               <span class="radio-custom"></span>
-              <span class="radio-text">{{ getStatusText(false) }}</span>
+              <span class="radio-text">{{ t('projectDetail.header.inactive') }}</span>
             </label>
           </div>
         </div>
       </div>
 
-      <!-- Updated Modal Footer -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="onFormModalClose()" [disabled]="isSubmitting">
-          Cancel
+          {{ t('common.cancel') }}
         </button>
         <button type="submit" class="btn btn-primary" [disabled]="projectForm.invalid || isSubmitting">
           <span *ngIf="isSubmitting" class="loading-spinner"></span>
@@ -305,8 +260,7 @@
   </div>
 </div>
 
-<!-- Refresh Button (Floating) -->
-<button class="refresh-button" (click)="refreshData()" title="Refresh Data" [disabled]="isLoading">
+<button class="refresh-button" (click)="refreshData()" [title]="t('common.refresh')" [disabled]="isLoading">
   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" [class.spinning]="isLoading">
     <path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
     <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>

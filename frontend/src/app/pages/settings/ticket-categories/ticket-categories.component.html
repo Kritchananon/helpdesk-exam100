@@ -1,94 +1,84 @@
-<!-- Breadcrumb -->
 <div class="breadcrumb">
-  <span class="breadcrumb-item inactive">Setting</span>
+  <span class="breadcrumb-item inactive">{{ i18n.breadcrumb }}</span>
   <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
     <path d="M6.5 3L11 8l-4.5 5" />
   </svg>
-  <span class="breadcrumb-item active">Ticket Categories</span>
+  <span class="breadcrumb-item active">{{ i18n.title }}</span>
 </div>
 
-<!-- Search and Filter Section -->
 <div class="search-filter-section">
   <div class="search-filters">
-    <!-- Search Box -->
     <div class="search-box">
-      <label class="search-label">Search</label>
+      <label class="search-label">{{ i18n.search }}</label>
       <div class="search-input">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path
             d="M8.11 1C12.59 1 16.22 4.63 16.22 9.11C16.22 10.81 15.63 12.37 14.65 13.62L17.76 16.73L16.35 18.14L13.24 15.03C11.99 16.01 10.43 16.6 8.73 16.6C4.25 16.6 0.62 12.97 0.62 8.49C0.62 4.01 4.25 0.38 8.73 0.38"
             stroke="currentColor" stroke-width="1.5" />
         </svg>
-        <input type="text" placeholder="Search for categories..." [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+        <input type="text" [placeholder]="i18n.searchPlaceholder" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
       </div>
     </div>
   </div>
 
-  <!-- Create New Category Button -->
   <button class="create-button" (click)="onCreateNewCategory()" *ngIf="canCreateCategory()">
     <svg class="create-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
       <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
     </svg>
-    Create New Category
+    {{ i18n.createButton }}
   </button>
 
-  <!-- Permission Denied Message for Create Button -->
   <div class="permission-denied" *ngIf="!canCreateCategory()">
     <svg class="warning-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
       <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
     </svg>
-    <span>{{ getPermissionRequiredMessage() }}</span>
+    <span>{{ i18n.permissionDenied }}</span>
   </div>
 </div>
 
-<!-- Category Statistics Cards -->
 <div class="stats-section" *ngIf="!isLoading">
   <div class="stat-card">
     <div class="stat-number">{{ getStatsDisplay().total }}</div>
-    <div class="stat-label">Total Categories</div>
+    <div class="stat-label">{{ i18n.stats?.total }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-number">{{ getStatsDisplay().totalTickets }}</div>
-    <div class="stat-label">Total Tickets</div>
+    <div class="stat-label">{{ i18n.stats?.totalTickets }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-number">{{ getStatsDisplay().newThisMonth }}</div>
-    <div class="stat-label">New This Month</div>
+    <div class="stat-label">{{ i18n.stats?.newThisMonth }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-number">{{ getStatsDisplay().avgTicketsPerCategory }}</div>
-    <div class="stat-label">Avg. per Category</div>
+    <div class="stat-label">{{ i18n.stats?.avgPerCategory }}</div>
   </div>
 </div>
 
-<!-- Category Table -->
 <div class="category-table-container">
-  <!-- Loading State -->
   <div class="table-loading" *ngIf="isLoading">
     <div class="loading-spinner"></div>
-    <p>Loading categories...</p>
+    <p>{{ i18n.loading }}</p>
   </div>
 
-  <!-- Error State -->
   <div class="error-state" *ngIf="hasError && !isLoading">
     <div class="error-icon">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="#DC3545">
         <path d="M16 3L3 16l13 13 13-13L16 3zm0 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm2-6h-4v-8h4v8z"/>
       </svg>
     </div>
-    <h3 style="margin-bottom: 8px; color: #DC3545;">Error Loading Categories</h3>
+    <h3 style="margin-bottom: 8px; color: #DC3545;">{{ i18n.error }}</h3>
     <p style="color: #6C757D;">{{ errorMessage }}</p>
-    <button class="retry-button" (click)="refreshData()">Try Again</button>
+    <button class="retry-button" (click)="refreshData()">{{ i18n.tryAgain }}</button>
   </div>
 
-  <!-- Table Content -->
   <table class="category-table" *ngIf="!isLoading && !hasError">
     <thead class="table-header">
       <tr>
-        <th>รายการที่</th>
-        <th>Category</th>
-        <th>Ticket Count</th>
-        <th>Actions</th>
+        <th>{{ i18n.table?.no }}</th>
+        <th>{{ i18n.table?.category }}</th>
+        <th>{{ i18n.table?.ticketCount }}</th>
+        <th>{{ i18n.table?.actions }}</th>
       </tr>
     </thead>
     <tbody>
@@ -99,12 +89,11 @@
         <td class="table-cell">
           <div class="category-info-cell">
             <div class="category-avatar" [style.background-color]="'#5873F8'">
-              {{ getLocalizedCategoryName(category).charAt(0).toUpperCase() }}
+              {{ category.name.charAt(0).toUpperCase() }}
             </div>
             <div class="category-details">
-              <div class="category-name">{{ getLocalizedCategoryName(category) }}</div>
+              <div class="category-name">{{ category.name }}</div>
               <div class="category-description">
-                <!-- แสดงชื่อในภาษาอื่น -->
                 <span *ngIf="currentLanguage === 'th'">
                   EN: {{ getCategoryNameByLanguage(category.languages || [], 'en') }}
                 </span>
@@ -118,7 +107,7 @@
         <td class="table-cell">
           <div class="ticket-count">
             <span class="count-number">{{ category.ticketCount || 0 }}</span>
-            <span class="count-label">tickets</span>
+            <span class="count-label">{{ i18n.table?.tickets }}</span>
           </div>
         </td>
         <td class="table-cell">
@@ -127,14 +116,14 @@
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                 <path d="M11.5 2.5a1.5 1.5 0 0 0-2.12 0L3 8.88V12h3.12l6.38-6.38a1.5 1.5 0 0 0 0-2.12l-1-1z" />
               </svg>
-              Edit
+              {{ i18n.edit }}
             </button>
             <button class="action-button delete-button" (click)="onDeleteCategory(category.id)" *ngIf="canDeleteCategory(category)">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                 <path
                   d="M5.5 1a.5.5 0 0 0-.5.5v.5h4v-.5a.5.5 0 0 0-.5-.5h-3zM3 3v9a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3H3z" />
               </svg>
-              Delete
+              {{ i18n.delete }}
             </button>
           </div>
         </td>
@@ -142,7 +131,6 @@
     </tbody>
   </table>
 
-  <!-- Empty State -->
   <div class="empty-state" *ngIf="filteredCategories.length === 0 && !isLoading && !hasError">
     <div class="empty-icon">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="#ADB5BD">
@@ -150,17 +138,15 @@
           d="M4 6h24v2H4zm0 5h24v2H4zm0 5h24v2H4zm0 5h24v2H4zm0 5h24v2H4z" />
       </svg>
     </div>
-    <h3 style="margin-bottom: 8px; color: #495057;">No categories found</h3>
-    <p style="color: #6C757D;">Try adjusting your search criteria</p>
+    <h3 style="margin-bottom: 8px; color: #495057;">{{ i18n.table?.emptyTitle }}</h3>
+    <p style="color: #6C757D;">{{ i18n.table?.emptyDesc }}</p>
   </div>
 </div>
 
-<!-- Inline Modal for Create Category -->
 <div class="modal-backdrop" *ngIf="isCreateModalVisible" (click)="onBackdropClick()">
-  <!-- Modal Container -->
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2 class="modal-title">{{ isEditMode ? 'Edit Category' : 'Create New Category' }}</h2>
+      <h2 class="modal-title">{{ isEditMode ? i18n.modal?.editTitle : i18n.modal?.createTitle }}</h2>
       <button class="close-button" (click)="onModalClose()" type="button">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
           <path d="M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z"/>
@@ -170,68 +156,65 @@
 
     <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
-        <!-- Category Name (Thai) -->
         <div class="form-group">
           <label class="form-label" for="nameTh">
-            ชื่อหมวดหมู่ (ภาษาไทย) <span class="required">*</span>
+            {{ i18n.modal?.nameTh }} <span class="required">*</span>
           </label>
           <input
             id="nameTh"
             type="text"
             class="form-input"
             formControlName="nameTh"
-            placeholder="กรุณาใส่ชื่อหมวดหมู่เป็นภาษาไทย"
+            [placeholder]="i18n.modal?.nameThPlaceholder"
             [class.error]="isFieldInvalid('nameTh')"
           />
           <div class="character-count">
-            {{ getNameThLength() }}/100 characters
+            {{ getNameThLength() }}/100
           </div>
           <div class="error-message" *ngIf="isFieldInvalid('nameTh')">
-            <span *ngIf="categoryForm.get('nameTh')?.errors?.['required']">ชื่อหมวดหมู่ภาษาไทยจำเป็นต้องกรอก</span>
-            <span *ngIf="categoryForm.get('nameTh')?.errors?.['minlength']">ชื่อหมวดหมู่ต้องมีความยาวอย่างน้อย 2 ตัวอักษร</span>
-            <span *ngIf="categoryForm.get('nameTh')?.errors?.['maxlength']">ชื่อหมวดหมู่ต้องไม่เกิน 100 ตัวอักษร</span>
+            <span *ngIf="categoryForm.get('nameTh')?.errors?.['required']">{{ i18n.modal?.required }}</span>
+            <span *ngIf="categoryForm.get('nameTh')?.errors?.['minlength']">{{ i18n.modal?.minLength }}</span>
+            <span *ngIf="categoryForm.get('nameTh')?.errors?.['maxlength']">{{ i18n.modal?.maxLength }}</span>
           </div>
         </div>
 
-        <!-- Category Name (English) -->
         <div class="form-group">
           <label class="form-label" for="nameEn">
-            Category Name (English) <span class="required">*</span>
+            {{ i18n.modal?.nameEn }} <span class="required">*</span>
           </label>
           <input
             id="nameEn"
             type="text"
             class="form-input"
             formControlName="nameEn"
-            placeholder="Please enter category name in English"
+            [placeholder]="i18n.modal?.nameEnPlaceholder"
             [class.error]="isFieldInvalid('nameEn')"
           />
           <div class="character-count">
-            {{ getNameEnLength() }}/100 characters
+            {{ getNameEnLength() }}/100
           </div>
           <div class="error-message" *ngIf="isFieldInvalid('nameEn')">
-            <span *ngIf="categoryForm.get('nameEn')?.errors?.['required']">English category name is required</span>
-            <span *ngIf="categoryForm.get('nameEn')?.errors?.['minlength']">Category name must be at least 2 characters</span>
-            <span *ngIf="categoryForm.get('nameEn')?.errors?.['maxlength']">Category name cannot exceed 100 characters</span>
+            <span *ngIf="categoryForm.get('nameEn')?.errors?.['required']">{{ i18n.modal?.required }}</span>
+            <span *ngIf="categoryForm.get('nameEn')?.errors?.['minlength']">{{ i18n.modal?.minLength }}</span>
+            <span *ngIf="categoryForm.get('nameEn')?.errors?.['maxlength']">{{ i18n.modal?.maxLength }}</span>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="onModalClose()" [disabled]="isSubmitting">
-          Cancel
+          {{ i18n.cancel }}
         </button>
         <button type="submit" class="btn btn-primary" [disabled]="categoryForm.invalid || isSubmitting">
           <span *ngIf="isSubmitting" class="loading-spinner"></span>
-          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Category' : 'Create Category') }}
+          {{ isSubmitting ? i18n.loading : (isEditMode ? i18n.save : i18n.createButton) }}
         </button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Refresh Button (Floating) -->
-<button class="refresh-button" (click)="refreshData()" title="Refresh Data">
+<button class="refresh-button" (click)="refreshData()" [title]="i18n.refresh">
   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
     <path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
     <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>

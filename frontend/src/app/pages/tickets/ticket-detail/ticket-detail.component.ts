@@ -18,7 +18,7 @@ import {
 import { AuthService } from '../../../shared/services/auth.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { FileService } from '../../../shared/services/file.service';
-import { LanguageService } from '../../../shared/services/language.service'; // ✅ Import LanguageService
+import { LanguageService } from '../../../shared/services/language.service';
 
 // Import Permission Models
 import {
@@ -159,7 +159,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private sanitizer = inject(DomSanitizer);
   private fileService = inject(FileService);
-  public languageService = inject(LanguageService); // ✅ Inject LanguageService
+  public languageService = inject(LanguageService);
 
   // ===== CORE PROPERTIES =====
   ticketData: TicketData | null = null;
@@ -167,7 +167,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   error = '';
   ticket_no: string = '';
 
-  // ===== TRANSLATION UI OBJECT ===== ✅
+  // ===== TRANSLATION UI OBJECT =====
   ui: any = {};
   private langSubscription: Subscription | null = null;
 
@@ -222,13 +222,14 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   statusCacheError = '';
 
   // ===== CONSTANTS =====
+  // ✅ เพิ่ม translationKey เพื่อให้แปลสถานะได้
   private readonly STATUS_WORKFLOW = [
-    { id: 1, name: 'Created', icon: 'bi-plus-circle' },
-    { id: 2, name: 'Open Ticket', icon: 'bi-folder2-open' },
-    { id: 3, name: 'In Progress', icon: 'bi-play-circle' },
-    { id: 4, name: 'Resolved', icon: 'bi-clipboard-check' },
-    { id: 5, name: 'Completed', icon: 'bi-check-circle' },
-    { id: 6, name: 'Cancel', icon: 'bi-x-circle' }
+    { id: 1, name: 'Created', icon: 'bi-plus-circle', translationKey: 'tickets.pending' },
+    { id: 2, name: 'Open Ticket', icon: 'bi-folder2-open', translationKey: 'tickets.openTicket' },
+    { id: 3, name: 'In Progress', icon: 'bi-play-circle', translationKey: 'tickets.inProgress' },
+    { id: 4, name: 'Resolved', icon: 'bi-clipboard-check', translationKey: 'tickets.resolved' },
+    { id: 5, name: 'Completed', icon: 'bi-check-circle', translationKey: 'tickets.complete' },
+    { id: 6, name: 'Cancel', icon: 'bi-x-circle', translationKey: 'tickets.cancel' }
   ];
 
   private readonly PRIORITY_CLASS_MAP: { [key: number]: string } = {
@@ -242,14 +243,17 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ticket_no = this.route.snapshot.params['ticket_no'];
 
-    // ✅ Initial translation update
-    this.updateTranslations();
-
-    // ✅ Subscribe to language changes
-    this.langSubscription = this.languageService.currentLanguage$.subscribe(() => {
-      this.updateTranslations();
-      if (this.ticketData) {
-        this.updateStatusLanguage();
+    // ✅ Subscribe รอโหลดภาษาเสร็จ (translationsLoaded$) แทนการดึงทันที
+    // เพื่อป้องกันปัญหา Race Condition ที่ทำให้แสดง key แทนข้อความ
+    this.langSubscription = this.languageService.translationsLoaded$.subscribe((isLoaded) => {
+      if (isLoaded) {
+        this.updateTranslations();
+        
+        // ถ้ามีข้อมูล Ticket อยู่แล้ว ให้อัปเดตสถานะให้เป็นภาษาที่ถูกต้องด้วย
+        if (this.ticketData) {
+          this.updateStatusLanguage();
+          this.updateEvaluationStatus();
+        }
       }
     });
 
@@ -262,25 +266,33 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // ✅ Cleanup subscription
     if (this.langSubscription) {
       this.langSubscription.unsubscribe();
     }
   }
 
-  // ===== TRANSLATION METHODS ===== ✅
+  // ===== TRANSLATION METHODS =====
 
   private updateTranslations(): void {
     this.ui = {
-      // Common & Menu
+      // Common
+      ok: this.languageService.translate('common.ok'),
+      cancel: this.languageService.translate('common.cancel'),
+      delete: this.languageService.translate('common.delete'),
+      edit: this.languageService.translate('common.edit'),
+      success: this.languageService.translate('common.success'),
+      error: this.languageService.translate('common.error'),
+      loading: this.languageService.translate('common.loading'),
+
+      // Menu & Breadcrumb
       allTickets: this.languageService.translate('tickets.allTickets'),
-      ticket: this.languageService.translate('tickets.newTicket').replace('New ', '') || 'Ticket',
+      ticket: this.languageService.translate('ticketDetail.ticketId').replace(' ID', '') || 'Ticket',
       
-      // Labels
+      // Detail Labels
       ticketNo: this.languageService.translate('ticketDetail.ticketId'),
       priority: this.languageService.translate('tickets.priority'),
       categories: this.languageService.translate('tickets.categories'),
-      project: this.languageService.translate('menu.project'),
+      project: this.languageService.translate('tickets.projectName'),
       issueDesc: this.languageService.translate('tickets.issue'),
       reporter: this.languageService.translate('ticketDetail.reporter'),
       created: this.languageService.translate('ticketDetail.created'),
@@ -292,24 +304,23 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       noHistory: this.languageService.translate('ticketDetail.noHistory'),
       
       // Actions
-      delete: this.languageService.translate('common.delete'),
-      edit: this.languageService.translate('common.edit'),
       exportPdf: this.languageService.translate('ticketDetail.exportPdf'),
       backToAll: this.languageService.translate('ticketDetail.backToAll'),
       
       // Evaluation
       evaluation: this.languageService.translate('ticketDetail.evaluation'),
       
-      // Messages
-      loading: this.languageService.translate('tickets.loadingData'),
-      loadingTicket: this.languageService.translate('tickets.loadingTickets')
+      // Loading Messages & Errors
+      loadingTicket: this.languageService.translate('tickets.loadingTickets'),
+      exporting: this.languageService.translate('tickets.fileUploading').replace('...', ' PDF...'),
+      loadError: this.languageService.translate('tickets.loadError')
     };
   }
 
   private updateStatusLanguage(): void {
-    if (this.ticketData?.ticket?.status_id) {
+    if (this.ticketData?.ticket) {
        this.ticketData.ticket.status_name = this.getCurrentStatusName();
-       this.buildDisplayHistory(); // Rebuild history to update status names in timeline
+       this.buildDisplayHistory(); 
     }
   }
 
@@ -317,12 +328,12 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
 
   async exportToPdf(options: ExportOptions = {}): Promise<void> {
     if (!this.ticketData?.ticket) {
-      alert('ไม่สามารถส่งออกได้ เนื่องจากไม่พบข้อมูล ticket');
+      alert(this.languageService.translate('tickets.loadError'));
       return;
     }
 
     if (!this.hasPermission(permissionEnum.VIEW_OWN_TICKETS)) {
-      alert('คุณไม่มีสิทธิ์ในการส่งออก ticket นี้');
+      alert(this.languageService.translate('userAccount.permissionDenied'));
       return;
     }
 
@@ -335,8 +346,9 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       console.log('PDF export completed successfully');
     } catch (error) {
       console.error('PDF export error:', error);
-      this.exportError = 'เกิดข้อผิดพลาดในการส่งออก PDF';
-      alert(`ไม่สามารถส่งออก PDF ได้: ${error}`);
+      const errorMsg = this.languageService.translate('tickets.exportError');
+      this.exportError = errorMsg;
+      alert(`${errorMsg}: ${error}`);
     } finally {
       this.isExportingPdf = false;
     }
@@ -394,14 +406,14 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       saveAs(response.body, fileName);
 
       this.showSuccessModal = true;
-      this.modalTitle = 'Export Successful';
-      this.modalMessage = `ส่งออก PDF สำเร็จแล้ว: ${fileName}`;
+      this.modalTitle = this.languageService.translate('common.success');
+      this.modalMessage = `${this.languageService.translate('tickets.fileUploaded')} (PDF): ${fileName}`;
       this.modalTicketNo = this.ticket_no;
     } catch (error: any) {
-      if (error.status === 401) throw new Error('ไม่มีสิทธิ์ในการเข้าถึง กรุณาเข้าสู่ระบบใหม่');
-      else if (error.status === 403) throw new Error('ไม่มีสิทธิ์ในการส่งออก PDF');
-      else if (error.status === 500) throw new Error('เกิดข้อผิดพลาดในเซิร์ฟเวอร์');
-      else throw new Error(error.message || 'ไม่สามารถส่งออก PDF ได้');
+      if (error.status === 401) throw new Error(this.languageService.translate('errors.unauthorized'));
+      else if (error.status === 403) throw new Error(this.languageService.translate('errors.forbidden'));
+      else if (error.status === 500) throw new Error(this.languageService.translate('errors.serverError'));
+      else throw new Error(error.message || this.languageService.translate('tickets.exportError'));
     }
   }
 
@@ -409,11 +421,11 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
     try {
       if (this.ticketData?.assign && this.ticketData.assign.length > 0) {
         const latestAssign = this.ticketData.assign[this.ticketData.assign.length - 1];
-        return latestAssign.assignTo || 'ไม่ระบุ';
+        return latestAssign.assignTo || this.languageService.translate('tickets.unknownUser');
       }
-      return 'ยังไม่ได้มอบหมาย';
+      return this.languageService.translate('tickets.unknown');
     } catch (error) {
-      return 'ไม่ระบุ';
+      return this.languageService.translate('tickets.unknown');
     }
   }
 
@@ -456,7 +468,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   }
 
   getExportButtonText(): string {
-    return this.isExportingPdf ? 'Exporting...' : (this.ui.exportPdf || 'Export PDF');
+    return this.isExportingPdf ? (this.ui.exporting || 'Exporting...') : (this.ui.exportPdf || 'Export PDF');
   }
 
   getExportButtonClass(): string {
@@ -495,8 +507,8 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
     this.buildDisplayHistory();
     this.updateEvaluationStatus();
     this.showSuccessModal = true;
-    this.modalTitle = 'Supporter Data Saved';
-    this.modalMessage = 'บันทึกข้อมูล supporter สำเร็จแล้ว';
+    this.modalTitle = this.languageService.translate('common.success');
+    this.modalMessage = this.languageService.translate('tickets.ticketSaved');
     this.modalTicketNo = this.ticket_no;
   }
 
@@ -510,8 +522,8 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
     }
     this.refreshTicketData();
     this.showSuccessModal = true;
-    this.modalTitle = 'Ticket Assigned';
-    this.modalMessage = `มอบหมาย ticket ${response.ticket_no} สำเร็จแล้ว`;
+    this.modalTitle = this.languageService.translate('notifications.ticketAssigned');
+    this.modalMessage = `${this.languageService.translate('notifications.ticketAssigned')} (${response.ticket_no})`;
     this.modalTicketNo = this.ticket_no;
   }
 
@@ -559,25 +571,28 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
 
     if (!this.authService.hasPermission(permissionEnum.EDIT_TICKET) &&
       !this.authService.hasAnyRole([ROLES.SUPPORTER, ROLES.ADMIN])) {
-      alert(this.languageService.getText('คุณไม่มีสิทธิ์แก้ไข ticket นี้', 'You do not have permission to edit this ticket'));
+      alert(this.languageService.translate('userAccount.permissionDenied'));
       return;
     }
 
     const currentStatus: number = this.getCurrentStatusId();
+    
+    // Use translation for error messages
+    const editRestrictedMsg = this.languageService.translate('userAccount.permissionDeniedAction', { action: this.ui.edit });
 
     if (this.authService.hasRole(ROLES.USER)) {
       if (currentStatus !== TICKET_STATUS_IDS.CREATED) {
-        alert(this.languageService.getText('คุณสามารถแก้ไข ticket ได้เฉพาะในสถานะ "Created" เท่านั้น', 'You can only edit tickets in "Created" status'));
+        alert(this.languageService.translate('userAccount.permissionDenied'));
         return;
       }
     } else if (this.authService.hasRole(ROLES.ADMIN)) {
       if (currentStatus !== TICKET_STATUS_IDS.CREATED && currentStatus !== TICKET_STATUS_IDS.OPEN_TICKET) {
-        alert(this.languageService.getText('คุณสามารถแก้ไข ticket ได้เฉพาะในสถานะ "Created" และ "Open Ticket" เท่านั้น', 'Admin can only edit "Created" and "Open Ticket" status'));
+        alert(editRestrictedMsg);
         return;
       }
     } else if (this.authService.hasRole(ROLES.SUPPORTER)) {
       if (currentStatus === TICKET_STATUS_IDS.COMPLETED || currentStatus === TICKET_STATUS_IDS.CANCEL) {
-        alert(this.languageService.getText('ไม่สามารถแก้ไข ticket ที่จบงานแล้วได้', 'Cannot edit completed or cancelled tickets'));
+        alert(editRestrictedMsg);
         return;
       }
     }
@@ -590,7 +605,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
     if (!this.ticketData?.ticket?.ticket_no) return;
 
     if (!this.authService.hasPermission(permissionEnum.DELETE_TICKET) && !this.authService.isAdmin()) {
-      alert(this.languageService.getText('คุณไม่มีสิทธิ์ลบ ticket นี้', 'You do not have permission to delete this ticket'));
+      alert(this.languageService.translate('userAccount.permissionDenied'));
       return;
     }
 
@@ -598,17 +613,17 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
 
     if (this.authService.hasRole(ROLES.USER)) {
       if (currentStatus !== TICKET_STATUS_IDS.CREATED) {
-        alert(this.languageService.getText('คุณสามารถลบ ticket ได้เฉพาะในสถานะ "Created" เท่านั้น', 'You can only delete tickets in "Created" status'));
+        alert(this.languageService.translate('userAccount.permissionDenied'));
         return;
       }
     } else if (this.authService.hasRole(ROLES.ADMIN)) {
       if (currentStatus !== TICKET_STATUS_IDS.CREATED && currentStatus !== TICKET_STATUS_IDS.OPEN_TICKET) {
-        alert(this.languageService.getText('คุณสามารถลบ ticket ได้เฉพาะในสถานะ "Created" และ "Open Ticket" เท่านั้น', 'Admin can only delete "Created" and "Open Ticket" status'));
+        alert(this.languageService.translate('userAccount.permissionDenied'));
         return;
       }
     } else if (this.authService.hasRole(ROLES.SUPPORTER)) {
       if (currentStatus === TICKET_STATUS_IDS.COMPLETED || currentStatus === TICKET_STATUS_IDS.CANCEL) {
-        alert(this.languageService.getText('ไม่สามารถลบ ticket ที่จบงานแล้วได้', 'Cannot delete completed or cancelled tickets'));
+        alert(this.languageService.translate('userAccount.permissionDenied'));
         return;
       }
     }
@@ -626,7 +641,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   setRating(rating: number): void {
     const userPermissions = this.authService.getEffectivePermissions();
     if (!userPermissions.includes(14)) {
-      alert('Permission Denied (14: SATISFACTION)');
+      alert(this.languageService.translate('userAccount.permissionDenied'));
       return;
     }
     if (!this.canEvaluate || this.hasExistingSatisfaction) return;
@@ -647,18 +662,18 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       next: (response: satisfactionResponse) => {
         if (response.success) {
           this.hasExistingSatisfaction = true;
-          this.satisfactionMessage = this.languageService.getText('บันทึกคะแนนสำเร็จ', 'Rating saved');
+          this.satisfactionMessage = this.languageService.translate('ticketDetail.evaluation');
           this.currentRating = rating;
           this.saveSatisfactionToStorage(rating);
           this.showSuccessModal = true;
-          this.modalTitle = 'Assessment Success';
-          this.modalMessage = this.languageService.getText('ขอบคุณสำหรับการประเมิน', 'Thank you for your feedback');
+          this.modalTitle = this.languageService.translate('common.success');
+          this.modalMessage = this.languageService.translate('common.success'); 
           this.modalTicketNo = this.ticket_no;
           document.body.classList.add('modal-open');
         } else {
           this.currentRating = 0;
           this.hasExistingSatisfaction = false;
-          alert(response.error || 'Failed to save');
+          alert(response.error || this.languageService.translate('common.error'));
         }
         this.isSavingRating = false;
       },
@@ -667,7 +682,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
         this.currentRating = 0;
         this.hasExistingSatisfaction = false;
         this.isSavingRating = false;
-        alert('Error saving satisfaction');
+        alert(this.languageService.translate('common.error'));
       }
     });
   }
@@ -714,7 +729,6 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
 
     const currentStatus = this.getCurrentStatusId();
 
-    // Map status to UI text
     if (this.authService.hasRole(ROLES.USER)) {
       switch (currentStatus) {
         case TICKET_STATUS_IDS.CREATED: return this.ui.edit;
@@ -725,7 +739,6 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       }
     }
     
-    // Default fallback
     return this.ui.edit || 'Edit';
   }
 
@@ -834,10 +847,19 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   }
 
   getCurrentStatusName(): string {
+    // 1. Try to get status by ID from our hardcoded list (mapping to translations)
     const statusId = this.getCurrentStatusId();
+    const workflowItem = this.STATUS_WORKFLOW.find(s => s.id === statusId);
+    if (workflowItem) {
+        return this.languageService.translate(workflowItem.translationKey);
+    }
+    
+    // 2. Fallback to cache if available
     if (this.statusCacheLoaded) {
       return this.apiService.getCachedStatusName(statusId);
     }
+    
+    // 3. Fallback to API data or English hardcoded
     return this.currentStatusInfo?.status_name || this.ticketData?.ticket?.status_name || getStatusName(statusId, 'en');
   }
 
@@ -936,7 +958,8 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   private updateStatusFromCache(): void {
     if (!this.ticketData?.ticket || !this.statusCacheLoaded) return;
     const statusId = this.ticketData.ticket.status_id;
-    const statusName = this.apiService.getCachedStatusName(statusId);
+    // Use dynamic translation method
+    const statusName = this.getCurrentStatusName(); 
 
     this.currentStatusInfo = { status_id: statusId, status_name: statusName, language_id: 'th' };
     this.ticketData.ticket.status_name = statusName;
@@ -950,7 +973,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
     try {
       await this.getTicketByTicketNo(this.ticket_no);
       if (!this.ticketData?.ticket) {
-        this.error = 'Unable to load ticket data';
+        this.error = this.languageService.translate('tickets.loadError');
         return;
       }
       this.useTicketDataStatus();
@@ -958,7 +981,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       this.loadExistingSatisfaction();
     } catch (error) {
       console.error(error);
-      this.error = 'Error loading ticket';
+      this.error = this.languageService.translate('tickets.loadError');
     } finally {
       this.isLoading = false;
     }
@@ -967,7 +990,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   private useTicketDataStatus(): void {
     if (!this.ticketData?.ticket) return;
     const statusId = this.ticketData.ticket.status_id || 5;
-    const statusName = this.statusCacheLoaded ? this.apiService.getCachedStatusName(statusId) : (this.ticketData.ticket.status_name || getStatusName(statusId, 'en'));
+    const statusName = this.getCurrentStatusName();
 
     this.currentStatusInfo = { status_id: statusId, status_name: statusName, language_id: 'th' };
     this.ticketData.ticket.status_id = statusId;
@@ -1025,7 +1048,9 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       else if (isActive) createDate = new Date().toISOString();
 
       const isSkipped = !createDate || createDate.trim() === '';
-      const statusName = this.statusCacheLoaded ? this.apiService.getCachedStatusName(workflowStatus.id) : workflowStatus.name;
+      
+      // ✅ Use Translation Key for history status name
+      const statusName = this.languageService.translate(workflowStatus.translationKey);
 
       return { status_id: workflowStatus.id, status_name: statusName, create_date: createDate, is_active: isActive, is_completed: isCompleted, is_skipped: isSkipped };
     });
@@ -1056,7 +1081,8 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       const isCompleted = thisPosition < currentPosition && thisPosition !== -1;
       const createDate = existingItem?.create_date || '';
       const isSkipped = !createDate || createDate.trim() === '';
-      const statusName = this.statusCacheLoaded ? this.apiService.getCachedStatusName(workflowStatus.id) : workflowStatus.name;
+      
+      const statusName = this.languageService.translate(workflowStatus.translationKey);
 
       return { status_id: workflowStatus.id, status_name: statusName, create_date: createDate, is_active: isActive, is_completed: isCompleted, is_skipped: isSkipped };
     });
@@ -1070,7 +1096,12 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   private updateEvaluationStatus(): void {
     const statusId = this.getCurrentStatusId();
     this.canEvaluate = statusId === TICKET_STATUS_IDS.COMPLETED;
-    this.satisfactionMessage = this.apiService.getEvaluationStatusMessage(statusId);
+    // Update message using translation
+    if (this.hasExistingSatisfaction) {
+       this.satisfactionMessage = this.languageService.translate('ticketDetail.evaluation');
+    } else {
+       this.satisfactionMessage = this.apiService.getEvaluationStatusMessage(statusId);
+    }
   }
 
   private loadExistingSatisfaction(): void {
@@ -1080,7 +1111,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       if (rating >= 1 && rating <= 5) {
         this.currentRating = rating;
         this.hasExistingSatisfaction = true;
-        this.satisfactionMessage = `You rated ${rating} stars`;
+        this.satisfactionMessage = this.languageService.translate('ticketDetail.evaluation');
       }
     }
   }
@@ -1120,12 +1151,12 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
           this.clearLocalStorageData();
           this.backToList();
         } else {
-          alert(`Failed: ${response.message}`);
+          alert(`${this.languageService.translate('tickets.deleteFailed')}: ${response.message}`);
         }
         this.isDeleting = false;
       },
       error: (error: any) => {
-        alert(`Error: ${error}`);
+        alert(`${this.languageService.translate('tickets.deleteError')}: ${error}`);
         this.isDeleting = false;
       }
     });
@@ -1145,13 +1176,11 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response && response.code === 1 && response.data) {
           this.ticketData = response.data;
-          if (response.data.ticket.status_id) {
-            this.currentStatusInfo = {
-              status_id: response.data.ticket.status_id,
-              status_name: this.apiService.getCachedStatusName(response.data.ticket.status_id),
-              language_id: 'th'
-            };
-          }
+          this.currentStatusInfo = {
+            status_id: response.data.ticket.status_id,
+            status_name: this.getCurrentStatusName(), // use dynamic name
+            language_id: 'th'
+          };
           this.buildDisplayHistory();
           this.updateEvaluationStatus();
         }
@@ -1162,7 +1191,7 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
   private getTicketByTicketNo(ticket_no: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!ticket_no || ticket_no.trim() === '') {
-        this.error = 'Invalid ticket number';
+        this.error = this.languageService.translate('tickets.loadError');
         reject(new Error('Invalid ticket number'));
         return;
       }
@@ -1174,16 +1203,16 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
               this.ticketData = response.data as TicketData;
               resolve();
             } else {
-              this.error = 'Invalid ticket data';
+              this.error = this.languageService.translate('tickets.loadError');
               reject(new Error('Invalid ticket data'));
             }
           } else {
-            this.error = response?.message || 'Ticket not found';
+            this.error = response?.message || this.languageService.translate('tickets.noTicketsFound');
             reject(new Error(this.error));
           }
         },
         error: (error: any) => {
-          this.error = 'Connection error';
+          this.error = this.languageService.translate('login.connectionError');
           reject(error);
         }
       });

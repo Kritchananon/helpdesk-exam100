@@ -5,7 +5,7 @@
     type="button"
     (click)="toggleDropdown()"
     [class.has-unread]="hasUnreadNotifications()"
-    [attr.aria-label]="getText('Notifications', 'การแจ้งเตือน')"
+    [attr.aria-label]="translate('notifications.newNotification')"
     [attr.aria-expanded]="isDropdownOpen">
     
     <i class="bi bi-bell" [class.bell-ring]="hasUnreadNotifications()"></i>
@@ -21,23 +21,23 @@
       <div class="header-left">
         <h6 class="header-title">
           <i class="bi bi-bell-fill me-2"></i>
-          {{ getText('Notifications', 'การแจ้งเตือน') }}
+          {{ translate('notifications.newNotification', { defaultValue: 'การแจ้งเตือน' }) }}
         </h6>
         <span class="notification-count-text" *ngIf="summary">
-          {{ summary.unread }} {{ getText('unread', 'ยังไม่ได้อ่าน') }}
+          {{ summary.unread }} {{ languageService.isThaiLanguage() ? 'ยังไม่ได้อ่าน' : 'Unread' }}
         </span>
       </div>
       
       <div class="header-right">
-        <button class="btn-icon-small" (click)="refreshNotifications()" [disabled]="isLoading">
+        <button class="btn-icon-small" (click)="refreshNotifications()" [disabled]="isLoading" [title]="translate('common.refresh')">
           <i class="bi" [class.bi-arrow-clockwise]="!isLoading" [class.bi-hourglass-split]="isLoading" [class.spin-animation]="isLoading"></i>
         </button>
 
-        <button class="btn-icon-small" (click)="openNotificationSettings($event)">
+        <button class="btn-icon-small" (click)="openNotificationSettings($event)" [title]="translate('menu.settings')">
           <i class="bi bi-gear"></i>
         </button>
 
-        <button class="btn-icon-small" (click)="markAllAsRead($event)" *ngIf="hasUnreadNotifications()">
+        <button class="btn-icon-small" (click)="markAllAsRead($event)" *ngIf="hasUnreadNotifications()" [title]="translate('notifications.markAllRead')">
           <i class="bi bi-check-all"></i>
         </button>
       </div>
@@ -45,19 +45,19 @@
 
     <div class="notification-filters">
       <button class="filter-tab" [class.active]="selectedFilter === 'all'" (click)="changeFilter('all')">
-        {{ getText('All', 'ทั้งหมด') }} <span class="filter-count" *ngIf="summary">{{ summary.total }}</span>
+        {{ translate('common.all') }} <span class="filter-count" *ngIf="summary">{{ summary.total }}</span>
       </button>
       <button class="filter-tab" [class.active]="selectedFilter === 'unread'" (click)="changeFilter('unread')">
-        {{ getText('Unread', 'ยังไม่ได้อ่าน') }} <span class="filter-count" *ngIf="summary">{{ summary.unread }}</span>
+        {{ languageService.isThaiLanguage() ? 'ยังไม่ได้อ่าน' : 'Unread' }} <span class="filter-count" *ngIf="summary">{{ summary.unread }}</span>
       </button>
       <button class="filter-tab" [class.active]="selectedFilter === 'today'" (click)="changeFilter('today')">
-        {{ getText('Today', 'วันนี้') }} <span class="filter-count" *ngIf="summary">{{ summary.today }}</span>
+        {{ translate('dates.today') }} <span class="filter-count" *ngIf="summary">{{ summary.today }}</span>
       </button>
     </div>
 
     <div class="notification-type-filter" *ngIf="hasNotifications()">
       <select class="form-select form-select-sm" [(ngModel)]="selectedType" (change)="changeTypeFilter(selectedType)">
-        <option value="all">{{ getText('All Types', 'ทุกประเภท') }}</option>
+        <option value="all">{{ languageService.isThaiLanguage() ? 'ทุกประเภท' : 'All Types' }}</option>
         <option [value]="NotificationType.NEW_TICKET">{{ getNotificationTypeLabel(NotificationType.NEW_TICKET) }}</option>
         <option [value]="NotificationType.STATUS_CHANGE">{{ getNotificationTypeLabel(NotificationType.STATUS_CHANGE) }}</option>
         <option [value]="NotificationType.ASSIGNMENT">{{ getNotificationTypeLabel(NotificationType.ASSIGNMENT) }}</option>
@@ -66,7 +66,7 @@
 
     <div class="notification-loading" *ngIf="isLoading">
       <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-      <span class="ms-2">{{ getText('Loading...', 'กำลังโหลด...') }}</span>
+      <span class="ms-2">{{ translate('common.loading') }}</span>
     </div>
 
     <div class="notification-error" *ngIf="errorMessage && !isLoading">
@@ -74,7 +74,7 @@
       <span class="error-message">{{ errorMessage }}</span>
       <div class="error-actions">
         <button class="btn btn-sm btn-outline-primary" (click)="refreshNotifications()">
-          <i class="bi bi-arrow-clockwise"></i> {{ getText('Retry', 'ลองใหม่') }}
+          <i class="bi bi-arrow-clockwise"></i> {{ translate('tickets.tryAgain') }}
         </button>
       </div>
     </div>
@@ -83,7 +83,7 @@
       
       <div class="notification-empty" *ngIf="getFilteredNotifications().length === 0">
         <i class="bi bi-bell-slash empty-icon"></i>
-        <p class="empty-text">{{ getText('No notifications', 'ไม่มีการแจ้งเตือน') }}</p>
+        <p class="empty-text">{{ translate('notifications.noNotifications') }}</p>
       </div>
 
       <div *ngFor="let notification of getFilteredNotifications(); trackBy: trackByNotificationId"
@@ -126,10 +126,10 @@
 
     <div class="notification-footer" *ngIf="hasNotifications() && !isLoading">
       <button class="btn btn-link btn-sm w-100" (click)="viewAllNotifications($event)">
-        {{ getText('View All Notifications', 'ดูการแจ้งเตือนทั้งหมด') }}
+        {{ translate('notifications.viewAll') }}
       </button>
       <button class="btn btn-link btn-sm text-danger w-100" (click)="deleteAllNotifications($event)">
-        <i class="bi bi-trash"></i> {{ getText('Clear All', 'ลบทั้งหมด') }}
+        <i class="bi bi-trash"></i> {{ translate('common.delete') }} {{ translate('common.all') }}
       </button>
     </div>
 

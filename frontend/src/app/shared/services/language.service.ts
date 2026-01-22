@@ -44,10 +44,14 @@ export class LanguageService {
   private currentLanguageSubject: BehaviorSubject<SupportedLanguage>;
   public currentLanguage$: Observable<SupportedLanguage>;
 
+  // ✅ NEW: เพิ่ม Subject สำหรับบอกสถานะการโหลดไฟล์ภาษา (แก้ปัญหา Race Condition)
+  private translationsLoadedSubject = new BehaviorSubject<boolean>(false);
+  public translationsLoaded$ = this.translationsLoadedSubject.asObservable();
+
   // ✅ Translation Cache
   private translations: Map<SupportedLanguage, TranslationData> = new Map();
 
-  // ✅ NEW: Missing Keys Cache (ป้องกัน Log รัวๆ)
+  // ✅ NEW: Missing Keys Cache (ป้องกัน Log Error รัวๆ ใน Console)
   private missingKeysLog: Set<string> = new Set();
 
   constructor() {
@@ -76,18 +80,23 @@ export class LanguageService {
    */
   setLanguage(language: SupportedLanguage): void {
     if (!this.isLanguageSupported(language)) {
-      // console.warn(`⚠️ Language "${language}" is not supported. Falling back to ${this.DEFAULT_LANGUAGE}`);
       language = this.DEFAULT_LANGUAGE;
     }
 
     const currentLang = this.currentLanguageSubject.value;
+    
+    // กรณีเลือกภาษาเดิม
     if (currentLang === language) {
+      // ✅ ถ้าไฟล์โหลดเสร็จแล้ว ให้แจ้งเตือนอีกครั้งเพื่อให้ UI มั่นใจว่าพร้อม
+      if (this.translations.has(language)) {
+        this.translationsLoadedSubject.next(true);
+      }
       return;
     }
 
     console.log('🌐 Changing language from', currentLang, 'to', language);
 
-    // ✅ Reset missing keys log when language changes
+    // ✅ Reset missing keys log เมื่อเปลี่ยนภาษา
     this.missingKeysLog.clear();
 
     // Update state
@@ -96,9 +105,13 @@ export class LanguageService {
     // Persist to storage
     this.saveLanguageToStorage(language);
 
-    // Load translations if not cached
+    // Load translations logic
     if (!this.translations.has(language)) {
+      // ถ้ายังไม่มีใน Cache ให้โหลดใหม่
       this.loadTranslations(language);
+    } else {
+      // ✅ ถ้ามี Cache แล้ว ให้แจ้งเตือนว่าโหลดเสร็จทันที (ไม่ต้องรอ fetch)
+      this.translationsLoadedSubject.next(true);
     }
 
     // Broadcast change event
@@ -142,13 +155,12 @@ export class LanguageService {
 
   /**
    * Get translation by key
-   * @param key - Translation key (e.g., 'login.title')
-   * @param params - Optional parameters for interpolation
    */
   translate(key: string, params?: { [key: string]: any }): string {
     const language = this.getCurrentLanguage();
     
-    // ตรวจสอบว่าโหลดภาษาเสร็จหรือยัง ถ้ายังไม่เสร็จให้คืนค่า key ไปก่อนโดยไม่ Log Error
+    // ตรวจสอบว่าโหลดภาษาเสร็จหรือยัง ถ้ายังไม่เสร็จให้คืนค่า key ไปก่อน
+    // เพื่อป้องกัน error ในขณะที่กำลังโหลด
     if (!this.translations.has(language)) {
       return key;
     }
@@ -156,7 +168,7 @@ export class LanguageService {
     const translation = this.getTranslationByKey(key, language);
 
     if (!translation) {
-      // ✅ FIX: Log only once per key per session (ป้องกัน Console Flood)
+      // Log warning แค่ครั้งเดียวต่อ key เพื่อไม่ให้รก Console
       const logKey = `${language}:${key}`;
       if (!this.missingKeysLog.has(logKey)) {
         console.warn(`⚠️ Translation not found for key: "${key}" (lang: ${language})`);
@@ -182,8 +194,6 @@ export class LanguageService {
 
   /**
    * Get text based on current language
-   * @param thText - Thai text
-   * @param enText - English text
    */
   getText(thText: string, enText: string): string {
     return this.getCurrentLanguage() === 'th' ? thText : enText;
@@ -202,9 +212,6 @@ export class LanguageService {
 
   // ===== PRIVATE HELPER METHODS ===== ✅
 
-  /**
-   * Get stored language from localStorage
-   */
   private getStoredLanguage(): SupportedLanguage {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -214,37 +221,26 @@ export class LanguageService {
     } catch (error) {
       console.error('❌ Error reading language from storage:', error);
     }
-
-    // Fallback to browser language or default
     return this.detectBrowserLanguage();
   }
 
-  /**
-   * Save language to localStorage
-   */
   private saveLanguageToStorage(language: SupportedLanguage): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, language);
-      // console.log('💾 Language saved to storage:', language); // ลด Log
     } catch (error) {
       console.error('❌ Error saving language to storage:', error);
     }
   }
 
-  /**
-   * Detect browser language
-   */
   private detectBrowserLanguage(): SupportedLanguage {
     try {
       const browserLang = navigator.language.split('-')[0].toLowerCase();
       if (this.isLanguageSupported(browserLang)) {
-        // console.log('🌐 Browser language detected:', browserLang);
         return browserLang as SupportedLanguage;
       }
     } catch (error) {
       console.error('❌ Error detecting browser language:', error);
     }
-
     return this.DEFAULT_LANGUAGE;
   }
 
@@ -252,12 +248,16 @@ export class LanguageService {
    * Load translations from JSON files
    */
   private async loadTranslations(language: SupportedLanguage): Promise<void> {
+    // ✅ ถ้ามี Cache แล้ว ให้แจ้งเตือนว่าโหลดเสร็จทันที
     if (this.translations.has(language)) {
+      this.translationsLoadedSubject.next(true);
       return;
     }
 
+    // ✅ แจ้งเตือนว่า "เริ่มโหลด" (สถานะเป็น false) เพื่อให้ UI รอ
+    this.translationsLoadedSubject.next(false);
+
     try {
-      // console.log('📥 Loading translations for:', language);
       const response = await fetch(`/assets/i18n/${language}.json`);
       
       if (!response.ok) {
@@ -268,24 +268,25 @@ export class LanguageService {
       this.translations.set(language, data);
       console.log('✅ Translations loaded for:', language);
       
-      // Force UI update check implies logs might reappear if cleared, but safely.
+      // ✅ แจ้งเตือนว่า "โหลดเสร็จแล้ว" (สถานะเป็น true) UI จะเริ่มทำงานตอนนี้
+      this.translationsLoadedSubject.next(true);
+      
     } catch (error) {
       console.error(`❌ Error loading translations for ${language}:`, error);
-      // Set empty object to prevent repeated failed attempts
+      // ใส่ object ว่างเพื่อกันการโหลดซ้ำซ้อน
       this.translations.set(language, {});
+      
+      // ✅ แจ้งเตือนว่าจบกระบวนการ (แม้จะ Error) เพื่อให้ UI ไม่ค้างหน้า Loading
+      this.translationsLoadedSubject.next(true);
     }
   }
 
-  /**
-   * Get translation by key path (e.g., 'login.title')
-   */
   private getTranslationByKey(key: string, language: SupportedLanguage): string | null {
     const translations = this.translations.get(language);
     if (!translations) {
       return null;
     }
 
-    // Navigate nested object using key path
     const keys = key.split('.');
     let value: any = translations;
 
@@ -300,10 +301,6 @@ export class LanguageService {
     return typeof value === 'string' ? value : null;
   }
 
-  /**
-   * Interpolate parameters in translation string
-   * Example: "Hello {{name}}" with params {name: "John"} => "Hello John"
-   */
   private interpolate(text: string, params: { [key: string]: any }): string {
     let result = text;
     Object.keys(params).forEach(key => {
@@ -313,9 +310,6 @@ export class LanguageService {
     return result;
   }
 
-  /**
-   * Broadcast language change event
-   */
   private broadcastLanguageChange(language: SupportedLanguage): void {
     const event = new CustomEvent('language-changed', {
       detail: { language, timestamp: Date.now() }
@@ -323,13 +317,9 @@ export class LanguageService {
     window.dispatchEvent(event);
   }
 
-  /**
-   * Update document language attribute for accessibility
-   */
   private updateDocumentLanguage(language: SupportedLanguage): void {
     try {
       document.documentElement.lang = language;
-      
       const config = this.getLanguageConfig(language);
       if (config) {
         document.documentElement.dir = config.direction;
@@ -340,132 +330,77 @@ export class LanguageService {
   }
 
   // ===== UTILITY METHODS ===== ✅
-
-  /**
-   * Format number according to current language
-   */
+  
   formatNumber(value: number, options?: Intl.NumberFormatOptions): string {
     const language = this.getCurrentLanguage();
     const locale = language === 'th' ? 'th-TH' : 'en-US';
-    
     try {
       return new Intl.NumberFormat(locale, options).format(value);
     } catch (error) {
-      console.error('❌ Error formatting number:', error);
       return String(value);
     }
   }
 
-  /**
-   * Format date according to current language
-   */
   formatDate(date: Date | string | number, options?: Intl.DateTimeFormatOptions): string {
     const language = this.getCurrentLanguage();
     const locale = language === 'th' ? 'th-TH' : 'en-US';
-    
     try {
       const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
       return new Intl.DateTimeFormat(locale, options).format(dateObj);
     } catch (error) {
-      console.error('❌ Error formatting date:', error);
       return String(date);
     }
   }
 
-  /**
-   * Format currency according to current language
-   */
   formatCurrency(value: number, currency: string = 'THB'): string {
     const language = this.getCurrentLanguage();
     const locale = language === 'th' ? 'th-TH' : 'en-US';
-    
     try {
       return new Intl.NumberFormat(locale, {
         style: 'currency',
         currency: currency
       }).format(value);
     } catch (error) {
-      console.error('❌ Error formatting currency:', error);
       return `${value} ${currency}`;
     }
   }
 
-  /**
-   * Get current language flag emoji
-   */
   getCurrentFlag(): string {
     const config = this.getLanguageConfig(this.getCurrentLanguage());
     return config?.flag || '🌐';
   }
 
-  /**
-   * Get current language native name
-   */
   getCurrentLanguageName(): string {
     const config = this.getLanguageConfig(this.getCurrentLanguage());
     return config?.nativeName || 'Unknown';
   }
 
-  /**
-   * Check if current language is Thai
-   */
   isThaiLanguage(): boolean {
     return this.getCurrentLanguage() === 'th';
   }
 
-  /**
-   * Check if current language is English
-   */
   isEnglishLanguage(): boolean {
     return this.getCurrentLanguage() === 'en';
   }
 
-  /**
-   * Reset to default language
-   */
   resetToDefault(): void {
-    console.log('🔄 Resetting to default language:', this.DEFAULT_LANGUAGE);
     this.setLanguage(this.DEFAULT_LANGUAGE);
   }
 
-  /**
-   * Clear cached translations (useful for memory management)
-   */
   clearCache(): void {
-    console.log('🧹 Clearing translation cache');
     this.translations.clear();
-    this.missingKeysLog.clear(); // Reset warnings too
-    
-    // Reload current language translations
+    this.missingKeysLog.clear();
     const currentLang = this.getCurrentLanguage();
     this.loadTranslations(currentLang);
   }
 
-  // ===== DEBUG METHODS ===== ✅
-
-  /**
-   * Get debug information
-   */
   getDebugInfo(): any {
     return {
       currentLanguage: this.getCurrentLanguage(),
       supportedLanguages: this.SUPPORTED_LANGUAGES.map(l => l.code),
       cachedLanguages: Array.from(this.translations.keys()),
       missingKeysCount: this.missingKeysLog.size,
-      browserLanguage: navigator.language,
-      documentLanguage: document.documentElement.lang,
-      storageKey: this.STORAGE_KEY,
-      defaultLanguage: this.DEFAULT_LANGUAGE
+      loadingState: this.translationsLoadedSubject.value // Debug loading state
     };
-  }
-
-  /**
-   * Log debug information to console
-   */
-  debugLog(): void {
-    console.group('🌐 Language Service Debug Info');
-    console.log('Debug Info:', this.getDebugInfo());
-    console.log('Translations Cache:', this.translations);
-    console.groupEnd();
   }
 }

@@ -49,6 +49,47 @@
     "supportPanel": "Support Panel",
     "userManagement": "User Management"
   },
+  "ticketCategories": {
+    "title": "Ticket Categories",
+    "breadcrumb": "Settings",
+    "searchPlaceholder": "Search for categories...",
+    "createButton": "Create New Category",
+    "permissionDenied": "Requires \"Manage Category\" permission",
+    "stats": {
+      "total": "Total Categories",
+      "totalTickets": "Total Tickets",
+      "newThisMonth": "New This Month",
+      "avgPerCategory": "Avg. per Category"
+    },
+    "table": {
+      "no": "No.",
+      "category": "Category",
+      "ticketCount": "Ticket Count",
+      "actions": "Actions",
+      "tickets": "tickets",
+      "emptyTitle": "No categories found",
+      "emptyDesc": "Try adjusting your search criteria"
+    },
+    "messages": {
+      "createSuccess": "Category \"{{name}}\" has been created successfully!",
+      "updateSuccess": "Category \"{{name}}\" has been updated successfully!",
+      "deleteConfirm": "Are you sure you want to delete category \"{{name}}\"?\n\nThis action cannot be undone.",
+      "deleteSuccess": "Category \"{{name}}\" has been deleted successfully.",
+      "deleteError": "Failed to delete category \"{{name}}\".",
+      "loadError": "Failed to load category data"
+    },
+    "modal": {
+      "createTitle": "Create New Category",
+      "editTitle": "Edit Category",
+      "nameTh": "Category Name (Thai)",
+      "nameThPlaceholder": "Please enter category name in Thai",
+      "nameEn": "Category Name (English)",
+      "nameEnPlaceholder": "Please enter category name in English",
+      "required": "This field is required",
+      "minLength": "Must be at least 2 characters",
+      "maxLength": "Cannot exceed 100 characters"
+    }
+  },
   "customerProject": {
     "title": "Project Customers",
     "selectProject": "Select Project",
@@ -223,7 +264,12 @@
     "refreshing": "Refreshing...",
     "dismiss": "Dismiss",
     "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
-    "uploading": "Uploading..."
+    "uploading": "Uploading...",
+    "unread": "Unread",
+    "allTypes": "All Types",
+    "all": "All",
+    "actions": "Actions",
+    "unknown": "Unknown"
   },
   "roles": {
     "admin": "Administrator",
@@ -262,7 +308,9 @@
     "ticketUpdated": "Ticket updated",
     "ticketAssigned": "Ticket assigned to you",
     "ticketClosed": "Ticket closed",
-    "commentAdded": "New comment added"
+    "commentAdded": "New comment added",
+    "confirmDelete": "Delete this notification?",
+    "confirmDeleteAll": "Delete all notifications?"
   },
   "dates": {
     "today": "Today",
@@ -324,6 +372,7 @@
       "lastname": "Last Name",
       "email": "Email",
       "phone": "Phone Number",
+      "address": "Address",
       "roles": "Roles",
       "noRoles": "No roles available",
       "selected": "Selected:",
@@ -459,6 +508,73 @@
       "createUserSuccess": "User created successfully!",
       "createUserFail": "Failed to create user",
       "exportComingSoon": "Export feature coming soon"
+    }
+  },
+  "supportInformation": {
+    "title": "Support Information",
+    "manualSave": "Manual Save",
+    "debugInfo": "Debug Info",
+    "loading": "Loading ticket data...",
+    "systemSaveMsg": "The system will automatically save your input.",
+    "autoSaved": "Data automatically saved",
+    "savedAt": "Saved at",
+    "safeRefresh": "Data will not be lost even if you refresh.",
+    "formStatus": "Form Status",
+    "waitingForTicket": "Waiting for ticket data to display form",
+    "actions": "Actions",
+    "chooseAction": "Select Action...",
+    "actionHint": "Choosing this action will change the ticket status",
+    "priority": "Priority",
+    "choosePriority": "Select Priority...",
+    "priorityHint": "Ticket priority level (Low, Medium, High)",
+    "closeEstimate": "Close Estimate",
+    "closeEstimateHint": "Estimated completion date/time",
+    "estimateTime": "Estimate Time",
+    "dueDate": "Due Date",
+    "dueDateHint": "Actual completion date/time (fill when finished)",
+    "leadTime": "Lead Time",
+    "assign": "Assign",
+    "loadingList": "Loading list...",
+    "chooseAssignee": "Select Assignee",
+    "relatedTickets": "Related Tickets",
+    "relatedTicketsPlaceholder": "Related ticket numbers e.g., T-001, T-002",
+    "relatedTicketsHint": "Specify other related ticket numbers (if any)",
+    "changeRequest": "Change Request",
+    "days": "Days",
+    "hoursUnit": "H",
+    "changeRequestHint": "Number of days used for change",
+    "issueResolution": "Issue Resolution",
+    "resolutionPlaceholder": "Describe the solution, procedures, and results...",
+    "resolutionHint": "Describe the resolution method and results",
+    "attachment": "Attachment",
+    "dragDropHint": "Click to select file or Drag & Drop here",
+    "fileTypeHint": "Supports Drag & Drop or click the left corner box",
+    "saveBtn": "Save",
+    "saveAssignBtn": "Save & Assign",
+    "assignBtn": "Assign",
+    "saving": "Saving...",
+    "forceSave": "Force Save",
+    "formEmpty": "Empty Form",
+    "hasData": "Has Data",
+    "readyToSave": "Ready to Save",
+    "noPermission": "Access Denied",
+    "noPermissionMsg": "You do not have permission to use the Supporter feature",
+    "requiredPermission": "Requires permission: VIEW_ALL_TICKETS, CHANGE_STATUS, or ASSIGNEE",
+    "confirmDeleteAttachment": "Are you sure you want to delete this attachment?",
+    "deleteAttachmentSuccess": "Attachment deleted successfully",
+    "deleteAttachmentError": "Failed to delete attachment",
+    "noPermissionDelete": "You do not have permission to delete attachments",
+    "selectImageError": "Please select an image file only",
+    "errors": {
+      "dueDatePast": "Due date cannot be in the past",
+      "closeEstimatePast": "Close estimate cannot be in the past",
+      "resolutionRequired": "Issue Resolution is required for In Progress/Resolved/Completed",
+      "noPermissionSave": "You do not have permission to save data",
+      "noTicket": "Ticket data not found",
+      "noChanges": "No changes detected",
+      "incomplete": "Please complete all required fields (including Issue Resolution)",
+      "saveSuccess": "Data saved successfully",
+      "uploadPartial": "Saved successfully, but some files failed to upload"
     }
   }
 }
