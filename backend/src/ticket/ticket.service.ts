@@ -775,24 +775,25 @@ export class TicketService {
 
       // ✅ เริ่มสร้าง QueryBuilder หลัก
       const baseQuery = this.ticketRepo
-        .createQueryBuilder('t')
-        .leftJoin('ticket_categories_language', 'tcl', 'tcl.category_id = t.categories_id')
-        .leftJoin('project', 'p', 'p.id = t.project_id')
-        .leftJoin('ticket_status_language', 'tsl', 'tsl.status_id = t.status_id')
-        .leftJoin('users', 'u', 'u.id = t.create_by')
-        .leftJoin('ticket_priority', 'tp', 'tp.id = t.priority_id')
-        .where('t.isenabled = true');
+      .createQueryBuilder('t')
+      // ดึงภาษาอังกฤษ (en)
+      .leftJoin('ticket_categories_language', 'tcl_en', 'tcl_en.category_id = t.categories_id AND tcl_en.language_id = :langEn', { langEn: 'en' })
+      .leftJoin('ticket_status_language', 'tsl_en', 'tsl_en.status_id = t.status_id AND tsl_en.language_id = :langEn', { langEn: 'en' })
+      // ดึงภาษาไทย (th)
+      .leftJoin('ticket_categories_language', 'tcl_th', 'tcl_th.category_id = t.categories_id AND tcl_th.language_id = :langTh', { langTh: 'th' })
+      .leftJoin('ticket_status_language', 'tsl_th', 'tsl_th.status_id = t.status_id AND tsl_th.language_id = :langTh', { langTh: 'th' })
+      
+      .leftJoin('project', 'p', 'p.id = t.project_id')
+      .leftJoin('users', 'u', 'u.id = t.create_by')
+      .leftJoin('ticket_priority', 'tp', 'tp.id = t.priority_id')
+      .where('t.isenabled = true');
 
-      // ✅ ถ้า user มี role_id = 8 ให้แสดงเฉพาะ ticket ที่อยู่ใน ticket_assigned
-      if (isSupporter) {
-        baseQuery.innerJoin('ticket_assigned', 'ta', 'ta.ticket_id = t.id AND ta.user_id = :userId', { userId });
-        console.log('🎯 Filtering tickets assigned to userId:', userId);
-      }
-      // ✅ ถ้าไม่มีสิทธิ์ view_all → แสดงเฉพาะ ticket ที่ตัวเองสร้าง
-      else if (!isViewAll) {
-        baseQuery.andWhere('t.create_by = :userId', { userId });
-        console.log('👤 Filtering tickets created by userId:', userId);
-      }
+      // ✅ Logic การเช็คสิทธิ์ (คงเดิม)
+    if (isSupporter) {
+      baseQuery.innerJoin('ticket_assigned', 'ta', 'ta.ticket_id = t.id AND ta.user_id = :userId', { userId });
+    } else if (!isViewAll) {
+      baseQuery.andWhere('t.create_by = :userId', { userId });
+    }
 
       // ✅ เงื่อนไข Filter จากผู้ใช้
       if (filters) {
@@ -818,67 +819,71 @@ export class TicketService {
             { kw: `%${filters.keyword}%` },
           );
         }
-
-        // if (filters.date_start && filters.date_end) {
-        //   baseQuery.andWhere('t.create_date BETWEEN :start AND :end', {
-        //     start: `${filters.date_start} 00:00:00`,
-        //     end: `${filters.date_end} 23:59:59`,
-        //   });
-        // }
       }
 
-      // ✅ นับจำนวนทั้งหมดก่อน (ต้องใช้ clone เพื่อไม่กระทบ offset/limit)
-      const totalRows = await baseQuery.clone()
-        .select('COUNT(DISTINCT t.id)', 'count')
-        .getRawOne()
-        .then(res => Number(res.count) || 0);
+      const totalRows = await baseQuery.clone().getCount();
+    const totalPages = Math.ceil(totalRows / perPage) || 1;
+    const offset = (page - 1) * perPage;
 
-      // ✅ Pagination
-      const totalPages = Math.ceil(totalRows / perPage) || 1;
-      const offset = (page - 1) * perPage;
-
-      // ✅ ดึงเฉพาะข้อมูลตามหน้า
-      const rawTickets = await baseQuery
-        .distinctOn(['t.id', 'tcl.language_id'])
-        .select([
-          't.id AS id',
-          't.ticket_no AS ticket_no',
-          't.categories_id AS categories_id',
-          't.project_id AS project_id',
-          't.issue_description AS issue_description',
-          't.status_id AS status_id',
-          't.create_by AS create_by',
-          't.create_date AS create_date',
-          'tcl.name AS categories_name',
-          'tcl.language_id AS cat_lang_id',
-          'tp.id AS priority_id',
-          'p.name AS project_name',
-          'tsl.name AS status_name',
-          'tsl.language_id AS status_lang_id',
-          'u.firstname || \' \' || u.lastname AS name',
-        ])
-        .orderBy('t.id', 'DESC')
-        .offset(offset)
-        .limit(perPage)
-        .getRawMany();
+    // ✅ Select ข้อมูลออกมาเป็นโครงสร้างแบนราบตามที่คุณระบุ
+    const rawtickets = await baseQuery
+      .select([
+        't.id AS id',
+        't.ticket_no AS ticket_no',
+        't.issue_description AS issue_description',
+        't.create_by AS create_by',
+        't.create_date AS create_date',
+        'u.firstname || \' \' || u.lastname AS name',
+        't.project_id AS project_id',
+        'p.name AS project_name',
+        'tp.id AS priority_id',
+        // รายการภาษาอังกฤษ
+        't.categories_id AS categories_id_en', // ตั้งชื่อให้ต่างกันเล็กน้อยเพื่อไม่ให้ Key ทับกัน
+        'tcl_en.name AS categories_name_en',
+        'tcl_en.language_id AS catlang_id_en',
+        't.status_id AS status_id_en',
+        'tsl_en.name AS status_name_en',
+        'tsl_en.language_id AS statuslang_id_en',
+        // รายการภาษาไทย
+        't.categories_id AS categories_id_th',
+        'tcl_th.name AS categories_name_th',
+        'tcl_th.language_id AS catlang_id_th',
+        't.status_id AS status_id_th',
+        'tsl_th.name AS status_name_th',
+        'tsl_th.language_id AS statuslang_id_th',
+      ])
+      .orderBy('t.id', 'DESC')
+      .offset(offset)
+      .limit(perPage)
+      .getRawMany();
 
       // ✅ map ค่ากลับ
-      const tickets = rawTickets.map(t => ({
-        id: t.id,
-        ticket_no: t.ticket_no,
-        categories_id: t.categories_id,
-        project_id: t.project_id,
-        issue_description: t.issue_description,
-        status_id: t.status_id,
-        create_by: t.create_by,
-        name: t.name,
-        create_date: t.create_date,
-        categories_name: t.categories_name,
-        catlang_id: t.cat_lang_id,
-        priority_id: t.priority_id,
+      const tickets = rawtickets.map(t => ({
+        id: t.t_id,
+        ticket_no: t.t_ticket_no,
+        issue_description: t.t_issue_description,
+        create_by: t.t_create_by,
+        name: `${t.u_firstname} ${t.u_lastname}`,
+        create_date: t.t_create_date,
+        project_id: t.t_project_id,
         project_name: t.project_name,
-        statuslang_id: t.status_lang_id,
-        status_name: t.status_name,
+        priority_id: t.priority_id,
+        
+        // ข้อมูลภาษาอังกฤษ
+        categories_id_en: t.t_categories_id,
+        categories_name_en: t.cat_name_en,
+        catlang_id_en: "en",
+        status_id_en: t.t_status_id,
+        status_name_en: t.status_name_en,
+        statuslang_id_en: "en",
+
+        // ข้อมูลภาษาไทย
+        categories_id_th: t.t_categories_id,
+        categories_name_th: t.cat_name_th,
+        catlang_id_th: "th",
+        status_id_th: t.t_status_id,
+        status_name_th: t.status_name_th,
+        statuslang_id_th: "th",
       }));
 
       const infoMessage = `พบข้อมูลทั้งหมด ${totalRows} รายการ | หน้าที่ ${page}/${totalPages} (${perPage} ต่อหน้า)`;
@@ -1047,8 +1052,8 @@ export class TicketService {
     body: any,
     files: Express.Multer.File[],
     currentUserId: number,
-    status_id: number,
-    assignTo: number,
+    status_id?: number,
+    assignTo?: number,
   ) {
     const results: any = {};
     if (!ticketNo) throw new Error('ticket_no is required');
@@ -1057,77 +1062,122 @@ export class TicketService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
+    const hasValue = (v: any) => v !== undefined;
+
     try {
       console.log('🟢 [START] saveSupporter Transaction');
-      console.log('📩 Input Params:', { ticketNo, currentUserId, status_id, assignTo, bodyKeys: Object.keys(body) });
 
-      // ✅ ใช้ repository จาก queryRunner (ป้องกัน deadlock)
       const ticketRepo = queryRunner.manager.getRepository(Ticket);
       const priorityRepo = queryRunner.manager.getRepository(TicketPriority);
       const assignRepo = queryRunner.manager.getRepository(TicketAssigned);
       const historyRepo = queryRunner.manager.getRepository(TicketStatusHistory);
 
-      // ✅ ตรวจ role
-      console.log('🔹 Step 0: Checking permissions...');
+      /* =======================
+      * 1. Permission
+      * ======================= */
       const userPermissions = await this.checkUserPermissions(currentUserId);
-      console.log('   ↳ userPermissions:', userPermissions);
       if (![8, 19].some(p => userPermissions.includes(p))) {
-        throw new Error('Permission denied: Only supporter or assigner can update');
+        throw new Error('Permission denied');
       }
 
-      // ✅ ตรวจ priority_id (ถ้ามี)
-      if (body.priority_id) {
-        console.log('🔹 Step 1: Checking priority_id existence...');
+      /* =======================
+      * 2. Validate Priority (เฉพาะตอนส่งมา)
+      * ======================= */
+      if (hasValue(body.priority_id)) {
         const priorityId = Number(body.priority_id);
-        const existingPriority = await priorityRepo.findOne({ where: { id: priorityId } });
-        if (!existingPriority) {
-          throw new Error(`Priority id ${priorityId} not found in ticket_priority`);
+        const priority = await priorityRepo.findOne({
+          where: { id: priorityId },
+        });
+        if (!priority) {
+          throw new Error(`Priority id ${priorityId} not found`);
         }
-        console.log('   ✅ Priority found:', existingPriority);
       }
 
-      // ✅ Update ticket main fields
-      console.log('🔹 Step 2: Updating ticket fields...');
-      await ticketRepo.update({ ticket_no: ticketNo }, {
-        priority_id: body.priority_id ? Number(body.priority_id) : null,
+      /* =======================
+      * 3. Update Ticket (Dynamic)
+      * ======================= */
+      const updateTicketPayload: any = {
         update_by: currentUserId,
         update_date: new Date(),
-      });
-      console.log('   ✅ Ticket updated with priority_id');
+      };
 
-      // ✅ Handle attachments
-      if (files?.length) {
-        console.log('🔹 Step 3: Creating attachments...', files.length);
-        const ticket = await ticketRepo.findOne({ where: { ticket_no: ticketNo } });
-        if (!ticket) throw new Error(`Ticket ${ticketNo} not found for attachments`);
-        await this.createAttachments(files, ticket.id, currentUserId, results);
-        console.log('   ✅ Attachments created successfully');
+      const priorityId = Number(body.priority_id);
+      if (priorityId !== undefined) {
+        updateTicketPayload.priority_id = priorityId;
       }
 
-      // ✅ Update status + insert history
-      console.log('🔹 Step 4: Updating status and inserting history...');
-      const ticket = await ticketRepo.findOne({ where: { ticket_no: ticketNo } });
-      if (!ticket) throw new Error(`Ticket ${ticketNo} not found`);
-      await ticketRepo.update({ ticket_no: ticketNo }, { status_id });
+      const leadTime = Number(body.lead_time);
+      if (leadTime !== undefined) {
+        updateTicketPayload.lead_time = leadTime;
+      }
 
-      await historyRepo.insert({
-        ticket_id: ticket.id,
-        status_id,
-        create_by: currentUserId,
-        create_date: new Date(),
+      const changeDays = Number(body.change_request_days);
+      if (changeDays !== undefined) {
+        updateTicketPayload.change_request_days = changeDays;
+      }
+
+      if (hasValue(body.close_estimate)) {
+        updateTicketPayload.close_estimate = body.close_estimate;
+      }
+
+      if (hasValue(body.due_date)) {
+        updateTicketPayload.due_date = body.due_date;
+      }
+
+      /* =======================
+      * 4. Get Ticket
+      * ======================= */
+      const ticket = await ticketRepo.findOne({
+        where: { ticket_no: ticketNo },
       });
-      console.log('   ✅ Status history inserted');
+      if (!ticket) throw new Error(`Ticket ${ticketNo} not found`);
 
-      // ✅ Assign supporter
-      if (assignTo) {
-        console.log('🔹 Step 5: Assigning supporter...');
-        const existingAssign = await assignRepo.findOne({ where: { ticket_id: ticket.id } });
+      /* =======================
+      * 5. Attachment
+      * ======================= */
+      if (files?.length) {
+        await this.createAttachments(
+          files,
+          ticket.id,
+          currentUserId,
+          results,
+        );
+      }
+
+      /* =======================
+      * 6. Update Status + History
+      * ======================= */
+      if (hasValue(status_id)) {
+        await ticketRepo.update(
+          { ticket_no: ticketNo },
+          { status_id },
+        );
+
+        await historyRepo.insert({
+          ticket_id: ticket.id,
+          status_id,
+          create_by: currentUserId,
+          create_date: new Date(),
+        });
+      }
+
+      /* =======================
+      * 7. Assign Supporter
+      * ======================= */
+      if (hasValue(assignTo)) {
+        const existingAssign = await assignRepo.findOne({
+          where: { ticket_id: ticket.id },
+        });
+
         if (existingAssign) {
           await assignRepo.update(
             { ticket_id: ticket.id },
-            { user_id: assignTo, create_by: currentUserId, create_date: new Date() },
+            {
+              user_id: assignTo,
+              create_by: currentUserId,
+              create_date: new Date(),
+            },
           );
-          console.log('   🔁 Updated existing assignment');
         } else {
           await assignRepo.insert({
             ticket_id: ticket.id,
@@ -1135,30 +1185,23 @@ export class TicketService {
             create_by: currentUserId,
             create_date: new Date(),
           });
-          console.log('   🆕 Created new assignment');
         }
       }
 
-      // ✅ Commit transaction
-      console.log('🔹 Step 6: Committing transaction...');
       await queryRunner.commitTransaction();
-      console.log('✅ [COMMIT] Transaction completed successfully');
 
       return {
         ticket_no: ticketNo,
-        updated_status_id: status_id,
+        status_id,
+        updated_fields: updateTicketPayload,
         results,
       };
 
     } catch (error) {
-      console.error('💥 [ROLLBACK] Error in saveSupporter:', error.message);
       await queryRunner.rollbackTransaction();
       throw new Error(`Failed to save supporter data: ${error.message}`);
-
     } finally {
-      console.log('🧹 [FINALLY] Releasing queryRunner connection...');
       await queryRunner.release();
-      console.log('✅ QueryRunner released');
     }
   }
 

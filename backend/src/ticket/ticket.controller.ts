@@ -376,10 +376,15 @@ export class TicketController {
     @UploadedFiles() files: Express.Multer.File[],
     @Request() req: any
   ) {
+    const toNumber = (v: any): number | undefined => {
+    if (v === undefined || v === null || v === '') return undefined;
+    const n = Number(v);
+    return Number.isNaN(n) ? undefined : n;
+  };
     try {
-      const status_id = Number(body.status_id);
-      const assignTo = Number(body.user_id);
-      const priority = body.priority !== undefined ? Number(body.priority) : undefined;
+      const status_id = toNumber(body.status_id);
+      const assignTo = toNumber(body.user_id);
+      const priority = body.priority !== undefined ? toNumber(body.priority) : undefined;
 
       const userId =
         req.user?.id || req.user?.userId || req.user?.user_id || req.user?.sub;
