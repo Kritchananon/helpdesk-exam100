@@ -859,29 +859,29 @@ export class TicketService {
 
       // ✅ map ค่ากลับ
       const tickets = rawtickets.map(t => ({
-        id: t.t_id,
-        ticket_no: t.t_ticket_no,
-        issue_description: t.t_issue_description,
-        create_by: t.t_create_by,
-        name: `${t.u_firstname} ${t.u_lastname}`,
-        create_date: t.t_create_date,
-        project_id: t.t_project_id,
+        id: t.id,
+        ticket_no: t.ticket_no,
+        issue_description: t.issue_description,
+        create_by: t.create_by,
+        name: t.name,
+        create_date: t.create_date,
+        project_id: t.project_id,
         project_name: t.project_name,
         priority_id: t.priority_id,
         
         // ข้อมูลภาษาอังกฤษ
-        categories_id_en: t.t_categories_id,
-        categories_name_en: t.cat_name_en,
+        categories_id_en: t.categories_id,
+        categories_name_en: t.categories_name_en,
         catlang_id_en: "en",
-        status_id_en: t.t_status_id,
+        status_id_en: t.status_id,
         status_name_en: t.status_name_en,
         statuslang_id_en: "en",
 
         // ข้อมูลภาษาไทย
-        categories_id_th: t.t_categories_id,
-        categories_name_th: t.cat_name_th,
+        categories_id_th: t.categories_id,
+        categories_name_th: t.categories_name_th,
         catlang_id_th: "th",
-        status_id_th: t.t_status_id,
+        status_id_th: t.status_id,
         status_name_th: t.status_name_th,
         statuslang_id_th: "th",
       }));
