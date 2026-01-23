@@ -12,15 +12,25 @@ import { permissionEnum } from '../../../shared/models/permission.model';
 // Import LanguageService
 import { LanguageService } from '../../../shared/services/language.service';
 
+export interface CompanyItem {
+  company: string;
+  company_address: string;
+  company_phone: string;
+}
+
 export interface UserAccountItem {
   id?: number;
   name: string;
   user_email: string;
-  company: string;
-  company_address: string;
   user_phone: string;
-  company_phone: string;
   username?: string;
+
+  // ✅ backend ส่งเป็น array
+  company: CompanyItem[];
+
+  // ✅ backend ส่ง role_ids เป็น array
+  role_ids?: number[];
+
   firstname?: string;
   lastname?: string;
   created_date?: string;
@@ -102,12 +112,12 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private fb: FormBuilder,
     public languageService: LanguageService
-  ) { 
+  ) {
     this.initForm();
     this.initEditForm();
     this.initSearchDebounce();
   }
-  
+
   ngOnInit(): void {
     this.loadRoles();
     this.loadUserData();
@@ -199,7 +209,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private passwordMatchValidator(formGroup: FormGroup): {[key: string]: any} | null {
+  private passwordMatchValidator(formGroup: FormGroup): { [key: string]: any } | null {
     const password = formGroup.get('password');
     const confirmPassword = formGroup.get('confirmPassword');
     if (!password || !confirmPassword) return null;
@@ -218,7 +228,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  private editPasswordMatchValidator(formGroup: FormGroup): {[key: string]: any} | null {
+  private editPasswordMatchValidator(formGroup: FormGroup): { [key: string]: any } | null {
     const newPassword = formGroup.get('newPassword');
     const confirmPassword = formGroup.get('confirmPassword');
     if (!newPassword || !confirmPassword) return null;
@@ -265,7 +275,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     if (!field || !field.errors) return '';
 
     const errors = field.errors;
-    
+
     if (errors['required']) {
       if (fieldName === 'confirmPassword' && formGroup === this.editForm) {
         return this.languageService.translate('userAccount.messages.confirmPasswordRequired');
@@ -276,7 +286,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     if (errors['maxlength']) return this.languageService.translate('validation.maxLength', { max: errors['maxlength'].requiredLength });
     if (errors['email']) return this.languageService.translate('validation.email');
     if (errors['passwordMismatch']) return this.languageService.translate('userAccount.messages.passwordMismatch');
-    
+
     if (errors['pattern']) {
       if (fieldName === 'phone') return this.languageService.translate('validation.phone');
       if (fieldName === 'username') return this.languageService.translate('userAccount.validation.usernamePattern');
@@ -365,7 +375,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
           description: role.description || role.desc
         }));
       }
-      
+
       let firstname = user.firstname || user.first_name || '';
       let lastname = user.lastname || user.last_name || '';
       if (!firstname && !lastname && user.name) {
@@ -374,22 +384,35 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         lastname = nameParts.slice(1).join(' ') || '';
       }
       const displayName = user.name || `${firstname} ${lastname}`.trim() || 'Unknown User';
-      
+
+      const companies: CompanyItem[] = Array.isArray(user.company)
+        ? user.company.map((c: any) => ({
+          company: this.sanitizeString(c.company),
+          company_address: this.sanitizeString(c.company_address),
+          company_phone: this.sanitizeString(c.company_phone),
+        }))
+        : []; // ✅ ถ้าไม่ได้ส่งมาให้เป็น array ก็ให้เป็น []
+
       return {
         id: userId || (index + 1000),
         name: this.sanitizeString(displayName),
         user_email: this.sanitizeString(user.user_email || user.email || '').toLowerCase(),
-        company: this.sanitizeString(user.company || ''),
-        company_address: this.sanitizeString(user.company_address || ''),
         user_phone: this.sanitizeString(user.user_phone || user.phone || ''),
-        company_phone: this.sanitizeString(user.company_phone || ''),
         username: this.sanitizeString(user.username || ''),
         firstname: this.sanitizeString(firstname),
         lastname: this.sanitizeString(lastname),
         created_date: user.created_date || new Date().toISOString(),
         updated_date: user.updated_date,
+
+        // ✅ company array
+        company: companies,
+
+        // ✅ role_ids
+        role_ids: Array.isArray(user.role_ids) ? user.role_ids : [],
+
         roles: normalizedRoles
       };
+
     });
   }
 
@@ -451,8 +474,38 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   }
 
   private matchesSearchTerm(user: UserAccountItem, searchTerm: string): boolean {
-    const searchableFields = [user.name, user.user_email, user.company, user.company_address, user.user_phone, user.company_phone, user.username, user.firstname, user.lastname];
+    const companyNames = (user.company || []).map(c => c.company).join(' ');
+    const companyAddresses = (user.company || []).map(c => c.company_address).join(' ');
+    const companyPhones = (user.company || []).map(c => c.company_phone).join(' ');
+
+    const searchableFields = [
+      user.name,
+      user.user_email,
+      companyNames,
+      companyAddresses,
+      user.user_phone,
+      companyPhones,
+      user.username,
+      user.firstname,
+      user.lastname
+    ];
+
     return searchableFields.some(field => field ? field.toLowerCase().includes(searchTerm) : false);
+  }
+
+  getCompanyDisplay(user: UserAccountItem): string {
+    if (!user.company || user.company.length === 0) return '-';
+    return user.company.map(c => c.company).filter(Boolean).join(', ');
+  }
+
+  getCompanyPhoneDisplay(user: UserAccountItem): string {
+    if (!user.company || user.company.length === 0) return '-';
+    return user.company.map(c => c.company_phone).filter(Boolean).join(', ');
+  }
+
+  getCompanyAddressDisplay(user: UserAccountItem): string {
+    if (!user.company || user.company.length === 0) return '-';
+    return user.company.map(c => c.company_address).filter(Boolean).join(', ');
   }
 
   onSearchChange(): void {
@@ -703,7 +756,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     if (response.data) return response.data;
     return response;
   }
-  
+
   private isValidUpdateResponse(response: any): boolean {
     if (!response) return false;
     if (response.code === "1" || response.code === 1) return true;
@@ -737,10 +790,10 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.filterUsers();
     this.calculateUserStats();
     this.isCreateModalVisible = false;
-    
+
     const msg = this.languageService.translate('userAccount.messages.createSuccess', { name: normalizedUser.name });
     this.showNotification('success', msg);
-    
+
     setTimeout(() => { this.refreshData(); }, 1000);
   }
 
@@ -757,7 +810,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
     const msg = this.languageService.translate('userAccount.messages.updateSuccess', { name: normalizedUser.name });
     this.showNotification('success', msg);
-    
+
     setTimeout(() => { this.refreshData(); }, 1000);
   }
 
@@ -780,8 +833,8 @@ export class UserAccountComponent implements OnInit, OnDestroy {
       username: user.username || '',
       firstname: user.firstname || user.name?.split(' ')[0] || '',
       lastname: user.lastname || user.name?.split(' ').slice(1).join(' ') || '',
-      email: user.user_email || '', 
-      phone: user.user_phone || '', 
+      email: user.user_email || '',
+      phone: user.user_phone || '',
       role_id: roleIds,
       newPassword: '',
       confirmPassword: ''
@@ -846,23 +899,23 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
   canManageUsers(): boolean {
     return this.authService.hasPermission(permissionEnum.ADD_USER) ||
-           this.authService.hasPermission(permissionEnum.DEL_USER) ||
-           this.authService.isAdmin();
+      this.authService.hasPermission(permissionEnum.DEL_USER) ||
+      this.authService.isAdmin();
   }
 
   canEditUser(user: UserAccountItem): boolean {
-    return this.authService.isAdmin() || 
-           this.authService.hasPermission(permissionEnum.ADD_USER);
+    return this.authService.isAdmin() ||
+      this.authService.hasPermission(permissionEnum.ADD_USER);
   }
 
   canDeleteUser(user: UserAccountItem): boolean {
-    return this.authService.isAdmin() || 
-           this.authService.hasPermission(permissionEnum.DEL_USER);
+    return this.authService.isAdmin() ||
+      this.authService.hasPermission(permissionEnum.DEL_USER);
   }
 
   canCreateUser(): boolean {
     return this.authService.hasPermission(permissionEnum.ADD_USER) ||
-           this.authService.isAdmin();
+      this.authService.isAdmin();
   }
 
   onCreateNewUser(): void {
@@ -930,14 +983,14 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     return role.id || index;
   }
 
-  getUserImportantRoles(user: UserAccountItem): Array<{name: string, type: string}> {
+  getUserImportantRoles(user: UserAccountItem): Array<{ name: string, type: string }> {
     if (!user.roles || user.roles.length === 0) return [];
-    const importantRoles: Array<{name: string, type: string}> = [];
+    const importantRoles: Array<{ name: string, type: string }> = [];
     user.roles.forEach(role => {
       switch (role.id) {
-        case 1: importantRoles.push({name: 'User', type: 'user'}); break;
-        case 8: importantRoles.push({name: 'Supporter', type: 'supporter'}); break;
-        case 15: importantRoles.push({name: 'Admin', type: 'admin'}); break;
+        case 1: importantRoles.push({ name: 'User', type: 'user' }); break;
+        case 8: importantRoles.push({ name: 'Supporter', type: 'supporter' }); break;
+        case 15: importantRoles.push({ name: 'Admin', type: 'admin' }); break;
       }
     });
     return importantRoles;
