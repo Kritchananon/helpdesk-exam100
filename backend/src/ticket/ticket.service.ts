@@ -1101,27 +1101,39 @@ export class TicketService {
         update_date: new Date(),
       };
 
-      const priorityId = Number(body.priority_id);
-      if (priorityId !== undefined) {
-        updateTicketPayload.priority_id = priorityId;
+      // priority_id
+      if (body.priority_id !== undefined && body.priority_id !== null) {
+        updateTicketPayload.priority_id = Number(body.priority_id);
       }
 
-      const leadTime = Number(body.lead_time);
-      if (leadTime !== undefined) {
-        updateTicketPayload.lead_time = leadTime;
+      // lead_time
+      if (body.lead_time !== undefined && body.lead_time !== null) {
+        updateTicketPayload.lead_time = Number(body.lead_time);
       }
 
-      const changeDays = Number(body.change_request_days);
-      if (changeDays !== undefined) {
-        updateTicketPayload.change_request_days = changeDays;
+      // change_request_days
+      if (body.change_request_days !== undefined && body.change_request_days !== null) {
+        updateTicketPayload.change_request_days = Number(body.change_request_days);
       }
 
-      if (hasValue(body.close_estimate)) {
+      // close_estimate
+      if (body.close_estimate !== undefined && body.close_estimate !== null) {
         updateTicketPayload.close_estimate = body.close_estimate;
       }
 
-      if (hasValue(body.due_date)) {
+      // due_date
+      if (body.due_date !== undefined && body.due_date !== null) {
         updateTicketPayload.due_date = body.due_date;
+      }
+
+      // estimate_time ✅ (ของเธอไม่มีใน payload เลย ต้องเพิ่ม!)
+      if (body.estimate_time !== undefined && body.estimate_time !== null) {
+        updateTicketPayload.estimate_time = body.estimate_time;
+      }
+
+      // fix_issue_description ✅ (ของเธอไม่มีใน payload เลย ต้องเพิ่ม!)
+      if (body.fix_issue_description !== undefined && body.fix_issue_description !== null) {
+        updateTicketPayload.fix_issue_description = body.fix_issue_description;
       }
 
       /* =======================
@@ -1131,6 +1143,12 @@ export class TicketService {
         where: { ticket_no: ticketNo },
       });
       if (!ticket) throw new Error(`Ticket ${ticketNo} not found`);
+
+      /* ✅ เพิ่มตรงนี้เลย (อัปเดต field อื่นๆ เช่น priority, due_date, close_estimate ฯลฯ) */
+      await ticketRepo.update(
+        { ticket_no: ticketNo },
+        updateTicketPayload
+      );
 
       /* =======================
       * 5. Attachment
