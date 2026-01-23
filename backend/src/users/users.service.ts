@@ -284,27 +284,32 @@ export class UserService {
       .select([
         'u.id as id',
         'u.username as username',
-        `u.firstname || \' \' || u.lastname AS name`,
+        `u.firstname || ' ' || u.lastname AS name`,
         'u.email AS user_email',
-        'c.name AS company',
-        'c.address AS company_address',
         'u.phone AS user_phone',
-        'c.telephone AS company_phone',
-        'u.password as password',
-        `array_agg(DISTINCT uar.role_id) as role_ids`, // 👈 รวม role_id เป็น array
+
+        `array_agg(DISTINCT uar.role_id) as role_ids`,
+
+        // ✅ รวม company ให้เป็น array ของ object
+        `
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object(
+            'company', c.name,
+            'company_address', c.address,
+            'company_phone', c.telephone
+          )) FILTER (WHERE c.id IS NOT NULL),
+          '[]'
+        ) as company
+        `,
       ])
       .groupBy('u.id')
       .addGroupBy('u.username')
       .addGroupBy('u.firstname')
       .addGroupBy('u.lastname')
       .addGroupBy('u.email')
-      .addGroupBy('c.name')
-      .addGroupBy('c.address')
       .addGroupBy('u.phone')
-      .addGroupBy('c.telephone')
-      .addGroupBy('u.password')
-      .distinct(true)
       .getRawMany();
+
     return account;
   }
 
