@@ -1031,3 +1031,104 @@
     color: #FFFFFF;
   }
 }
+
+/* [NEW] Notification Styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1100;
+  animation: slideInFromRight 0.3s ease-out;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.notification-success {
+  border-left: 4px solid #28A745;
+}
+
+.notification-error {
+  border-left: 4px solid #DC3545;
+}
+
+.notification-warning {
+  border-left: 4px solid #FFC107;
+}
+
+.notification-info {
+  border-left: 4px solid #17A2B8;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.notification-icon {
+  flex-shrink: 0;
+}
+
+.notification-success .notification-icon {
+  color: #28A745;
+}
+
+.notification-error .notification-icon {
+  color: #DC3545;
+}
+
+.notification-warning .notification-icon {
+  color: #FFC107;
+}
+
+.notification-info .notification-icon {
+  color: #17A2B8;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #737373;
+  border-radius: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+
+.notification-close:hover {
+  background: #F8F9FA;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Media Query Adjustment for Notification */
+@media (max-width: 768px) {
+  .notification {
+    right: 10px;
+    top: 10px;
+    min-width: 280px;
+    max-width: calc(100% - 20px);
+  }
+}
+
+/* Print styles to hide notification */
+@media print {
+  .notification {
+    display: none !important;
+  }
+}

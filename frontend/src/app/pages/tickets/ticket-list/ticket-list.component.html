@@ -1,5 +1,4 @@
 <div class="ticket-list-page">
-  <!-- Breadcrumb -->
   <div class="breadcrumb-container">
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
@@ -11,7 +10,6 @@
     </nav>
   </div>
 
-  <!-- Status Loading Indicator -->
   <div *ngIf="isLoadingStatuses" class="status-loading mb-3">
     <div class="alert alert-info" role="alert">
       <span class="spinner-border spinner-border-sm me-2"></span>
@@ -19,7 +17,6 @@
     </div>
   </div>
 
-  <!-- Status Error Indicator -->
   <div *ngIf="statusError && !isLoadingStatuses" class="status-error mb-3">
     <div class="alert alert-warning" role="alert">
       <i class="bi bi-exclamation-triangle me-2"></i>
@@ -31,10 +28,8 @@
     </div>
   </div>
 
-  <!-- Filter Section -->
   <div class="filter-section">
 
-    <!-- Priority Filter -->
     <div class="filter-item priority-item">
       <label class="filter-label">{{ t('tickets.priority') }}</label>
       <select class="filter-select" [(ngModel)]="selectedPriority" (ngModelChange)="onPriorityChangeModel($event)">
@@ -45,7 +40,6 @@
       </select>
     </div>
 
-    <!-- Status Filter -->
     <div class="filter-item status-item">
       <label class="filter-label">{{ t('tickets.status') }}</label>
       <select class="filter-select" [(ngModel)]="selectedStatus" (ngModelChange)="onStatusChangeModel($event)">
@@ -59,7 +53,6 @@
       </select>
     </div>
 
-    <!-- Categories Filter -->
     <div class="filter-item category-item">
       <label class="filter-label">{{ t('tickets.categories') }}</label>
       <select class="filter-select" [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChangeModel($event)">
@@ -68,7 +61,6 @@
       </select>
     </div>
 
-    <!-- Project Filter -->
     <div class="filter-item project-item">
       <label class="filter-label">{{ t('tickets.projectName') }}</label>
       <select class="filter-select" [(ngModel)]="selectedProject" (ngModelChange)="onProjectChangeModel($event)">
@@ -77,30 +69,25 @@
       </select>
     </div>
 
-    <!-- Search -->
     <div class="filter-item search-item">
       <label class="filter-label">{{ t('tickets.search') }}</label>
       <div class="search-input-wrapper search-with-button">
         <i class="bi bi-search search-icon"></i>
 
-        <!-- Input -->
         <input type="text" class="search-input" [placeholder]="t('tickets.searchPlaceholder')" [(ngModel)]="searchText"
           (keyup.enter)="applyFilters()" />
 
-        <!-- Clear -->
         <button type="button" class="clear-search-btn" *ngIf="searchText && searchText.trim()" (click)="clearSearch()"
           [title]="t('common.clear')">
           <i class="bi bi-x-circle-fill"></i>
         </button>
 
-        <!-- Search button -->
         <button type="button" class="btn search-btn-modern" (click)="applyFilters()" [title]="t('tickets.search')">
           <i class="bi bi-search me-1"></i> {{ t('tickets.search') }}
         </button>
       </div>
     </div>
 
-    <!-- Export Button -->
     <div class="filter-item export-item">
       <label class="filter-label">&nbsp;</label>
       <button type="button" class="btn btn-success export-btn" (click)="exportExcel()">
@@ -109,7 +96,6 @@
     </div>
   </div>
 
-  <!-- Filter Loading State -->
   <div *ngIf="loadingFilters" class="filter-loading">
     <div class="loading-message">
       <span class="spinner-border spinner-border-sm me-2"></span>
@@ -117,7 +103,6 @@
     </div>
   </div>
 
-  <!-- Filter Error State -->
   <div *ngIf="filterError && !loadingFilters" class="filter-error">
     <div class="alert alert-warning" role="alert">
       <i class="bi bi-exclamation-triangle me-2"></i>
@@ -129,7 +114,6 @@
     </div>
   </div>
 
-  <!-- Tickets Error State -->
   <div *ngIf="ticketsError && !isLoading" class="tickets-error">
     <div class="alert alert-danger" role="alert">
       <i class="bi bi-exclamation-triangle me-2"></i>
@@ -141,7 +125,6 @@
     </div>
   </div>
 
-  <!-- Loading State -->
   <div class="loading-container" *ngIf="isLoading">
     <div class="static-loading-indicator">
       <div class="loading-spinner"></div>
@@ -149,7 +132,6 @@
     </div>
   </div>
 
-  <!-- No Tickets Found -->
   <div *ngIf="!isLoading && noTicketsFound && !ticketsError" class="no-tickets-found">
     <div class="no-results-content">
       <i class="bi bi-inbox no-results-icon"></i>
@@ -162,9 +144,7 @@
     </div>
   </div>
 
-  <!-- Tickets List -->
   <div *ngIf="!isLoading && !noTicketsFound" class="tickets-container">
-    <!-- No Results from Filter -->
     <div *ngIf="filteredTickets.length === 0 && tickets.length > 0" class="no-results">
       <div class="no-results-content">
         <i class="bi bi-search no-results-icon"></i>
@@ -177,17 +157,19 @@
       </div>
     </div>
 
-    <!-- Tickets Grid -->
     <div *ngIf="filteredTickets.length > 0" class="tickets-grid">
       <div *ngFor="let ticket of filteredTickets" class="ticket-card" (click)="viewTicket(ticket)">
 
-        <!-- Ticket Header -->
         <div class="ticket-header">
           <div class="ticket-header-left">
             <div class="ticket-info">
               <span class="ticket-id">{{ ticket.ticket_no }}</span>
               <div class="ticket-divider"></div>
-              <span class="ticket-category">{{ ticket.categories_name }}</span>
+              
+              <span class="ticket-category">
+                {{ getLangValue(ticket, 'categories_name') || ticket.categories_name || '-' }}
+              </span>
+              
               <div class="ticket-divider" *ngIf="isHighPriority(ticket)"></div>
               <div class="priority-warning" *ngIf="isHighPriority(ticket)">
                 <i class="bi bi-exclamation-triangle-fill priority-icon"></i>
@@ -203,22 +185,21 @@
               <span class="ticket-date">{{ formatDate(ticket.create_date) }}</span>
               <div class="ticket-divider"></div>
 
-              <!-- Status Badge -->
               <div class="status-badge" [ngClass]="getStatusBadgeClass(ticket.status_id)">
                 <i class="bi bi-exclamation-triangle text-warning me-1" *ngIf="!statusCacheLoaded && !isLoadingStatuses"
                   [title]="t('tickets.statusFromDefault')"></i>
 
                 <i class="status-icon" [ngClass]="getStatusIcon(ticket.status_id)"></i>
-                <span class="status-text">{{ getStatusText(ticket.status_id) }}</span>
+                
+                <span class="status-text">{{ getDisplayStatus(ticket) }}</span>
+                
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Ticket Divider -->
         <div class="ticket-content-divider"></div>
 
-        <!-- Ticket Content -->
         <div class="ticket-content">
           <div class="ticket-avatar">
             <div class="avatar-circle">
@@ -240,7 +221,6 @@
       </div>
     </div>
 
-    <!-- Results Summary -->
     <div *ngIf="filteredTickets.length > 0" class="results-summary">
       <p>
         {{ t('tickets.showing') }} {{ filteredTickets.length }} {{ t('tickets.of') }} {{ tickets.length }} {{ t('dashboard.tickets') }}
@@ -255,7 +235,6 @@
       </p>
     </div>
 
-    <!-- Pagination -->
     <div class="pagination-container" *ngIf="pagination.totalPages > 1">
       <nav aria-label="Ticket pagination">
         <ul class="pagination justify-content-center">
@@ -283,7 +262,6 @@
 
   </div>
 
-  <!-- Floating Action Button -->
   <button class="fab-button" (click)="createNewTicket()" [title]="t('tickets.createTicket')" *ngIf="canCreateTickets">
     <i class="bi bi-plus"></i>
   </button>

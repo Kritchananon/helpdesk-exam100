@@ -45,6 +45,13 @@ export interface UpdateProjectDto {
   status?: boolean;
 }
 
+// [NEW] Interface สำหรับ Notification
+export interface NotificationMessage {
+  type: 'success' | 'error' | 'info' | 'warning';
+  message: string;
+  duration?: number;
+}
+
 @Component({
   selector: 'app-project-add',
   standalone: true,
@@ -86,6 +93,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
   projectForm!: FormGroup;
   editingProjectId: number | null = null;
   isEditMode: boolean = false;
+
+  // [NEW] ตัวแปรสำหรับเก็บสถานะ Notification
+  notification: NotificationMessage | null = null;
 
   constructor(
     private router: Router,
@@ -601,12 +611,26 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.showErrorMessage(this.t('errors.unknownError'));
   }
 
-  showSuccessMessage(message: string): void {
-    alert(message);
+  // [NEW] ฟังก์ชันจัดการ Notification
+  showNotification(type: 'success' | 'error' | 'info' | 'warning', message: string, duration: number = 5000): void {
+    this.notification = { type, message, duration };
+    setTimeout(() => {
+      this.clearNotification();
+    }, duration);
   }
 
+  clearNotification(): void {
+    this.notification = null;
+  }
+
+  // [UPDATED] ใช้ showNotification แทน alert
+  showSuccessMessage(message: string): void {
+    this.showNotification('success', message);
+  }
+
+  // [UPDATED] ใช้ showNotification แทน alert
   showErrorMessage(message: string): void {
-    alert(message);
+    this.showNotification('error', message);
   }
 
   getPermissionRequiredMessage(): string {
