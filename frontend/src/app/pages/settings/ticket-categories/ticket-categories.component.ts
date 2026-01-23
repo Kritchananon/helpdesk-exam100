@@ -15,15 +15,13 @@ export interface CategoryItem {
   id: number;
   name: string;
   description?: string;
-  ticketCount?: number; // เพิ่ม field สำหรับจำนวน tickets
-  create_date?: string; // เปลี่ยนจาก created_date
-  create_by?: number;   // เปลี่ยนจาก created_by
-  update_date?: string; // เปลี่ยนจาก updated_date
-  update_by?: number;   // เปลี่ยนจาก updated_by
-  
-  // Additional fields from backend
-  isenabled?: boolean;  // Backend field
-  languages?: any[];    // Backend field
+  ticketCount?: number;
+  create_date?: string;
+  create_by?: number;
+  update_date?: string;
+  update_by?: number;
+  isenabled?: boolean;
+  languages?: any[];
 }
 
 // Create Category Form Interface
@@ -33,6 +31,13 @@ export interface CreateCategoryDto {
     name: string;
   }[];
   create_by?: number;
+}
+
+// [NEW] Interface สำหรับ Notification
+export interface NotificationMessage {
+  type: 'success' | 'error' | 'info' | 'warning';
+  message: string;
+  duration?: number;
 }
 
 @Component({
@@ -72,6 +77,9 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
   categoryForm!: FormGroup;
   isEditMode = false;
   editingCategoryId: number | null = null;
+
+  // [NEW] ตัวแปรสำหรับ Notification
+  notification: NotificationMessage | null = null;
 
   // Object สำหรับเก็บคำแปลเพื่อใช้ใน HTML
   i18n: any = {};
@@ -114,6 +122,18 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // [NEW] Methods สำหรับจัดการ Notification
+  showNotification(type: 'success' | 'error' | 'info' | 'warning', message: string, duration: number = 5000): void {
+    this.notification = { type, message, duration };
+    setTimeout(() => {
+      this.clearNotification();
+    }, duration);
+  }
+
+  clearNotification(): void {
+    this.notification = null;
   }
 
   /**
@@ -226,6 +246,16 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
       nameTh: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       nameEn: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]]
     });
+  }
+
+  // [NEW] ฟังก์ชันสำหรับเคลียร์ Error เมื่อเริ่มพิมพ์
+  onFieldInput(fieldName: string): void {
+    const control = this.categoryForm.get(fieldName);
+    // ถ้ามี Error duplicate อยู่ ให้เคลียร์ออก เพื่อให้เช็ค Validation ปกติ (เช่น required) แทน
+    if (control?.hasError('duplicate')) {
+      control.setErrors(null);
+      control.updateValueAndValidity();
+    }
   }
 
   isFieldInvalid(fieldName: string): boolean {
@@ -387,19 +417,65 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
     this.editingCategoryId = null;
   }
 
+  /**
+   * [UPDATE] ตรวจสอบว่าชื่อหมวดหมู่ซ้ำหรือไม่ และคืนค่า Field ที่ซ้ำ
+   */
+  checkDuplicateCategory(nameTh: string, nameEn: string, excludeId?: number): { isDuplicate: boolean, field?: string, message: string } {
+    for (const category of this.categories) {
+      // กรณี Edit Mode: ข้ามการเช็คกับตัวเอง
+      if (excludeId && category.id === excludeId) {
+        continue;
+      }
+
+      const existingTh = category.languages?.find(l => l.language_id === 'th')?.language_name || '';
+      const existingEn = category.languages?.find(l => l.language_id === 'en')?.language_name || '';
+
+      if (existingTh && nameTh && existingTh.trim().toLowerCase() === nameTh.trim().toLowerCase()) {
+        return { isDuplicate: true, field: 'nameTh', message: `ชื่อภาษาไทย "${nameTh}" มีอยู่ในระบบแล้ว` };
+      }
+
+      if (existingEn && nameEn && existingEn.trim().toLowerCase() === nameEn.trim().toLowerCase()) {
+        return { isDuplicate: true, field: 'nameEn', message: `ชื่อภาษาอังกฤษ "${nameEn}" มีอยู่ในระบบแล้ว` };
+      }
+    }
+
+    return { isDuplicate: false, message: '' };
+  }
+
+  // [UPDATE] ปรับปรุง onSubmit ให้ใช้ setErrors แทน alert
   onSubmit(): void {
     if (this.categoryForm.valid && !this.isSubmitting) {
+      // ดึงค่าจากฟอร์ม
+      const nameTh = this.categoryForm.get('nameTh')?.value?.trim();
+      const nameEn = this.categoryForm.get('nameEn')?.value?.trim();
+
+      // --- เริ่มส่วนตรวจสอบข้อมูลซ้ำ ---
+      const duplicateCheck = this.checkDuplicateCategory(
+        nameTh,
+        nameEn,
+        this.isEditMode && this.editingCategoryId ? this.editingCategoryId : undefined
+      );
+
+      if (duplicateCheck.isDuplicate && duplicateCheck.field) {
+        // ตั้งค่า Error ให้กับ Field นั้นๆ โดยตรง
+        const control = this.categoryForm.get(duplicateCheck.field);
+        control?.setErrors({ duplicate: true });
+        control?.markAsTouched(); // สั่งให้ input เป็นสีแดงทันที
+        return; // หยุดการทำงาน
+      }
+      // --- จบส่วนตรวจสอบข้อมูลซ้ำ ---
+
       this.isSubmitting = true;
       
       const formData = {
         languages: [
           {
             language_id: 'th',
-            name: this.categoryForm.value.nameTh.trim()
+            name: nameTh
           },
           {
             language_id: 'en', 
-            name: this.categoryForm.value.nameEn.trim()
+            name: nameEn
           }
         ]
       };
@@ -423,7 +499,8 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         catchError(error => {
           this.isSubmitting = false;
-          alert(this.languageService.translate('common.error'));
+          // [UPDATE] ใช้ showNotification แทน alert
+          this.showNotification('error', this.languageService.translate('common.error'));
           return of(null);
         })
       )
@@ -436,16 +513,18 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.isSubmitting = false;
-          alert(this.languageService.translate('common.error'));
+          // [UPDATE] ใช้ showNotification แทน alert
+          this.showNotification('error', this.languageService.translate('common.error'));
         }
       });
   }
 
   onCategoryCreated(apiResponse: any): void {
-    this.isCreateModalVisible = false;
+    this.onModalClose();
     const categoryName = apiResponse.name || apiResponse.data?.name || 'New Category';
     const msg = this.languageService.translate('ticketCategories.messages.createSuccess', { name: categoryName });
-    alert(msg);
+    // [UPDATE] ใช้ showNotification แทน alert
+    this.showNotification('success', msg);
     this.loadCategoryData(true);
   }
 
@@ -469,7 +548,8 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         catchError(error => {
           this.isSubmitting = false;
-          alert(this.languageService.translate('common.error'));
+          // [UPDATE] ใช้ showNotification แทน alert
+          this.showNotification('error', this.languageService.translate('common.error'));
           return of(null);
         })
       )
@@ -482,19 +562,19 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.isSubmitting = false;
-          alert(this.languageService.translate('common.error'));
+          // [UPDATE] ใช้ showNotification แทน alert
+          this.showNotification('error', this.languageService.translate('common.error'));
         }
       });
   }
 
   onCategoryUpdated(apiResponse: any): void {
-    this.isCreateModalVisible = false;
-    this.isEditMode = false;
-    this.editingCategoryId = null;
+    this.onModalClose();
     
     const categoryName = apiResponse.name || apiResponse.data?.name || 'Category';
     const msg = this.languageService.translate('ticketCategories.messages.updateSuccess', { name: categoryName });
-    alert(msg);
+    // [UPDATE] ใช้ showNotification แทน alert
+    this.showNotification('success', msg);
     this.loadCategoryData(true);
   }
 
@@ -518,7 +598,8 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
         catchError(error => {
           this.isLoading = false;
           const msg = this.languageService.translate('ticketCategories.messages.deleteError', { name: categoryName });
-          alert(msg);
+          // [UPDATE] ใช้ showNotification แทน alert
+          this.showNotification('error', msg);
           return of(null);
         })
       )
@@ -526,7 +607,8 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response !== null) {
             const msg = this.languageService.translate('ticketCategories.messages.deleteSuccess', { name: categoryName });
-            alert(msg);
+            // [UPDATE] ใช้ showNotification แทน alert
+            this.showNotification('success', msg);
             this.loadCategoryData(true);
           }
           this.isLoading = false;
@@ -585,7 +667,8 @@ export class TicketCategoriesComponent implements OnInit, OnDestroy {
 
   showPermissionDeniedMessage(action: string): void {
     const msg = this.getPermissionRequiredMessage();
-    alert(msg);
+    // [UPDATE] ใช้ showNotification แทน alert
+    this.showNotification('warning', msg);
   }
 
   onCreateNewCategory(): void {

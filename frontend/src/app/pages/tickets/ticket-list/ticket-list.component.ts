@@ -143,6 +143,53 @@ export class TicketListComponent implements OnInit, OnDestroy {
     return this.languageService.translate(key, params);
   }
 
+  // ===== ✅ MULTI-LANGUAGE HELPER (NEW) =====
+
+  /**
+   * Helper: ดึงค่าจาก Object ตามภาษาปัจจุบัน
+   * ตัวอย่าง: getLangValue(ticket, 'status_name') จะไปหา status_name_th หรือ status_name_en
+   */
+  getLangValue(data: any, fieldPrefix: string): string {
+    if (!data) return '';
+    
+    const currentLang = this.languageService.getCurrentLanguage(); // 'th' หรือ 'en'
+    
+    // 1. ลองหา key ที่ลงท้ายด้วยภาษาปัจจุบัน (เช่น status_name_th)
+    const langKey = `${fieldPrefix}_${currentLang}`;
+    if (data[langKey]) {
+      return data[langKey];
+    }
+
+    // 2. ถ้าไม่เจอ ให้ลองหาภาษาอังกฤษเป็นค่า Default (เช่น status_name_en)
+    const enKey = `${fieldPrefix}_en`;
+    if (data[enKey]) {
+      return data[enKey];
+    }
+
+    // 3. ถ้าไม่เจอเลย ให้ลองหา field name ตรงๆ (เผื่อ API ไม่ได้แยกภาษา)
+    if (data[fieldPrefix]) {
+      return data[fieldPrefix];
+    }
+
+    return '';
+  }
+
+  /**
+   * Helper: แสดงสถานะโดยดึงจาก API ก่อน ถ้าไม่มีค่อยใช้ Hardcode ID
+   */
+  getDisplayStatus(ticket: any): string {
+    // 1. ดึงชื่อสถานะจาก API (status_name_th / status_name_en)
+    const apiStatus = this.getLangValue(ticket, 'status_name');
+    
+    // เช็คว่ามีค่าและไม่ใช่ string คำว่า "undefined"
+    if (apiStatus && apiStatus !== 'undefined') {
+      return apiStatus;
+    }
+
+    // 2. ถ้าไม่มีใน API ให้ใช้ฟังก์ชันเดิมแปลงจาก ID
+    return this.getStatusText(ticket.status_id);
+  }
+
   // ===== USER DATA & PERMISSIONS =====
 
   private loadUserData(): void {
@@ -620,7 +667,8 @@ export class TicketListComponent implements OnInit, OnDestroy {
   getUserDisplayName(ticket: AllTicketData): string {
     const anyTicket = ticket as any;
 
-    if (anyTicket.name && anyTicket.name.trim()) {
+    // ✅ FIX: Check for "undefined undefined" string
+    if (anyTicket.name && anyTicket.name.trim() && !anyTicket.name.includes('undefined undefined')) {
       return anyTicket.name;
     }
 

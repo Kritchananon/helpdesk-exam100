@@ -135,7 +135,7 @@
     <div class="empty-icon">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="#ADB5BD">
         <path
-          d="M4 6h24v2H4zm0 5h24v2H4zm0 5h24v2H4zm0 5h24v2H4zm0 5h24v2H4z" />
+          d="M4 6h24v2H4zm0 5h24v2H4zm0 5h24v2H4zm0 5h24v2H4z" />
       </svg>
     </div>
     <h3 style="margin-bottom: 8px; color: #495057;">{{ i18n.table?.emptyTitle }}</h3>
@@ -156,6 +156,7 @@
 
     <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
+        
         <div class="form-group">
           <label class="form-label" for="nameTh">
             {{ i18n.modal?.nameTh }} <span class="required">*</span>
@@ -167,6 +168,7 @@
             formControlName="nameTh"
             [placeholder]="i18n.modal?.nameThPlaceholder"
             [class.error]="isFieldInvalid('nameTh')"
+            (input)="onFieldInput('nameTh')" 
           />
           <div class="character-count">
             {{ getNameThLength() }}/100
@@ -175,6 +177,7 @@
             <span *ngIf="categoryForm.get('nameTh')?.errors?.['required']">{{ i18n.modal?.required }}</span>
             <span *ngIf="categoryForm.get('nameTh')?.errors?.['minlength']">{{ i18n.modal?.minLength }}</span>
             <span *ngIf="categoryForm.get('nameTh')?.errors?.['maxlength']">{{ i18n.modal?.maxLength }}</span>
+            <span *ngIf="categoryForm.get('nameTh')?.errors?.['duplicate']">ชื่อหมวดหมู่นี้มีอยู่ในระบบแล้ว</span>
           </div>
         </div>
 
@@ -189,6 +192,7 @@
             formControlName="nameEn"
             [placeholder]="i18n.modal?.nameEnPlaceholder"
             [class.error]="isFieldInvalid('nameEn')"
+            (input)="onFieldInput('nameEn')"
           />
           <div class="character-count">
             {{ getNameEnLength() }}/100
@@ -197,6 +201,7 @@
             <span *ngIf="categoryForm.get('nameEn')?.errors?.['required']">{{ i18n.modal?.required }}</span>
             <span *ngIf="categoryForm.get('nameEn')?.errors?.['minlength']">{{ i18n.modal?.minLength }}</span>
             <span *ngIf="categoryForm.get('nameEn')?.errors?.['maxlength']">{{ i18n.modal?.maxLength }}</span>
+            <span *ngIf="categoryForm.get('nameEn')?.errors?.['duplicate']">This category name already exists</span>
           </div>
         </div>
       </div>
@@ -220,3 +225,28 @@
     <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
   </svg>
 </button>
+
+<div class="notification" *ngIf="notification" [class]="'notification-' + notification.type">
+  <div class="notification-content">
+    <svg *ngIf="notification.type === 'success'" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="notification-icon">
+      <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm3.78-9.72a.75.75 0 0 0-1.06-1.06L6.75 9.19 5.28 7.72a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l4.5-4.5z"/>
+    </svg>
+    <svg *ngIf="notification.type === 'error'" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="notification-icon">
+      <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+    </svg>
+    <svg *ngIf="notification.type === 'warning'" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="notification-icon">
+      <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+    </svg>
+    <svg *ngIf="notification.type === 'info'" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="notification-icon">
+      <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+    </svg>
+    
+    <span>{{ notification.message }}</span>
+    
+    <button class="notification-close" (click)="clearNotification()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+        <path d="M.293.293a1 1 0 0 1 1.414 0L6 4.586 10.293.293a1 1 0 1 1 1.414 1.414L7.414 6l4.293 4.293a1 1 0 0 1-1.414 1.414L6 7.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L5.586 6 1.293 1.707a1 1 0 0 1 0-1.414z"/>
+      </svg>
+    </button>
+  </div>
+</div>
