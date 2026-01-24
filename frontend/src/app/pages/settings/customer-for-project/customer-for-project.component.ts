@@ -121,25 +121,40 @@ export class CustomerForProjectComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * ✅ ปรับปรุง: กรองข้อมูลโปรเจคที่เป็น null และป้องกัน Error จากข้อมูลที่ไม่สมบูรณ์
+   */
   private transformCFPDataToProjects(): void {
-    this.projects = this.cfpData.map(cfpProject => {
-      const totalCustomers = cfpProject.customers.length;
-      const totalUsers = cfpProject.customers.reduce((sum, c) => sum + c.user_count, 0);
-      const totalOpenTickets = cfpProject.customers.reduce((sum, c) => sum + c.open_ticket_count, 0);
+    this.projects = this.cfpData
+      .filter(cfpProject => 
+        cfpProject && 
+        cfpProject.project_id !== null && 
+        cfpProject.project_id !== undefined &&
+        cfpProject.project_name !== null
+      )
+      .map(cfpProject => {
+        // ป้องกันกรณี customers เป็น null
+        const customers = cfpProject.customers || [];
+        const totalCustomers = customers.length;
+        
+        // คำนวณหาจำนวน User และ Ticket ทั้งหมดในโปรเจคนั้น
+        const totalUsers = customers.reduce((sum, c) => 
+          sum + (Number(c.user_count) || 0), 0);
+          
+        const totalOpenTickets = customers.reduce((sum, c) => 
+          sum + (Number(c.open_ticket_count) || 0), 0);
 
-      return {
-        id: cfpProject.project_id,
-        name: cfpProject.project_name,
-        // ✅ ลบ description ออกจากตรงนี้ เพราะเราไปแสดงผลใน HTML แทนแล้ว
-        // description: `${totalCustomers} customer(s), ${totalUsers} user(s)`, 
-        status: cfpProject.project_status ? 'active' as const : 'inactive' as const,
-        created_date: new Date().toISOString(),
-        created_by: 1,
-        total_customers: totalCustomers,
-        total_users: totalUsers,
-        total_open_tickets: totalOpenTickets
-      };
-    });
+        return {
+          id: cfpProject.project_id,
+          name: cfpProject.project_name,
+          status: cfpProject.project_status ? 'active' as const : 'inactive' as const,
+          created_date: new Date().toISOString(),
+          created_by: 1,
+          total_customers: totalCustomers,
+          total_users: totalUsers,
+          total_open_tickets: totalOpenTickets
+        };
+      });
   }
 
   navigateToProjectDetail(project: ProjectItem): void {
@@ -188,6 +203,7 @@ export class CustomerForProjectComponent implements OnInit, OnDestroy {
     return statusMap[status.toLowerCase()] || 'status-default';
   }
 
+  // Helper methods สำหรับสรุปยอดรวม (Optional - ใช้แสดงผลภาพรวมได้)
   getTotalCustomers(): number {
     return this.projects.reduce((sum, project) => sum + (project.total_customers || 0), 0);
   }

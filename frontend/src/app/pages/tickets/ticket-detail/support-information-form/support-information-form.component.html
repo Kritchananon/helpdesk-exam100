@@ -184,9 +184,8 @@
                     <label class="required">{{ translate('supportInformation.dueDate') }}:</label>
                     <input type="datetime-local" id="due_date" class="form-control input-duedate"
                         formControlName="due_date" [class.is-invalid]="hasFieldError('due_date')"
-                        [disabled]="!isSupporter || supporterFormState.isSaving || !isFormReady()" />
-
-                    <div *ngIf="supporterForm.get('due_date')?.dirty && hasFieldError('due_date')"
+                        [disabled]="!isSupporter || supporterFormState.isSaving || !isFormReady() || !isResolvedActionSelected" />
+                        <div *ngIf="supporterForm.get('due_date')?.dirty && hasFieldError('due_date')"
                         class="invalid-feedback">
                         {{ getFieldError('due_date') }}
                     </div>
@@ -282,16 +281,16 @@
 
                     <div class="rich-text-editor-container" 
                         [class.invalid]="hasFieldError('fix_issue_description')"
-                        [class.disabled]="!isFormReady() || supporterFormState.isSaving || !isSupporter">
+                        [class.disabled]="!isFormReady() || supporterFormState.isSaving || !isSupporter || !isResolvedActionSelected">
                         
                         <div class="editor-toolbar">
                             <div class="toolbar-section">
-                                <select class="font-select width-172" [disabled]="!isFormReady() || !isSupporter">
+                                <select class="font-select width-172" [disabled]="!isFormReady() || !isSupporter || !isResolvedActionSelected">
                                     <option>Noto Sans Thai</option>
                                     <option>Arial</option>
                                     <option>Times New Roman</option>
                                 </select>
-                                <select class="size-select width-171" [disabled]="!isFormReady() || !isSupporter">
+                                <select class="size-select width-171" [disabled]="!isFormReady() || !isSupporter || !isResolvedActionSelected">
                                     <option>14</option>
                                     <option>12</option>
                                     <option>16</option>
@@ -303,7 +302,7 @@
                             
                             <div class="toolbar-section">
                                 <button type="button" class="toolbar-btn" (click)="richImgInput.click()" title="Upload Image"
-                                    [disabled]="!isFormReady() || !isSupporter">
+                                    [disabled]="!isFormReady() || !isSupporter || !isResolvedActionSelected">
                                     <i class="bi bi-image"></i>
                                 </button>
                                 <input type="file" #richImgInput style="display: none" (change)="onRichTextConfigImage($event)" accept="image/*">
@@ -311,7 +310,7 @@
 
                             <div class="toolbar-section">
                                 <button type="button" class="toolbar-btn" [class.active]="toolbarState.bold" (click)="formatText('bold')" title="Bold"
-                                    [disabled]="!isFormReady() || !isSupporter">
+                                    [disabled]="!isFormReady() || !isSupporter || !isResolvedActionSelected">
                                     <i class="bi bi-type-bold"></i>
                                 </button>
                             </div>
@@ -327,7 +326,7 @@
                             (keyup)="onEditorEvent()"
                             (mouseup)="onEditorEvent()"
                             [attr.placeholder]="translate('supportInformation.resolutionPlaceholder')"
-                            [attr.disabled]="!isFormReady() || supporterFormState.isSaving || !isSupporter ? true : null">
+                            [attr.disabled]="!isFormReady() || supporterFormState.isSaving || !isSupporter || !isResolvedActionSelected ? true : null">
                         </div>
                         <div class="editor-footer p-2 bg-light d-flex justify-content-between align-items-center">
                             <small class="text-muted">
@@ -351,12 +350,13 @@
                     <label class="required">{{ translate('supportInformation.attachment') }}</label>
 
                     <div class="attachment-container" [class.dragover]="isDraggingFiles"
-                        [class.disabled-upload]="!isSupporter" (dragover)="onAttachmentsDragOver($event)"
+                        [class.disabled-upload]="!isSupporter || !isResolvedActionSelected" 
+                        (dragover)="onAttachmentsDragOver($event)"
                         (dragleave)="onAttachmentsDragLeave($event)" (drop)="onAttachmentsDrop($event)">
 
                         <div class="attachment-upload-card"
-                            (click)="isFormReady() && isSupporter && selectedFiles.length < maxFiles && fileInputNew.click()"
-                            [class.disabled]="!isFormReady() || supporterFormState.isSaving || (existingFixAttachments.length + selectedFiles.length) >= maxFiles || !isSupporter"
+                            (click)="isFormReady() && isSupporter && isResolvedActionSelected && selectedFiles.length < maxFiles && fileInputNew.click()"
+                            [class.disabled]="!isFormReady() || supporterFormState.isSaving || (existingFixAttachments.length + selectedFiles.length) >= maxFiles || !isSupporter || !isResolvedActionSelected"
                             [title]="translate('supportInformation.dragDropHint')">
                             <i class="bi bi-plus-lg upload-icon"></i>
                             <span class="upload-label">{{ translate('tickets.chooseFile') }}</span>
@@ -375,7 +375,7 @@
                             <div *ngFor="let file of selectedFiles; let i = index; trackBy: trackByFile"
                                 class="attachment-card new">
                                 <button type="button" class="remove-attachment-btn" (click)="removeSelectedFile(i)"
-                                    title="ลบไฟล์นี้" [disabled]="!isSupporter">
+                                    title="ลบไฟล์นี้" [disabled]="!isSupporter || !isResolvedActionSelected">
                                     <i class="bi bi-trash"></i>
                                 </button>
                                 <div class="attachment-preview">
@@ -393,7 +393,7 @@
 
                         <input #fileInputNew type="file" id="fileInputNew" (change)="onFileSelected($event)" multiple
                             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xlsx,.csv" style="display: none;"
-                            [disabled]="isFileLimitReached() || !isSupporter" />
+                            [disabled]="isFileLimitReached() || !isSupporter || !isResolvedActionSelected" />
                     </div>
 
                     <small class="form-text text-muted mt-2 d-block">

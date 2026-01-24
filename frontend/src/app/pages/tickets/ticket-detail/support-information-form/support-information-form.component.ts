@@ -273,6 +273,18 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     this.initializeHolidays();
   }
 
+  // ✅ Getter สำหรับตรวจสอบว่าเลือก Action เป็น Resolved หรือไม่
+  get isResolvedActionSelected(): boolean {
+    const actionVal = this.supporterForm.get('action')?.value;
+    if (!actionVal) return false;
+    
+    // แปลงค่าเป็น Int เพื่อเทียบกับ ID ของ Resolved
+    const actionId = parseInt(actionVal.toString());
+    
+    // TICKET_STATUS_IDS.RESOLVED คือ 4
+    return actionId === TICKET_STATUS_IDS.RESOLVED; 
+  }
+
   translate(key: string, params?: any): string {
     return this.languageService.translate(key, params);
   }

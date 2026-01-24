@@ -74,6 +74,7 @@ export class CustomerService {
       const customer = await this.customerRepository
         .createQueryBuilder('c')
         .select(['c.id as id', 'c.name as name'])
+        .where('c.isenabled = true')
         .groupBy('c.id')
         .getRawMany();
 
