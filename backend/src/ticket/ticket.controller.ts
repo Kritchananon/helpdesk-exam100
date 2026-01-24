@@ -839,7 +839,7 @@ export class TicketController {
   }
 
   @UseGuards(JwtAuthGuard, PermissionGuard)
-  @RequireAnyAction('assign_ticket')
+  @RequireAnyAction('solve_problem')
   @Get('getTicketRelate')
   async getRelatedTickets(
     @Query('project_id') project_id: number,
