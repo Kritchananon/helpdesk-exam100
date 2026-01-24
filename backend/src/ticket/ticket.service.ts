@@ -1136,6 +1136,11 @@ export class TicketService {
         updateTicketPayload.fix_issue_description = body.fix_issue_description;
       }
 
+      // relate ticket id ✅ (ของเธอไม่มีใน payload เลย ต้องเพิ่ม!)
+      if (body.related_ticket_id !== undefined && body.related_ticket_id !== null) {
+        updateTicketPayload.related_ticket_id = body.related_ticket_id;
+      }
+
       /* =======================
       * 4. Get Ticket
       * ======================= */
