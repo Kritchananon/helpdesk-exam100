@@ -1685,10 +1685,10 @@ export class TicketService {
     const tickets = await this.ticketRepo
       .createQueryBuilder('t')
       .leftJoin('ticket_categories', 'tc', 't.categories_id = tc.id')
-      .leftJoin(
-        'ticket_categories_language',
-        'tcl',
-        'tcl.category_id = tc.id')
+      // .leftJoin(
+      //   'ticket_categories_language',
+      //   'tcl',
+      //   'tcl.category_id = tc.id')
       .leftJoin('users', 'u', 't.create_by = u.id')
       .leftJoin('ticket_status', 'ts', 't.status_id = ts.id')
       .select([

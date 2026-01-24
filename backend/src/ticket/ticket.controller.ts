@@ -32,6 +32,7 @@ import { Ticket } from './entities/ticket.entity';
 import { RequireAnyAction } from '../permission/permission.decorator';
 import { PermissionGuard } from '../permission/permission.guard';
 import { CategoryStatsDTO } from './dto/dashboard.dto';
+import { data } from 'jquery';
 
 @Controller('api')
 export class TicketController {
@@ -844,6 +845,13 @@ export class TicketController {
     @Query('project_id') project_id: number,
     @Query('categories_id') categories_id: number,
   ){
-    return this.ticketService.getRelatedTickets(project_id, categories_id);
+    const related_ticket = await this.ticketService.getRelatedTickets(project_id, categories_id)
+    return {
+      code: 1,
+      message: 'success',
+      data: {
+        related_ticket: related_ticket
+      }
+    }
   }
 }
