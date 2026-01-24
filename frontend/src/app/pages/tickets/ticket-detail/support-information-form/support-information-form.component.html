@@ -248,18 +248,39 @@
 
                 <div class="form-group width-363">
                     <label>{{ translate('supportInformation.relatedTickets') }}</label>
-                    <input type="text" id="related_ticket_id" class="form-control" formControlName="related_ticket_id"
+
+                    <div *ngIf="isLoadingRelatedTickets" class="form-control d-flex align-items-center">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span class="text-muted">{{ translate('common.loading') }}</span>
+                    </div>
+
+                    <select id="related_ticket_id" class="form-select" formControlName="related_ticket_id"
                         [class.is-invalid]="hasFieldError('related_ticket_id')"
-                        [attr.placeholder]="translate('supportInformation.relatedTicketsPlaceholder')"
-                        [disabled]="!isFormReady() || supporterFormState.isSaving || !isAdmin">
+                        [disabled]="!isFormReady() || supporterFormState.isSaving || (!isAdmin && (!isSupporter || !isInProgressActionSelected))"
+                        *ngIf="!isLoadingRelatedTickets">
+                        
+                        <option value="">{{ translate('supportInformation.relatedTicketsPlaceholder') || 'None' }}</option>
+                        
+                        <option *ngFor="let ticket of relatedTicketsList" [value]="ticket.ticket_id">
+                            {{ ticket.ticket_no }}
+                        </option>
+                    </select>
+
                     <div *ngIf="hasFieldError('related_ticket_id')" class="invalid-feedback">
                         {{ getFieldError('related_ticket_id') }}
                     </div>
+
                     <small class="form-text text-muted" *ngIf="!hasFieldError('related_ticket_id')">
-                        {{ translate('supportInformation.relatedTicketsHint') }}
+                        <span *ngIf="isSupporter && !isAdmin && !isInProgressActionSelected" class="text-warning">
+                            <i class="bi bi-info-circle me-1"></i>
+                            {{ translate('supportInformation.selectInProgressFirst') || 'ต้องเลือกสถานะ In Progress ก่อน' }}
+                        </span>
+                        <span *ngIf="isAdmin || isInProgressActionSelected">
+                            {{ translate('supportInformation.relatedTicketsHint') }}
+                        </span>
                     </small>
                 </div>
-            </div>
+                </div>
 
             <div class="form-section">
                 <div class="form-group width-364">
@@ -280,7 +301,6 @@
                     <label class="required">{{ translate('supportInformation.issueResolution') }}</label>
 
                     <div class="rich-text-editor-container" 
-                        [class.invalid]="hasFieldError('fix_issue_description')"
                         [class.disabled]="!isFormReady() || supporterFormState.isSaving || !isSupporter || !isResolvedActionSelected">
                         
                         <div class="editor-toolbar">
@@ -319,7 +339,6 @@
                         
                         <div class="rich-editor" 
                             #fixIssueEditor
-                            [class.invalid]="hasFieldError('fix_issue_description')"
                             contenteditable="true" 
                             (input)="onDescriptionInput($event)"
                             (click)="onEditorEvent()"
@@ -338,10 +357,7 @@
                             </small>
                         </div>
 
-                        <div *ngIf="hasFieldError('fix_issue_description')" class="invalid-feedback">
-                            {{ getFieldError('fix_issue_description') }}
                         </div>
-                    </div>
                 </div>
             </div>
 

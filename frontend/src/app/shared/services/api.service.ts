@@ -106,6 +106,20 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+// ✅ 1. เพิ่ม Interfaces สำหรับ Related Tickets ตรงนี้
+export interface RelatedTicketItem {
+  ticket_id: number;
+  ticket_no: string;
+}
+
+export interface RelatedTicketResponse {
+  code: number;
+  message: string;
+  data: {
+    related_ticket: RelatedTicketItem[];
+  };
+}
+
 export interface TicketData {
   id?: number;
   ticket_no?: string;
@@ -518,6 +532,7 @@ export class ApiService {
     }
   }
 
+  // ... (Methods อื่นๆ เหมือนเดิม) ...
   private generateAvatar(name: string): string {
     return name.charAt(0).toUpperCase();
   }
@@ -525,6 +540,24 @@ export class ApiService {
   private generateAvatarColor(id: number): string {
     const colors = ['#5873F8', '#28A745', '#FFC107', '#1FBCD5', '#DC3545'];
     return colors[id % colors.length];
+  }
+
+  // ✅ 2. เพิ่ม Function getRelatedTickets
+  /**
+   * ดึง Ticket ที่เกี่ยวข้อง (Related Tickets) ตาม Project และ Category
+   * Backend: กรอง Status = 5 (Completed) ให้แล้ว
+   */
+  getRelatedTickets(projectId: number, categoryId: number): Observable<RelatedTicketResponse> {
+    return this.http.get<RelatedTicketResponse>(`${this.apiUrl}/getTicketRelate`, {
+      params: {
+        project_id: projectId.toString(),
+        categories_id: categoryId.toString()
+      },
+      headers: this.getAuthHeaders()
+    }).pipe(
+      tap(response => console.log('Related Tickets Response:', response)),
+      catchError(this.handleError)
+    );
   }
 
   /**

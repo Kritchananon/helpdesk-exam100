@@ -16,7 +16,8 @@ import {
   StatusDDLItem,
   StatusDDLResponse,
   GetTicketDataRequest,
-  GetTicketDataResponse
+  GetTicketDataResponse,
+  RelatedTicketItem // ✅ 1. เพิ่ม Import RelatedTicketItem
 } from '../../../../shared/services/api.service';
 import { AuthService } from '../../../../shared/services/auth.service';
 import { TicketService } from '../../../../shared/services/ticket.service';
@@ -189,6 +190,10 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
   selectedAssigneeId: number | null = null;
   assigneeList: UserListItem[] = [];
 
+  // ✅ 2. เพิ่มตัวแปรสำหรับ Related Tickets
+  relatedTicketsList: RelatedTicketItem[] = [];
+  isLoadingRelatedTickets = false;
+
   private originalAssigneeId: number | null = null;
 
   // ===== Priority Properties (Updated) =====
@@ -283,6 +288,16 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     
     // TICKET_STATUS_IDS.RESOLVED คือ 4
     return actionId === TICKET_STATUS_IDS.RESOLVED; 
+  }
+
+  // ✅ 3. เพิ่ม Getter ตรวจสอบว่า Action ที่เลือกคือ In Progress หรือไม่
+  get isInProgressActionSelected(): boolean {
+    const actionVal = this.supporterForm.get('action')?.value;
+    if (!actionVal) return false;
+    
+    const actionId = parseInt(actionVal.toString());
+    // ID 3 = In Progress
+    return actionId === 3; 
   }
 
   translate(key: string, params?: any): string {
@@ -1027,6 +1042,34 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     }
   }
 
+  // ✅ 4. เพิ่ม Method โหลดข้อมูล Related Tickets
+  private loadRelatedTickets(): void {
+    if (!this.ticketData?.ticket) return;
+
+    const projectId = this.ticketData.ticket.project_id;
+    const categoryId = this.ticketData.ticket.categories_id;
+
+    if (!projectId || !categoryId) return;
+
+    this.isLoadingRelatedTickets = true;
+    this.apiService.getRelatedTickets(projectId, categoryId).subscribe({
+      next: (res) => {
+        if (res.code === 1 && res.data && res.data.related_ticket) {
+          this.relatedTicketsList = res.data.related_ticket;
+        } else {
+          this.relatedTicketsList = [];
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load related tickets', err);
+        this.relatedTicketsList = [];
+      },
+      complete: () => {
+        this.isLoadingRelatedTickets = false;
+      }
+    });
+  }
+
   private onTicketDataChanged(): void {
     this.supporterFormState.error = null;
     if (!this.justSaved) this.supporterFormState.successMessage = null;
@@ -1043,6 +1086,19 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
 
   private updateFormAfterSave(): void {
     this.updateFormWithTicketData();
+  }
+
+  // ✅ เพิ่ม Method นี้สำหรับตรวจสอบและปรับสถานะของ Due Date
+  private updateDueDateAccess(): void {
+    const dueControl = this.supporterForm.get('due_date');
+    if (!dueControl) return;
+
+    // เงื่อนไข: ต้องเป็น Supporter + ไม่ใช่ Admin + เลือก Action เป็น Resolved เท่านั้น ถึงจะกรอกได้
+    if (this.isSupporter && !this.isAdmin && this.isResolvedActionSelected) {
+      dueControl.enable({ emitEvent: false });
+    } else {
+      dueControl.disable({ emitEvent: false });
+    }
   }
 
   public updateFormWithTicketData(): void {
@@ -1062,7 +1118,8 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
       lead_time: leadTime,
       close_estimate: closeEstimateFormatted,
       fix_issue_description: ticket.fix_issue_description || '',
-      related_ticket_id: ticket.related_ticket_id?.toString() || ''
+      // ✅ แก้ไข: แปลงเป็น string เพื่อให้ตรงกับ value ใน select option และ patch ค่าลงฟอร์ม
+      related_ticket_id: ticket.related_ticket_id ? ticket.related_ticket_id.toString() : ''
     };
 
     this.supporterForm.patchValue(formValue, { emitEvent: false });
@@ -1076,9 +1133,11 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
       this.checkToolbarStatus();
     }
 
-    const dueControl = this.supporterForm.get('due_date');
-    if (this.isSupporter && !this.isAdmin) dueControl?.enable({ emitEvent: false });
-    else dueControl?.disable({ emitEvent: false });
+    // ✅ เรียกใช้ Logic ตรวจสอบสิทธิ์ Due Date
+    this.updateDueDateAccess();
+    
+    // ✅ 5. เรียกใช้ function โหลดข้อมูล Related Tickets
+    this.loadRelatedTickets();
 
     const closeEstimateControl = this.supporterForm.get('close_estimate');
     if (this.isAdmin && !this.isSupporter) closeEstimateControl?.enable({ emitEvent: false });
@@ -1270,6 +1329,13 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
       fix_issue_description: ['', [Validators.maxLength(5000)]],
       related_ticket_id: ['']
     });
+
+    // ✅ เพิ่มการ Subscribe Action เปลี่ยน
+    this.supporterForm.get('action')?.valueChanges.subscribe(() => {
+      this.updateDueDateAccess();
+      this.validateSupporterForm();
+    });
+
     this.supporterForm.valueChanges.subscribe(() => { this.validateSupporterForm(); });
   }
 
@@ -1801,7 +1867,17 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
          formData.fix_issue_description = formValue.fix_issue_description.toString().trim();
     }
     
-    if (formValue.related_ticket_id) formData.related_ticket_id = formValue.related_ticket_id.trim();
+    // ✅ แก้ไข: แปลงเป็น Int ก่อนส่ง (Backend ต้องการ ID)
+    if (formValue.related_ticket_id) {
+        // ตรวจสอบว่าเป็นตัวเลขหรือไม่ก่อนแปลง
+        const relatedId = parseInt(formValue.related_ticket_id.toString());
+        if (!isNaN(relatedId)) {
+            // ส่งเป็น number ถ้า interface รองรับ, หรือ string ถ้าจำเป็น
+            // สมมติว่า Backend ต้องการ number
+            formData.related_ticket_id = relatedId; 
+        }
+    }
+
     return formData;
   }
 
