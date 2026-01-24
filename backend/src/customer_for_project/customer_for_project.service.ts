@@ -78,10 +78,11 @@ export class CustomerForProjectService {
   }
 
   async getCFPdata() {
-    const result = await this.customerRepository
-      .createQueryBuilder('c')
-      .leftJoin('customer_for_project', 'cfp', 'cfp.customer_id = c.id AND cfp.isenabled = true')
-      .leftJoin('project', 'p', 'p.id = cfp.project_id')
+    // ✅ เปลี่ยนจุดเริ่มต้นเป็น Project ('p') เพื่อให้ได้ Project ทั้งหมดแม้ไม่มีลูกค้า
+    const result = await this.projectRepository 
+      .createQueryBuilder('p')
+      .leftJoin('customer_for_project', 'cfp', 'cfp.project_id = p.id AND cfp.isenabled = true')
+      .leftJoin('customer', 'c', 'c.id = cfp.customer_id') // Join ลงมาหา Customer
       .leftJoin('users_allow_role', 'uar', 'uar.user_id = cfp.user_id')
       .leftJoin('users', 'u', 'u.id = uar.user_id')
       .leftJoin('ticket', 't', 't.project_id = p.id AND t.status_id = :openStatusId')
@@ -89,19 +90,19 @@ export class CustomerForProjectService {
         'p.id as project_id',
         'p.name as project_name',
         'p.status as project_status',
-        'c.id as customer_id',
+        'c.id as customer_id', // ถ้าไม่มีลูกค้า ค่านี้จะเป็น NULL
         'c.name as customer_name',
         'c.email as customer_email',
         'c.telephone as customer_phone',
         `COALESCE(
-        JSON_AGG(
-          DISTINCT JSONB_BUILD_OBJECT(
-            'cfp_id', cfp.id,
-            'user_id', u.id,
-            'name', u.firstname || ' ' || u.lastname
-          )
-        ) FILTER (WHERE u.id IS NOT NULL), '[]'
-      ) as assigned_users`,
+          JSON_AGG(
+            DISTINCT JSONB_BUILD_OBJECT(
+              'cfp_id', cfp.id,
+              'user_id', u.id,
+              'name', u.firstname || ' ' || u.lastname
+            )
+          ) FILTER (WHERE u.id IS NOT NULL), '[]'
+        ) as assigned_users`, // ✅ เพิ่ม Filter และ Default [] เพื่อจัดการค่า Null
         'COUNT(DISTINCT c.id) as customer_count',
         'COUNT(DISTINCT cfp.user_id) as user_count',
         'COUNT(DISTINCT t.id) as open_ticket_count',
@@ -109,36 +110,43 @@ export class CustomerForProjectService {
       .setParameter('openStatusId', 2)
       .groupBy('p.id, p.name, p.status, c.id, c.name, c.email, c.telephone')
       .getRawMany();
-
+  
     // 👉 Group ตาม project_id
     const projectsMap = new Map<number, any>();
-
+  
     result.forEach((row) => {
       const projectId = row.project_id;
-
+  
       if (!projectsMap.has(projectId)) {
         projectsMap.set(projectId, {
           project_id: row.project_id,
           project_name: row.project_name,
           project_status: row.project_status,
+          open_ticket_count: parseInt(row.open_ticket_count) || 0, // ย้ายมาไว้นี่ เพราะเป็นของ Project
           customers: [],
         });
       }
-
+  
       const project = projectsMap.get(projectId);
-
-      project.customers.push({
-        customer_id: row.customer_id,
-        customer_name: row.customer_name,
-        customer_email: row.customer_email,
-        customer_phone: row.customer_phone,
-        assigned_users: row.assigned_users || [],
-        customer_count: parseInt(row.customer_count) || 0,
-        user_count: parseInt(row.user_count) || 0,
-        open_ticket_count: parseInt(row.open_ticket_count) || 0,
-      });
+  
+      // ✅ เช็คก่อนว่ามี Customer จริงไหม (เพราะ Left Join ถ้า Project ว่าง ค่าพวกนี้จะเป็น NULL)
+      if (row.customer_id) {
+        project.customers.push({
+          customer_id: row.customer_id,
+          customer_name: row.customer_name,
+          customer_email: row.customer_email,
+          customer_phone: row.customer_phone,
+          assigned_users: row.assigned_users || [],
+          // customer_count กับ user_count อาจจะต้องดูว่าอยากนับรวมหรือนับแยกราย row
+          // แต่ถ้า Group แบบนี้ customer_count น่าจะเป็นภาพรวมของ Project
+        });
+      }
     });
 
+    // เพิ่มเติม: ถ้าต้องการใส่ customer_count รวมใน level ของ Project
+    // อาจจะต้องวน Loop Map อีกรอบ หรือปรับ Logic SQL เล็กน้อย 
+    // แต่เบื้องต้นโค้ดด้านบนจะแก้ปัญหา Project หายได้ครับ
+  
     return {
       status: 1,
       message: 'Success',
