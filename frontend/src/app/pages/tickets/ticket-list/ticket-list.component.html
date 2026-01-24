@@ -170,15 +170,22 @@
                 {{ getLangValue(ticket, 'categories_name') || ticket.categories_name || '-' }}
               </span>
               
-              <div class="ticket-divider" *ngIf="isHighPriority(ticket)"></div>
-              <div class="priority-warning" *ngIf="isHighPriority(ticket)">
-                <i class="bi bi-exclamation-triangle-fill priority-icon"></i>
+              <div class="ticket-divider" *ngIf="isHighPriority(ticket) || isMediumPriority(ticket)"></div>
+              
+              <div class="priority-warning" *ngIf="isHighPriority(ticket) || isMediumPriority(ticket)">
+                <i class="bi bi-exclamation-triangle-fill priority-icon"
+                   [style.color]="isMediumPriority(ticket) ? '#FFC107' : '#DC3545'">
+                </i>
+                
                 <div class="priority-tooltip">
-                  <span class="priority-tooltip-text">{{ t('tickets.priority') }}: {{ t('tickets.priorityHigh') }}</span>
+                  <span class="priority-tooltip-text">
+                    {{ t('tickets.priority') }}: 
+                    {{ isHighPriority(ticket) ? t('tickets.priorityHigh') : t('tickets.priorityMedium') }}
+                  </span>
                   <div class="priority-tooltip-arrow"></div>
                 </div>
               </div>
-            </div>
+              </div>
           </div>
           <div class="ticket-header-right">
             <div class="ticket-date-status">

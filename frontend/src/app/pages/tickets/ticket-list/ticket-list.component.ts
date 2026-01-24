@@ -148,23 +148,13 @@ export class TicketListComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  // ===== ✅ STATUS LOGIC (แก้ไขใหม่ให้รองรับทุกเคส) =====
+  // ===== ✅ STATUS LOGIC =====
 
-  /**
-   * Helper: ค้นหา Status ID ที่ถูกต้องที่สุด
-   * รองรับทั้ง status_id, statusId และการเดาจากชื่อ (Fallback)
-   */
   private resolveStatusId(ticket: any): number {
-    // 1. ลองดึงจาก Key ปกติ หรือ Key ที่อาจจะพิมพ์ผิด
     let id = ticket.status_id ?? ticket.statusId ?? ticket.status;
-
-    // 2. ถ้าได้เป็นตัวเลขที่ถูกต้อง ให้ใช้เลย
     if (id && !isNaN(Number(id)) && Number(id) > 0) {
       return Number(id);
     }
-
-    // 3. Fallback: ถ้าหา ID ไม่เจอ ให้เดาจาก "ชื่อสถานะ" (Case Insensitive)
-    // วิธีนี้ช่วยแก้ปัญหาสีเหลืองล้วนได้ ถ้า Backend ส่งมาแต่ชื่อ
     const name = (ticket.status_name || ticket.status_name_en || ticket.status_name_th || '').toLowerCase();
     
     if (name.includes('create') || name.includes('pending')) return 1;
@@ -174,7 +164,6 @@ export class TicketListComponent implements OnInit, OnDestroy {
     if (name.includes('complete')) return 5;
     if (name.includes('cancel')) return 6;
 
-    // Default เป็น 1 (Pending) ถ้าหาไม่เจอเลย
     return 1; 
   }
 
@@ -182,12 +171,10 @@ export class TicketListComponent implements OnInit, OnDestroy {
     const id = this.resolveStatusId(ticket);
     const name = (ticket.status_name || ticket.status_name_en || '').toLowerCase();
 
-    // ✅ บังคับ: ถ้า ID=1 หรือชื่อเป็น Created/Pending ให้แสดงคำว่า "Pending" เสมอ
     if (id === 1 || name === 'created' || name === 'pending') {
       return this.t('tickets.pending');
     }
 
-    // กรณีอื่น ดึงชื่อจาก API
     const apiStatus = this.getLangValue(ticket, 'status_name');
     if (apiStatus && apiStatus !== 'undefined') {
       return apiStatus;
@@ -197,7 +184,6 @@ export class TicketListComponent implements OnInit, OnDestroy {
   }
 
   getStatusBadgeClass(ticket: any): string {
-    // ✅ รับ ticket ทั้งก้อน แล้วใช้ตัวช่วยหา ID
     const id = this.resolveStatusId(ticket);
     switch (id) {
       case 1: return 'badge-pending';
@@ -211,7 +197,6 @@ export class TicketListComponent implements OnInit, OnDestroy {
   }
 
   getStatusIcon(ticket: any): string {
-    // ✅ รับ ticket ทั้งก้อน แล้วใช้ตัวช่วยหา ID
     const id = this.resolveStatusId(ticket);
     switch (id) {
       case 1: return 'bi-clock';
@@ -325,7 +310,7 @@ export class TicketListComponent implements OnInit, OnDestroy {
     if (this.hasRole(ROLES.USER)) {
       return this.hasPermission(permissionEnum.DELETE_TICKET) &&
         ticket.create_by === this.currentUser?.id &&
-        this.resolveStatusId(ticket) === 1; // Use resolved ID
+        this.resolveStatusId(ticket) === 1;
     }
     return false;
   }
@@ -402,7 +387,10 @@ export class TicketListComponent implements OnInit, OnDestroy {
       catlang_id: currentLang
     };
 
-    if (this.searchText && this.searchText.trim()) params.search = this.searchText.trim();
+    if (this.searchText && this.searchText.trim()) {
+      params.search = this.searchText.trim(); 
+    }
+    
     if (this.selectedPriority) params.priority = Number(this.selectedPriority);
     if (this.selectedStatus) params.status_id = Number(this.selectedStatus);
     if (this.selectedCategory) {
@@ -411,28 +399,50 @@ export class TicketListComponent implements OnInit, OnDestroy {
     }
     if (this.selectedProject) params.project_id = Number(this.selectedProject);
 
+    console.log('📡 Sending Params to API:', params);
+
     this.apiService.getAllTickets(params).subscribe({
       next: (res: any) => {
         if (res?.success && Array.isArray(res.data)) {
-          const allTickets = res.data.filter((ticket: any) => {
+          
+          let allTickets = res.data.filter((ticket: any) => {
              return !ticket.catlang_id || ticket.catlang_id === currentLang;
           });
+
+          // Local Search Fallback
+          if (this.searchText && this.searchText.trim()) {
+            const lowerSearch = this.searchText.trim().toLowerCase();
+            const initialCount = allTickets.length;
+            
+            allTickets = allTickets.filter((t: any) => {
+              const ticketNo = (t.ticket_no || '').toLowerCase();
+              const desc = (t.issue_description || '').toLowerCase();
+              const project = (t.project_name || '').toLowerCase();
+              const user = this.getUserDisplayName(t).toLowerCase();
+              
+              return ticketNo.includes(lowerSearch) ||
+                     desc.includes(lowerSearch) ||
+                     project.includes(lowerSearch) ||
+                     user.includes(lowerSearch);
+            });
+            
+            console.log(`🔍 Local Filter: Reduced from ${initialCount} to ${allTickets.length}`);
+          }
 
           this.tickets = allTickets;
           this.filteredTickets = allTickets;
 
-          this.pagination = res.pagination ? {
-            currentPage: res.pagination.currentPage || page,
-            perPage: res.pagination.perPage || 25,
-            totalRows: res.pagination.totalRows || allTickets.length,
-            totalPages: res.pagination.totalPages || 1
-          } : {
-            currentPage: page,
-            perPage: 25,
-            totalRows: allTickets.length,
-            totalPages: Math.ceil(allTickets.length / 25)
+          const totalRows = this.searchText ? allTickets.length : (res.pagination?.totalRows || allTickets.length);
+          
+          this.pagination = {
+            currentPage: res.pagination?.currentPage || page,
+            perPage: res.pagination?.perPage || 25,
+            totalRows: totalRows, 
+            totalPages: Math.ceil(totalRows / 25)
           };
-          this.noTicketsFound = allTickets.length === 0 && this.pagination.totalRows === 0;
+
+          this.noTicketsFound = allTickets.length === 0;
+
         } else {
           this.tickets = [];
           this.filteredTickets = [];
@@ -440,7 +450,8 @@ export class TicketListComponent implements OnInit, OnDestroy {
         }
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('API Error:', err);
         this.ticketsError = this.t('tickets.loadError');
         this.isLoading = false;
         this.noTicketsFound = true;
@@ -578,6 +589,11 @@ export class TicketListComponent implements OnInit, OnDestroy {
 
   isHighPriority(ticket: AllTicketData): boolean {
     return Number(ticket.priority_id) === 3;
+  }
+
+  // ✅✅✅ ADDED: Medium Priority Check ✅✅✅
+  isMediumPriority(ticket: AllTicketData): boolean {
+    return Number(ticket.priority_id) === 2;
   }
 
   getPriorityBadgeClass(priority: any): string {
