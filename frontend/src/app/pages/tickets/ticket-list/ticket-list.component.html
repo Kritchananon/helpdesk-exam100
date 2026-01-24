@@ -185,11 +185,11 @@
               <span class="ticket-date">{{ formatDate(ticket.create_date) }}</span>
               <div class="ticket-divider"></div>
 
-              <div class="status-badge" [ngClass]="getStatusBadgeClass(ticket.status_id)">
+              <div class="status-badge" [ngClass]="getStatusBadgeClass(ticket)">
                 <i class="bi bi-exclamation-triangle text-warning me-1" *ngIf="!statusCacheLoaded && !isLoadingStatuses"
                   [title]="t('tickets.statusFromDefault')"></i>
 
-                <i class="status-icon" [ngClass]="getStatusIcon(ticket.status_id)"></i>
+                <i class="status-icon" [ngClass]="getStatusIcon(ticket)"></i>
                 
                 <span class="status-text">{{ getDisplayStatus(ticket) }}</span>
                 

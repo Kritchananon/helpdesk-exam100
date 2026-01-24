@@ -8,7 +8,6 @@ import { AuthService } from '../../../shared/services/auth.service';
 import { LanguageService } from '../../../shared/services/language.service';
 import { permissionEnum, UserRole, ROLES } from '../../../shared/models/permission.model';
 import { UserWithPermissions } from '../../../shared/models/user.model';
-import { HasPermissionDirective, HasRoleDirective } from '../../../shared/directives/permission.directive';
 import { saveAs } from 'file-saver';
 
 @Component({
@@ -106,13 +105,8 @@ export class TicketListComponent implements OnInit, OnDestroy {
 
     // Subscribe to language changes
     const langSub = this.languageService.currentLanguage$.subscribe(lang => {
-      console.log('🌍 Ticket list language changed to:', lang);
-      
-      // 🎯 Reload statuses และ filters เมื่อเปลี่ยนภาษา
-      this.loadStatuses(); // อัพเดท status labels
-      this.loadMasterFilters(); // อัพเดท categories และ projects
-      
-      // ✅ Reload tickets เพื่อกรองข้อมูลใหม่ตามภาษาที่เลือก
+      this.loadStatuses(); 
+      this.loadMasterFilters(); 
       this.loadTickets(this.pagination.currentPage);
     });
     this.subscriptions.push(langSub);
@@ -127,7 +121,6 @@ export class TicketListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('🧹 TicketListComponent cleanup');
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
@@ -136,58 +129,134 @@ export class TicketListComponent implements OnInit, OnDestroy {
 
   // ===== TRANSLATION HELPER =====
 
-  /**
-   * Get translated text
-   */
   t(key: string, params?: { [key: string]: any }): string {
     return this.languageService.translate(key, params);
   }
 
-  // ===== ✅ MULTI-LANGUAGE HELPER (NEW) =====
-
-  /**
-   * Helper: ดึงค่าจาก Object ตามภาษาปัจจุบัน
-   * ตัวอย่าง: getLangValue(ticket, 'status_name') จะไปหา status_name_th หรือ status_name_en
-   */
   getLangValue(data: any, fieldPrefix: string): string {
     if (!data) return '';
+    const currentLang = this.languageService.getCurrentLanguage(); 
     
-    const currentLang = this.languageService.getCurrentLanguage(); // 'th' หรือ 'en'
-    
-    // 1. ลองหา key ที่ลงท้ายด้วยภาษาปัจจุบัน (เช่น status_name_th)
     const langKey = `${fieldPrefix}_${currentLang}`;
-    if (data[langKey]) {
-      return data[langKey];
-    }
+    if (data[langKey]) return data[langKey];
 
-    // 2. ถ้าไม่เจอ ให้ลองหาภาษาอังกฤษเป็นค่า Default (เช่น status_name_en)
     const enKey = `${fieldPrefix}_en`;
-    if (data[enKey]) {
-      return data[enKey];
-    }
+    if (data[enKey]) return data[enKey];
 
-    // 3. ถ้าไม่เจอเลย ให้ลองหา field name ตรงๆ (เผื่อ API ไม่ได้แยกภาษา)
-    if (data[fieldPrefix]) {
-      return data[fieldPrefix];
-    }
+    if (data[fieldPrefix]) return data[fieldPrefix];
 
     return '';
   }
 
+  // ===== ✅ STATUS LOGIC (แก้ไขใหม่ให้รองรับทุกเคส) =====
+
   /**
-   * Helper: แสดงสถานะโดยดึงจาก API ก่อน ถ้าไม่มีค่อยใช้ Hardcode ID
+   * Helper: ค้นหา Status ID ที่ถูกต้องที่สุด
+   * รองรับทั้ง status_id, statusId และการเดาจากชื่อ (Fallback)
    */
-  getDisplayStatus(ticket: any): string {
-    // 1. ดึงชื่อสถานะจาก API (status_name_th / status_name_en)
-    const apiStatus = this.getLangValue(ticket, 'status_name');
+  private resolveStatusId(ticket: any): number {
+    // 1. ลองดึงจาก Key ปกติ หรือ Key ที่อาจจะพิมพ์ผิด
+    let id = ticket.status_id ?? ticket.statusId ?? ticket.status;
+
+    // 2. ถ้าได้เป็นตัวเลขที่ถูกต้อง ให้ใช้เลย
+    if (id && !isNaN(Number(id)) && Number(id) > 0) {
+      return Number(id);
+    }
+
+    // 3. Fallback: ถ้าหา ID ไม่เจอ ให้เดาจาก "ชื่อสถานะ" (Case Insensitive)
+    // วิธีนี้ช่วยแก้ปัญหาสีเหลืองล้วนได้ ถ้า Backend ส่งมาแต่ชื่อ
+    const name = (ticket.status_name || ticket.status_name_en || ticket.status_name_th || '').toLowerCase();
     
-    // เช็คว่ามีค่าและไม่ใช่ string คำว่า "undefined"
+    if (name.includes('create') || name.includes('pending')) return 1;
+    if (name.includes('open')) return 2;
+    if (name.includes('progress')) return 3;
+    if (name.includes('resolved') || name.includes('resolve')) return 4;
+    if (name.includes('complete')) return 5;
+    if (name.includes('cancel')) return 6;
+
+    // Default เป็น 1 (Pending) ถ้าหาไม่เจอเลย
+    return 1; 
+  }
+
+  getDisplayStatus(ticket: any): string {
+    const id = this.resolveStatusId(ticket);
+    const name = (ticket.status_name || ticket.status_name_en || '').toLowerCase();
+
+    // ✅ บังคับ: ถ้า ID=1 หรือชื่อเป็น Created/Pending ให้แสดงคำว่า "Pending" เสมอ
+    if (id === 1 || name === 'created' || name === 'pending') {
+      return this.t('tickets.pending');
+    }
+
+    // กรณีอื่น ดึงชื่อจาก API
+    const apiStatus = this.getLangValue(ticket, 'status_name');
     if (apiStatus && apiStatus !== 'undefined') {
       return apiStatus;
     }
 
-    // 2. ถ้าไม่มีใน API ให้ใช้ฟังก์ชันเดิมแปลงจาก ID
-    return this.getStatusText(ticket.status_id);
+    return this.getStatusText(id);
+  }
+
+  getStatusBadgeClass(ticket: any): string {
+    // ✅ รับ ticket ทั้งก้อน แล้วใช้ตัวช่วยหา ID
+    const id = this.resolveStatusId(ticket);
+    switch (id) {
+      case 1: return 'badge-pending';
+      case 2: return 'badge-in-progress';
+      case 3: return 'badge-hold';
+      case 4: return 'badge-resolved';
+      case 5: return 'badge-complete';
+      case 6: return 'badge-cancel';
+      default: return 'badge-pending';
+    }
+  }
+
+  getStatusIcon(ticket: any): string {
+    // ✅ รับ ticket ทั้งก้อน แล้วใช้ตัวช่วยหา ID
+    const id = this.resolveStatusId(ticket);
+    switch (id) {
+      case 1: return 'bi-clock';
+      case 2: return 'bi-folder2-open';
+      case 3: return 'bi-chat-dots';
+      case 4: return 'bi-clipboard-check';
+      case 5: return 'bi-check-circle';
+      case 6: return 'bi-x-circle';
+      default: return 'bi-clock';
+    }
+  }
+
+  getStatusText(statusId: number): string {
+    if (this.statusCacheLoaded) {
+      const cachedName = this.apiService.getCachedStatusName(statusId);
+      return this.normalizeStatusName(cachedName);
+    }
+    switch (statusId) {
+      case 1: return this.t('tickets.pending');
+      case 2: return this.t('tickets.openTicket');
+      case 3: return this.t('tickets.inProgress');
+      case 4: return this.t('tickets.resolved');
+      case 5: return this.t('tickets.complete');
+      case 6: return this.t('tickets.cancel');
+      default: return this.t('tickets.unknown');
+    }
+  }
+
+  private normalizeStatusName(statusName: string): string {
+    const normalized = statusName.toLowerCase().trim();
+    const statusMap: { [key: string]: string } = {
+      'created': 'Pending',
+      'pending': 'Pending',
+      'open': 'Open Ticket',
+      'open ticket': 'Open Ticket',
+      'in progress': 'In Progress',
+      'progress': 'In Progress',
+      'resolved': 'Resolved',
+      'complete': 'Complete',
+      'completed': 'Complete',
+      'cancel': 'Cancel',
+      'cancelled': 'Cancel',
+      'canceled': 'Cancel'
+    };
+    return statusMap[normalized] || statusName;
   }
 
   // ===== USER DATA & PERMISSIONS =====
@@ -196,29 +265,18 @@ export class TicketListComponent implements OnInit, OnDestroy {
     this.currentUser = this.authService.getCurrentUserWithPermissions();
     this.userPermissions = this.authService.getUserPermissions();
     this.userRoles = this.authService.getUserRoles();
-
-    console.log('👤 User data loaded:', {
-      username: this.currentUser?.username,
-      permissions: this.userPermissions.length,
-      roles: this.userRoles,
-      primaryRole: this.authService.getPrimaryRole()
-    });
   }
 
   private determineViewMode(): void {
     const routeViewMode = this.route.snapshot.data['viewMode'];
     if (routeViewMode === 'own-only') {
       this.viewMode = 'own-only';
-      console.log('📋 View mode set to: own-only (from route data)');
     } else {
       if (this.authService.hasPermission(permissionEnum.VIEW_ALL_TICKETS)) {
         this.viewMode = 'all';
-        console.log('📋 View mode set to: all (has VIEW_ALL_TICKETS permission)');
       } else if (this.authService.hasPermission(permissionEnum.VIEW_OWN_TICKETS)) {
         this.viewMode = 'own-only';
-        console.log('📋 View mode set to: own-only (has VIEW_OWN_TICKETS permission only)');
       } else {
-        console.warn('⚠️ User has no ticket viewing permissions');
         this.viewMode = 'own-only';
       }
     }
@@ -230,16 +288,7 @@ export class TicketListComponent implements OnInit, OnDestroy {
     this.canCreateTickets = this.authService.hasPermission(permissionEnum.CREATE_TICKET);
     this.canManageTickets = this.authService.canManageTickets();
 
-    console.log('🔒 Permission check results:', {
-      canViewAllTickets: this.canViewAllTickets,
-      canViewOwnTickets: this.canViewOwnTickets,
-      canCreateTickets: this.canCreateTickets,
-      canManageTickets: this.canManageTickets,
-      viewMode: this.viewMode
-    });
-
     if (!this.canViewAllTickets && !this.canViewOwnTickets) {
-      console.error('❌ User has no ticket viewing permissions, redirecting to dashboard');
       this.router.navigate(['/dashboard']);
       return;
     }
@@ -264,26 +313,20 @@ export class TicketListComponent implements OnInit, OnDestroy {
       return this.hasPermission(permissionEnum.EDIT_TICKET) ||
         this.hasPermission(permissionEnum.CHANGE_STATUS);
     }
-
     if (this.hasRole(ROLES.USER)) {
       return this.hasPermission(permissionEnum.EDIT_TICKET) &&
         ticket.create_by === this.currentUser?.id;
     }
-
     return false;
   }
 
   canDeleteTicket(ticket: AllTicketData): boolean {
-    if (this.hasRole(ROLES.ADMIN)) {
-      return this.hasPermission(permissionEnum.DELETE_TICKET);
-    }
-
+    if (this.hasRole(ROLES.ADMIN)) return this.hasPermission(permissionEnum.DELETE_TICKET);
     if (this.hasRole(ROLES.USER)) {
       return this.hasPermission(permissionEnum.DELETE_TICKET) &&
         ticket.create_by === this.currentUser?.id &&
-        ticket.status_id === 1;
+        this.resolveStatusId(ticket) === 1; // Use resolved ID
     }
-
     return false;
   }
 
@@ -308,38 +351,28 @@ export class TicketListComponent implements OnInit, OnDestroy {
   }
 
   canRateSatisfaction(ticket: AllTicketData): boolean {
+    const id = this.resolveStatusId(ticket);
     return this.hasPermission(permissionEnum.SATISFACTION) &&
       ticket.create_by === this.currentUser?.id &&
-      ticket.status_id === 5;
+      id === 5;
   }
 
   // ===== DATA LOADING =====
 
   private loadStatusCache(): void {
-    console.log('=== Loading Status Cache ===');
-
     if (this.apiService.isStatusCacheLoaded()) {
       this.statusCacheLoaded = true;
-      console.log('✅ Status cache already loaded');
       return;
     }
-
     this.isLoadingStatuses = true;
     this.statusError = '';
-
     this.apiService.loadAndCacheStatuses().subscribe({
       next: (success) => {
-        if (success) {
-          this.statusCacheLoaded = true;
-          console.log('✅ Status cache loaded successfully');
-        } else {
-          console.warn('Status cache loading failed, using defaults');
-          this.statusError = this.t('tickets.statusLoadFailed');
-        }
+        this.statusCacheLoaded = success;
         this.isLoadingStatuses = false;
+        if (!success) this.statusError = this.t('tickets.statusLoadFailed');
       },
-      error: (error) => {
-        console.error('❌ Error loading status cache:', error);
+      error: () => {
         this.statusError = this.t('tickets.statusLoadError');
         this.isLoadingStatuses = false;
       }
@@ -358,59 +391,36 @@ export class TicketListComponent implements OnInit, OnDestroy {
   }
 
   private loadTickets(page: number = 1): void {
-    console.log(`=== Loading Tickets (page=${page}) ===`);
-
     this.isLoading = true;
     this.ticketsError = '';
     this.noTicketsFound = false;
-
-    // ✅ ดึงค่าภาษาปัจจุบัน (th หรือ en)
     const currentLang = this.languageService.getCurrentLanguage();
 
     const params: any = {
       page,
       perPage: 25,
-      catlang_id: currentLang // ส่งไปเผื่อ Backend รองรับในอนาคต
+      catlang_id: currentLang
     };
 
-    if (this.searchText && this.searchText.trim()) {
-      params.search = this.searchText.trim();
-    }
-    if (this.selectedPriority) {
-      params.priority = Number(this.selectedPriority);
-    }
-    if (this.selectedStatus) {
-      params.status_id = Number(this.selectedStatus);
-    }
+    if (this.searchText && this.searchText.trim()) params.search = this.searchText.trim();
+    if (this.selectedPriority) params.priority = Number(this.selectedPriority);
+    if (this.selectedStatus) params.status_id = Number(this.selectedStatus);
     if (this.selectedCategory) {
       params.category_id = Number(this.selectedCategory);
       params.categories_id = Number(this.selectedCategory);
     }
-    if (this.selectedProject) {
-      params.project_id = Number(this.selectedProject);
-    }
-
-    console.log('📤 Sending params to API:', params);
+    if (this.selectedProject) params.project_id = Number(this.selectedProject);
 
     this.apiService.getAllTickets(params).subscribe({
       next: (res: any) => {
-        console.log('✅ Response from backend:', res);
-
         if (res?.success && Array.isArray(res.data)) {
-          
-          // -----------------------------------------------------------------
-          // ✅ FIX: Filter out duplicates by language on Frontend side
-          // -----------------------------------------------------------------
           const allTickets = res.data.filter((ticket: any) => {
-             // เก็บตั๋วถ้า catlang_id ตรงกับภาษาปัจจุบัน หรือถ้าไม่มี catlang_id (กันเหนียว)
              return !ticket.catlang_id || ticket.catlang_id === currentLang;
           });
 
           this.tickets = allTickets;
           this.filteredTickets = allTickets;
 
-          // Note: Pagination may be inaccurate because we filtered items out client-side
-          // but this is necessary until backend filters by catlang_id natively.
           this.pagination = res.pagination ? {
             currentPage: res.pagination.currentPage || page,
             perPage: res.pagination.perPage || 25,
@@ -422,22 +432,15 @@ export class TicketListComponent implements OnInit, OnDestroy {
             totalRows: allTickets.length,
             totalPages: Math.ceil(allTickets.length / 25)
           };
-
           this.noTicketsFound = allTickets.length === 0 && this.pagination.totalRows === 0;
-
-          console.log('📦 Final tickets (filtered):', allTickets.length);
-          console.log('📊 Pagination:', this.pagination);
         } else {
           this.tickets = [];
           this.filteredTickets = [];
           this.noTicketsFound = true;
-          console.warn('⚠️ Invalid response structure:', res);
         }
-
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('❌ Error loading tickets:', error);
+      error: () => {
         this.ticketsError = this.t('tickets.loadError');
         this.isLoading = false;
         this.noTicketsFound = true;
@@ -449,12 +452,7 @@ export class TicketListComponent implements OnInit, OnDestroy {
     if (!this.pagination) return;
     if (page < 1 || page > this.pagination.totalPages) return;
     if (page === this.pagination.currentPage) return;
-
-    console.log('➡️ Changing to page:', page);
-    
-    // เลื่อนหน้าจอกลับขึ้นไปด้านบนสุดแบบ Smooth
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
     this.loadTickets(page);
   }
 
@@ -469,23 +467,13 @@ export class TicketListComponent implements OnInit, OnDestroy {
       range.push(i);
     }
 
-    if (current - delta > 2) {
-      pages.push(1, '...');
-    } else {
-      for (let i = 1; i < Math.max(2, current - delta); i++) {
-        pages.push(i);
-      }
-    }
+    if (current - delta > 2) pages.push(1, '...');
+    else for (let i = 1; i < Math.max(2, current - delta); i++) pages.push(i);
 
     pages.push(...range);
 
-    if (current + delta < total - 1) {
-      pages.push('...', total);
-    } else {
-      for (let i = Math.min(total - 1, current + delta) + 1; i <= total; i++) {
-        pages.push(i);
-      }
-    }
+    if (current + delta < total - 1) pages.push('...', total);
+    else for (let i = Math.min(total - 1, current + delta) + 1; i <= total; i++) pages.push(i);
 
     return pages;
   }
@@ -493,87 +481,49 @@ export class TicketListComponent implements OnInit, OnDestroy {
   loadMasterFilters(): void {
     this.loadingFilters = true;
     this.filterError = '';
-
     this.apiService.getAllMasterFilter().subscribe({
       next: (response) => {
-        console.log('Master filter response:', response);
-
         const resData = response.data?.data;
-
         if (response.data?.code === 1 && resData) {
-          // กรอง categories ตามภาษาปัจจุบัน
           const currentLang = this.languageService.getCurrentLanguage();
-          
           this.categories = (resData.categories ?? []).filter(
             (cat: any) => cat.tcl_language_id === currentLang
           );
-          
           this.projects = resData.projects ?? [];
-
-          console.log(`✅ Loaded ${this.categories.length} categories for language: ${currentLang}`);
-          console.log('Categories:', this.categories);
-          console.log('Projects loaded:', this.projects.length);
         } else {
           this.filterError = this.t('tickets.filterLoadError');
         }
-
         this.loadingFilters = false;
       },
-      error: (error) => {
-        console.error('Error loading master filters:', error);
+      error: () => {
         this.filterError = this.t('tickets.filterLoadError');
         this.loadingFilters = false;
       }
     });
   }
 
-  // ===== SEARCH & FILTER METHODS =====
+  onPriorityChangeModel(value: string): void { this.applyFilters(); }
+  onStatusChangeModel(value: string): void { this.applyFilters(); }
+  onCategoryChangeModel(value: string): void { this.applyFilters(); }
+  onProjectChangeModel(value: string): void { this.applyFilters(); }
 
-  onPriorityChangeModel(value: string): void {
-    console.log('🎯 Priority changed via ngModel:', value);
-    this.applyFilters();
-  }
-
-  onStatusChangeModel(value: string): void {
-    console.log('📊 Status changed via ngModel:', value);
-    this.applyFilters();
-  }
-
-  onCategoryChangeModel(value: string): void {
-    console.log('🏷️ Category changed via ngModel:', value);
-    this.applyFilters();
-  }
-
-  onProjectChangeModel(value: string): void {
-    console.log('📁 Project changed via ngModel:', value);
-    this.applyFilters();
-  }
-
-  applyFilters(): void {
-    console.log('🎯 Applying filters - reloading from API');
-    this.loadTickets(1);
-  }
+  applyFilters(): void { this.loadTickets(1); }
 
   clearSearch(): void {
     this.searchText = '';
-    console.log('🧹 Search cleared');
     this.applyFilters();
   }
 
   clearFilters(): void {
-    console.log('🧹 Clearing all filters');
     this.searchText = '';
     this.selectedPriority = '';
     this.selectedStatus = '';
     this.selectedProject = '';
     this.selectedCategory = '';
-
     this.loadTickets(1);
   }
 
   exportExcel(): void {
-    console.log('📊 Exporting Excel with current filters');
-
     const filter = {
       search: this.searchText?.trim() || '',
       priority: this.selectedPriority || '',
@@ -581,121 +531,28 @@ export class TicketListComponent implements OnInit, OnDestroy {
       category: this.selectedCategory || '',
       project: this.selectedProject || ''
     };
-
-    console.log('Export filter:', filter);
-
     this.apiService.exportTicketsExcel(filter).subscribe({
       next: (blob: Blob) => {
         const fileName = `Helpdesk_Tickets_${new Date().toISOString().slice(0, 10)}.xlsx`;
         saveAs(blob, fileName);
-        console.log('✅ Excel exported successfully:', fileName);
       },
-      error: (err) => {
-        console.error('❌ Export Excel failed:', err);
+      error: () => {
         alert(this.t('tickets.exportError'));
       }
     });
   }
 
-  // ===== STATUS MANAGEMENT =====
-
-  private normalizeStatusName(statusName: string): string {
-    const normalized = statusName.toLowerCase().trim();
-
-    const statusMap: { [key: string]: string } = {
-      'created': 'Pending',
-      'pending': 'Pending',
-      'open': 'Open Ticket',
-      'open ticket': 'Open Ticket',
-      'in progress': 'In Progress',
-      'progress': 'In Progress',
-      'resolved': 'Resolved',
-      'complete': 'Complete',
-      'completed': 'Complete',
-      'cancel': 'Cancel',
-      'cancelled': 'Cancel',
-      'canceled': 'Cancel'
-    };
-
-    return statusMap[normalized] || statusName;
-  }
-
-  getStatusText(statusId: number): string {
-    if (this.statusCacheLoaded) {
-      const cachedName = this.apiService.getCachedStatusName(statusId);
-      return this.normalizeStatusName(cachedName);
-    }
-
-    // Fallback with translation
-    switch (statusId) {
-      case 1: return this.t('tickets.pending');
-      case 2: return this.t('tickets.openTicket');
-      case 3: return this.t('tickets.inProgress');
-      case 4: return this.t('tickets.resolved');
-      case 5: return this.t('tickets.complete');
-      case 6: return this.t('tickets.cancel');
-      default: return this.t('tickets.unknown');
-    }
-  }
-
-  getStatusBadgeClass(statusId: number): string {
-    switch (statusId) {
-      case 1: return 'badge-pending';
-      case 2: return 'badge-in-progress';
-      case 3: return 'badge-hold';
-      case 4: return 'badge-resolved';
-      case 5: return 'badge-complete';
-      case 6: return 'badge-cancel';
-      default: return 'badge-pending';
-    }
-  }
-
-  getStatusIcon(statusId: number): string {
-    switch (statusId) {
-      case 1: return 'bi-clock';
-      case 2: return 'bi-folder2-open';
-      case 3: return 'bi-chat-dots';
-      case 4: return 'bi-clipboard-check';
-      case 5: return 'bi-check-circle';
-      case 6: return 'bi-x-circle';
-      default: return 'bi-clock';
-    }
-  }
-
-  // ===== STYLING METHODS =====
-
   getUserDisplayName(ticket: AllTicketData): string {
     const anyTicket = ticket as any;
-
-    // ✅ FIX: Check for "undefined undefined" string
     if (anyTicket.name && anyTicket.name.trim() && !anyTicket.name.includes('undefined undefined')) {
       return anyTicket.name;
     }
-
-    if (ticket.user_name && ticket.user_name.trim()) {
-      return ticket.user_name;
-    }
-
-    if (anyTicket.username && anyTicket.username.trim()) {
-      return anyTicket.username;
-    }
-
-    if (anyTicket.user_email && anyTicket.user_email.trim()) {
-      return anyTicket.user_email;
-    }
-
-    if (anyTicket.creator_name && anyTicket.creator_name.trim()) {
-      return anyTicket.creator_name;
-    }
-
-    if (anyTicket.created_by_name && anyTicket.created_by_name.trim()) {
-      return anyTicket.created_by_name;
-    }
-
-    if (ticket.create_by) {
-      return `User #${ticket.create_by}`;
-    }
-
+    if (ticket.user_name && ticket.user_name.trim()) return ticket.user_name;
+    if (anyTicket.username && anyTicket.username.trim()) return anyTicket.username;
+    if (anyTicket.user_email && anyTicket.user_email.trim()) return anyTicket.user_email;
+    if (anyTicket.creator_name && anyTicket.creator_name.trim()) return anyTicket.creator_name;
+    if (anyTicket.created_by_name && anyTicket.created_by_name.trim()) return anyTicket.created_by_name;
+    if (ticket.create_by) return `User #${ticket.create_by}`;
     return this.t('tickets.unknownUser');
   }
 
@@ -720,8 +577,7 @@ export class TicketListComponent implements OnInit, OnDestroy {
   }
 
   isHighPriority(ticket: AllTicketData): boolean {
-    const priorityNum = Number(ticket.priority_id);
-    return priorityNum === 3;
+    return Number(ticket.priority_id) === 3;
   }
 
   getPriorityBadgeClass(priority: any): string {
@@ -739,122 +595,59 @@ export class TicketListComponent implements OnInit, OnDestroy {
     try {
       const locale = this.languageService.getCurrentLanguage() === 'th' ? 'th-TH' : 'en-US';
       return new Date(dateString).toLocaleDateString(locale, {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
       });
-    } catch {
-      return 'N/A';
-    }
+    } catch { return 'N/A'; }
   }
 
-  // ===== NAVIGATION METHODS =====
-
   viewTicket(ticket: AllTicketData): void {
-    console.log('Viewing ticket:', ticket.ticket_no);
     this.router.navigate(['/tickets', ticket.ticket_no]);
   }
 
   editTicket(ticket: AllTicketData): void {
-    if (!this.canEditTicket(ticket)) {
-      console.warn('User cannot edit this ticket');
-      return;
-    }
-
-    console.log('Editing ticket:', ticket.ticket_no);
+    if (!this.canEditTicket(ticket)) return;
     this.router.navigate(['/tickets/edit', ticket.ticket_no]);
   }
 
   createNewTicket(): void {
-    if (!this.canCreateTickets) {
-      console.warn('User cannot create tickets');
-      return;
-    }
-
-    console.log('Creating new ticket');
+    if (!this.canCreateTickets) return;
     this.router.navigate(['/tickets/new']);
   }
 
-  // ===== TICKET ACTIONS =====
-
   deleteTicket(ticket: AllTicketData): void {
-    if (!this.canDeleteTicket(ticket)) {
-      console.warn('User cannot delete this ticket');
-      return;
-    }
-
+    if (!this.canDeleteTicket(ticket)) return;
     const confirmMessage = this.t('tickets.deleteConfirm', { ticketNo: ticket.ticket_no });
-    const confirmDelete = confirm(confirmMessage);
-
-    if (confirmDelete) {
-      console.log('Deleting ticket:', ticket.ticket_no);
-
+    if (confirm(confirmMessage)) {
       this.apiService.deleteTicketByTicketNo(ticket.ticket_no).subscribe({
         next: (response) => {
-          if (response.code === 1) {
-            console.log('✅ Ticket deleted successfully');
-            this.loadTickets();
-          } else {
-            console.error('❌ Failed to delete ticket:', response.message);
-            alert(this.t('tickets.deleteFailed') + ': ' + response.message);
-          }
+          if (response.code === 1) this.loadTickets();
+          else alert(this.t('tickets.deleteFailed') + ': ' + response.message);
         },
-        error: (error) => {
-          console.error('❌ Error deleting ticket:', error);
-          alert(this.t('tickets.deleteError'));
-        }
+        error: () => alert(this.t('tickets.deleteError'))
       });
     }
   }
 
   changeTicketStatus(ticket: AllTicketData, newStatusId: number): void {
-    if (!this.canChangeStatus(ticket)) {
-      console.warn('User cannot change ticket status');
-      return;
-    }
-
-    console.log('Changing ticket status:', ticket.ticket_no, 'to', newStatusId);
-
-    this.apiService.updateTicketByTicketNo(ticket.ticket_no, {
-      status_id: newStatusId
-    }).subscribe({
+    if (!this.canChangeStatus(ticket)) return;
+    this.apiService.updateTicketByTicketNo(ticket.ticket_no, { status_id: newStatusId }).subscribe({
       next: (response) => {
-        if (response.code === 1) {
-          console.log('✅ Ticket status changed successfully');
-          ticket.status_id = newStatusId;
-        } else {
-          console.error('❌ Failed to change ticket status:', response.message);
-          alert(this.t('tickets.statusChangeFailed') + ': ' + response.message);
-        }
+        if (response.code === 1) ticket.status_id = newStatusId;
+        else alert(this.t('tickets.statusChangeFailed') + ': ' + response.message);
       },
-      error: (error) => {
-        console.error('❌ Error changing ticket status:', error);
-        alert(this.t('tickets.statusChangeError'));
-      }
+      error: () => alert(this.t('tickets.statusChangeError'))
     });
   }
 
   assignTicket(ticket: AllTicketData): void {
-    if (!this.canAssignTicket(ticket)) {
-      console.warn('User cannot assign tickets');
-      return;
-    }
-
-    console.log('Assigning ticket:', ticket.ticket_no);
+    if (!this.canAssignTicket(ticket)) return;
     alert(this.t('tickets.assignNotAvailable'));
   }
 
-  // ===== UTILITY METHODS =====
-
-  reloadTickets(): void {
-    console.log('🔄 Reloading tickets');
-    this.loadTickets();
-  }
+  reloadTickets(): void { this.loadTickets(); }
 
   reloadStatusCache(): void {
-    console.log('Reloading status cache...');
     this.apiService.clearStatusCache();
     this.statusCacheLoaded = false;
     this.loadStatusCache();
@@ -864,59 +657,22 @@ export class TicketListComponent implements OnInit, OnDestroy {
     return {
       totalTickets: this.tickets.length,
       filteredTickets: this.filteredTickets.length,
-      currentUser: this.currentUser?.id,
-      viewMode: this.viewMode,
-      currentLanguage: this.languageService.getCurrentLanguage(),
-      permissions: {
-        canViewAll: this.canViewAllTickets,
-        canViewOwn: this.canViewOwnTickets,
-        canCreate: this.canCreateTickets,
-        canManage: this.canManageTickets
-      },
-      hasError: !!this.ticketsError,
-      isLoading: this.isLoading,
-      statusCache: {
-        loaded: this.statusCacheLoaded,
-        loading: this.isLoadingStatuses,
-        error: this.statusError
-      },
-      filters: {
-        search: this.searchText,
-        priority: this.selectedPriority,
-        status: this.selectedStatus,
-        project: this.selectedProject,
-        category: this.selectedCategory
-      }
+      statusCache: { loaded: this.statusCacheLoaded, loading: this.isLoadingStatuses }
     };
   }
 
-  // ===== VIEW MODE METHODS =====
-
   getViewModeTitle(): string {
-    return this.viewMode === 'all' 
-      ? this.t('tickets.allTickets') 
-      : this.t('tickets.myTickets');
+    return this.viewMode === 'all' ? this.t('tickets.allTickets') : this.t('tickets.myTickets');
   }
 
   getViewModeDescription(): string {
-    return this.viewMode === 'all'
-      ? this.t('tickets.viewingAllTickets')
-      : this.t('tickets.viewingMyTickets');
+    return this.viewMode === 'all' ? this.t('tickets.viewingAllTickets') : this.t('tickets.viewingMyTickets');
   }
 
   canSwitchViewMode(): boolean {
     return this.canViewAllTickets && this.canViewOwnTickets;
   }
 
-  switchToAllTickets(): void {
-    if (this.canViewAllTickets) {
-      this.router.navigate(['/tickets']);
-    }
-  }
-
-  switchToMyTickets(): void {
-    if (this.canViewOwnTickets) {
-      this.router.navigate(['/tickets/my-tickets']);
-    }
-  }
+  switchToAllTickets(): void { if (this.canViewAllTickets) this.router.navigate(['/tickets']); }
+  switchToMyTickets(): void { if (this.canViewOwnTickets) this.router.navigate(['/tickets/my-tickets']); }
 }
