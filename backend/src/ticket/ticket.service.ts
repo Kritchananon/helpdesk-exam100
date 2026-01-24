@@ -775,25 +775,25 @@ export class TicketService {
 
       // ✅ เริ่มสร้าง QueryBuilder หลัก
       const baseQuery = this.ticketRepo
-      .createQueryBuilder('t')
-      // ดึงภาษาอังกฤษ (en)
-      .leftJoin('ticket_categories_language', 'tcl_en', 'tcl_en.category_id = t.categories_id AND tcl_en.language_id = :langEn', { langEn: 'en' })
-      .leftJoin('ticket_status_language', 'tsl_en', 'tsl_en.status_id = t.status_id AND tsl_en.language_id = :langEn', { langEn: 'en' })
-      // ดึงภาษาไทย (th)
-      .leftJoin('ticket_categories_language', 'tcl_th', 'tcl_th.category_id = t.categories_id AND tcl_th.language_id = :langTh', { langTh: 'th' })
-      .leftJoin('ticket_status_language', 'tsl_th', 'tsl_th.status_id = t.status_id AND tsl_th.language_id = :langTh', { langTh: 'th' })
-      
-      .leftJoin('project', 'p', 'p.id = t.project_id')
-      .leftJoin('users', 'u', 'u.id = t.create_by')
-      .leftJoin('ticket_priority', 'tp', 'tp.id = t.priority_id')
-      .where('t.isenabled = true');
+        .createQueryBuilder('t')
+        // ดึงภาษาอังกฤษ (en)
+        .leftJoin('ticket_categories_language', 'tcl_en', 'tcl_en.category_id = t.categories_id AND tcl_en.language_id = :langEn', { langEn: 'en' })
+        .leftJoin('ticket_status_language', 'tsl_en', 'tsl_en.status_id = t.status_id AND tsl_en.language_id = :langEn', { langEn: 'en' })
+        // ดึงภาษาไทย (th)
+        .leftJoin('ticket_categories_language', 'tcl_th', 'tcl_th.category_id = t.categories_id AND tcl_th.language_id = :langTh', { langTh: 'th' })
+        .leftJoin('ticket_status_language', 'tsl_th', 'tsl_th.status_id = t.status_id AND tsl_th.language_id = :langTh', { langTh: 'th' })
+
+        .leftJoin('project', 'p', 'p.id = t.project_id')
+        .leftJoin('users', 'u', 'u.id = t.create_by')
+        .leftJoin('ticket_priority', 'tp', 'tp.id = t.priority_id')
+        .where('t.isenabled = true');
 
       // ✅ Logic การเช็คสิทธิ์ (คงเดิม)
-    if (isSupporter) {
-      baseQuery.innerJoin('ticket_assigned', 'ta', 'ta.ticket_id = t.id AND ta.user_id = :userId', { userId });
-    } else if (!isViewAll) {
-      baseQuery.andWhere('t.create_by = :userId', { userId });
-    }
+      if (isSupporter) {
+        baseQuery.innerJoin('ticket_assigned', 'ta', 'ta.ticket_id = t.id AND ta.user_id = :userId', { userId });
+      } else if (!isViewAll) {
+        baseQuery.andWhere('t.create_by = :userId', { userId });
+      }
 
       // ✅ เงื่อนไข Filter จากผู้ใช้
       if (filters) {
@@ -822,40 +822,40 @@ export class TicketService {
       }
 
       const totalRows = await baseQuery.clone().getCount();
-    const totalPages = Math.ceil(totalRows / perPage) || 1;
-    const offset = (page - 1) * perPage;
+      const totalPages = Math.ceil(totalRows / perPage) || 1;
+      const offset = (page - 1) * perPage;
 
-    // ✅ Select ข้อมูลออกมาเป็นโครงสร้างแบนราบตามที่คุณระบุ
-    const rawtickets = await baseQuery
-      .select([
-        't.id AS id',
-        't.ticket_no AS ticket_no',
-        't.issue_description AS issue_description',
-        't.create_by AS create_by',
-        't.create_date AS create_date',
-        'u.firstname || \' \' || u.lastname AS name',
-        't.project_id AS project_id',
-        'p.name AS project_name',
-        'tp.id AS priority_id',
-        // รายการภาษาอังกฤษ
-        't.categories_id AS categories_id_en', // ตั้งชื่อให้ต่างกันเล็กน้อยเพื่อไม่ให้ Key ทับกัน
-        'tcl_en.name AS categories_name_en',
-        'tcl_en.language_id AS catlang_id_en',
-        't.status_id AS status_id_en',
-        'tsl_en.name AS status_name_en',
-        'tsl_en.language_id AS statuslang_id_en',
-        // รายการภาษาไทย
-        't.categories_id AS categories_id_th',
-        'tcl_th.name AS categories_name_th',
-        'tcl_th.language_id AS catlang_id_th',
-        't.status_id AS status_id_th',
-        'tsl_th.name AS status_name_th',
-        'tsl_th.language_id AS statuslang_id_th',
-      ])
-      .orderBy('t.id', 'DESC')
-      .offset(offset)
-      .limit(perPage)
-      .getRawMany();
+      // ✅ Select ข้อมูลออกมาเป็นโครงสร้างแบนราบตามที่คุณระบุ
+      const rawtickets = await baseQuery
+        .select([
+          't.id AS id',
+          't.ticket_no AS ticket_no',
+          't.issue_description AS issue_description',
+          't.create_by AS create_by',
+          't.create_date AS create_date',
+          'u.firstname || \' \' || u.lastname AS name',
+          't.project_id AS project_id',
+          'p.name AS project_name',
+          'tp.id AS priority_id',
+          // รายการภาษาอังกฤษ
+          't.categories_id AS categories_id_en', // ตั้งชื่อให้ต่างกันเล็กน้อยเพื่อไม่ให้ Key ทับกัน
+          'tcl_en.name AS categories_name_en',
+          'tcl_en.language_id AS catlang_id_en',
+          't.status_id AS status_id_en',
+          'tsl_en.name AS status_name_en',
+          'tsl_en.language_id AS statuslang_id_en',
+          // รายการภาษาไทย
+          't.categories_id AS categories_id_th',
+          'tcl_th.name AS categories_name_th',
+          'tcl_th.language_id AS catlang_id_th',
+          't.status_id AS status_id_th',
+          'tsl_th.name AS status_name_th',
+          'tsl_th.language_id AS statuslang_id_th',
+        ])
+        .orderBy('t.id', 'DESC')
+        .offset(offset)
+        .limit(perPage)
+        .getRawMany();
 
       // ✅ map ค่ากลับ
       const tickets = rawtickets.map(t => ({
@@ -868,7 +868,7 @@ export class TicketService {
         project_id: t.project_id,
         project_name: t.project_name,
         priority_id: t.priority_id,
-        
+
         // ข้อมูลภาษาอังกฤษ
         categories_id_en: t.categories_id,
         categories_name_en: t.categories_name_en,
@@ -1690,31 +1690,27 @@ export class TicketService {
         'tcl',
         'tcl.category_id = tc.id')
       .leftJoin('users', 'u', 't.create_by = u.id')
+      .leftJoin('ticket_status', 'ts', 't.status_id = ts.id')
       .select([
         't.id AS id',
-        't.ticket_no AS ticket_no',
-        't.create_by AS create_by',
-        "CONCAT(u.firstname, ' ', u.lastname) AS creator_name",
-        'tcl.name AS category_name',
+        't.ticket_no AS ticket_no'
       ])
       .where('t.project_id = :project_id', { project_id })
       .andWhere('t.categories_id = :categories_id', { categories_id })
+      .andWhere('t.status_id = :status_id', { status_id: 5 }) // ✅ เพิ่มบรรทัดนี้ครับ
       .orderBy('t.id', 'ASC')
       .getRawMany();
 
     if (!tickets || tickets.length === 0) {
       throw new NotFoundException(
-        `ไม่พบตั๋วใน project_id=${project_id} และ categories_id=${categories_id}`,
+        `ไม่พบตั๋วใน project_id=${project_id} และ categories_id=${categories_id} ที่มีสถานะ 5`,
       );
     }
 
     // ✅ คืนเฉพาะฟิลด์ที่ต้องการ
     return tickets.map((t) => ({
-      ticket_no: t.ticket_no,
-      create_by: t.create_by,
-      creator_name: t.creator_name,
-      categories: t.category_name,
+      ticket_id: t.id,
+      ticket_no: t.ticket_no
     }));
   }
-
 }
