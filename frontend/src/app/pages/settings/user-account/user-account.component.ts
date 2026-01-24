@@ -25,7 +25,7 @@ export interface UserAccountItem {
   user_phone: string;
   username?: string;
 
-  // ✅ backend ส่งเป็น array
+  // ✅ backend ส่งเป็น array หรือ string ก็จะถูกแปลงเป็น array เสมอ
   company: CompanyItem[];
 
   // ✅ backend ส่ง role_ids เป็น array
@@ -54,7 +54,6 @@ export interface CreateUserDto {
   role_id: number[];
 }
 
-// ✅ แก้ไข 1: เปลี่ยนชื่อ field ให้ตรงกับ Backend
 export interface UpdateUserDto {
   id?: number;
   username?: string;
@@ -63,7 +62,7 @@ export interface UpdateUserDto {
   email?: string;
   phone?: string;
   role_id?: number[];
-  password?: string; // แก้จาก new_password เป็น password
+  password?: string;
 }
 
 export interface UserStats {
@@ -385,13 +384,25 @@ export class UserAccountComponent implements OnInit, OnDestroy {
       }
       const displayName = user.name || `${firstname} ${lastname}`.trim() || 'Unknown User';
 
-      const companies: CompanyItem[] = Array.isArray(user.company)
-        ? user.company.map((c: any) => ({
+      // ✅✅✅ แก้ไข: รองรับทั้ง Array และ Flat String fields ✅✅✅
+      let companies: CompanyItem[] = [];
+
+      if (Array.isArray(user.company)) {
+        // กรณีเป็น Array แบบเดิม
+        companies = user.company.map((c: any) => ({
           company: this.sanitizeString(c.company),
           company_address: this.sanitizeString(c.company_address),
           company_phone: this.sanitizeString(c.company_phone),
-        }))
-        : []; // ✅ ถ้าไม่ได้ส่งมาให้เป็น array ก็ให้เป็น []
+        }));
+      } else if (user.company && typeof user.company === 'string') {
+        // กรณีเป็น String (Flat structure ตามที่เห็นในรูป)
+        companies = [{
+          company: this.sanitizeString(user.company),
+          company_address: this.sanitizeString(user.company_address),
+          company_phone: this.sanitizeString(user.company_phone)
+        }];
+      }
+      // ✅✅✅ จบการแก้ไข ✅✅✅
 
       return {
         id: userId || (index + 1000),
@@ -404,7 +415,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         created_date: user.created_date || new Date().toISOString(),
         updated_date: user.updated_date,
 
-        // ✅ company array
+        // ใช้ตัวแปร companies ที่เราจัดการแล้ว
         company: companies,
 
         // ✅ role_ids
@@ -663,10 +674,9 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         role_id: this.editForm.value.role_id || []
       };
 
-      // ✅ แก้ไข 2: ส่งค่า password ด้วย key "password" แทน "new_password"
       const newPassword = this.editForm.value.newPassword;
       if (newPassword && newPassword.trim()) {
-        formData.password = newPassword.trim(); // แก้ตรงนี้ให้ Backend อ่านค่าได้
+        formData.password = newPassword.trim();
       }
 
       this.updateUserViaApi(this.editingUser.id, formData);

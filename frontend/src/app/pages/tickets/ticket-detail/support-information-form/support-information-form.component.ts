@@ -2,8 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, inject, OnChanges, Simp
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Subject, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs';
+import { Subject, Subscription, takeUntil, debounceTime } from 'rxjs'; // ✅ Import debounceTime
 
 // ✅ เรียกใช้ LanguageService โดยตรง
 import { LanguageService } from '../../../../shared/services/language.service';
@@ -298,9 +297,7 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
 
     this.initializeSupporterForm();
     this.checkUserPermissions();
-    // this.loadActionDropdownOptions(); // ✅ ย้ายไปทำใน Subscription
     this.initializeAssigneeList();
-    // this.loadPriorityDropdownOptions(); // ✅ ย้ายไปทำใน Subscription
 
     this.setupFormPersistence();
     this.setupAutoCalculation();
@@ -321,11 +318,9 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     this.langSubscription = this.languageService.translationsLoaded$.subscribe((isLoaded) => {
         if (isLoaded) {
             // --- จัดการ Priority ---
-            // ถ้ายังไม่มีข้อมูลดิบ ให้โหลดจาก API (กรณีเข้าหน้าเว็บครั้งแรก)
             if (this.rawPriorityList.length === 0 && !this.isLoadingPriorities) {
                 this.loadPriorityDropdownOptions(); 
             } else {
-                // ถ้ามีข้อมูลอยู่แล้ว (กรณีเปลี่ยนภาษา) ให้แปลใหม่อย่างเดียว
                 this.buildPriorityDropdownOptions();
             }
 
@@ -405,7 +400,7 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     }
   }
 
-  // ... (Rich Text Editor methods are unchanged) ...
+  // ... (Rich Text Editor methods) ...
   checkToolbarStatus(): void {
     this.toolbarState.bold = document.queryCommandState('bold');
     this.toolbarState.italic = document.queryCommandState('italic');
@@ -449,10 +444,15 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     this.checkToolbarStatus();
   }
 
+  // ✅ FIX 1: ปรับ onDescriptionInput ให้ Force patch ค่า
   onDescriptionInput(event: Event): void {
     const target = event.target as HTMLElement;
     const content = target.innerHTML;
-    this.supporterForm.patchValue({ fix_issue_description: content });
+    
+    // บังคับ Patch ค่าและ Mark Dirty
+    this.supporterForm.controls['fix_issue_description'].setValue(content);
+    this.supporterForm.controls['fix_issue_description'].markAsDirty();
+    
     this.checkToolbarStatus();
 
     if (content && content.trim().length >= 1) {
@@ -483,7 +483,7 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     event.target.value = '';
   }
 
-  // ... (Persistence and other helper methods remain unchanged) ...
+  // ... (Persistence and other helper methods) ...
   private restoreAllPersistedData(): void {
     try {
       if (!this.ticket_no || !this.currentUserId) return;
@@ -671,7 +671,8 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
       }
       return { ...att, is_image: isImage, preview_url: previewUrl, download_url: this.getAttachmentDownloadUrl(att) };
     });
-    setTimeout(() => { this.analyzeAllExistingAttachments(); }, 100);
+    // ✅ เรียกเลย ไม่ต้องรอ setTimeout
+    this.analyzeAllExistingAttachments();
   }
 
   getAttachmentDownloadUrl(attachment: any): string {
@@ -691,19 +692,77 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     if (!attachment || !attachment.attachment_id) return;
     const attachmentId = attachment.attachment_id;
     if (this.attachmentTypes[attachmentId]?.isAnalyzed) return;
-    this.attachmentTypes[attachmentId] = { type: 'file', extension: '', filename: 'Loading...', isLoading: true, isAnalyzed: false };
+
+    // ตั้งค่าเริ่มต้น
+    this.attachmentTypes[attachmentId] = { 
+        type: 'file', 
+        extension: '', 
+        filename: 'Loading...', 
+        isLoading: true, 
+        isAnalyzed: false 
+    };
+
+    // ✅ เพิ่ม Logic เช็คนามสกุลก่อนยิง Request
+    let realFilename = attachment.filename || this.extractFilenameFromPath(attachment.path) || `attachment_${attachmentId}`;
+    let extension = this.getFileExtensionHelper(realFilename);
+    
+    // ถ้ามีนามสกุลไฟล์ชัดเจน ให้สรุปผลเลย ไม่ต้องยิง fetch
+    if (extension && extension !== 'unknown') {
+        const mimeType = this.guessMimeTypeFromExtension(extension);
+        this.attachmentTypes[attachmentId] = { 
+            type: this.determineFileCategoryByMimeType(mimeType), 
+            extension: extension, 
+            filename: realFilename, 
+            isLoading: false, 
+            isAnalyzed: true 
+        };
+        return; 
+    }
+
+    // ถ้าไม่รู้นามสกุลจริงๆ ค่อยยิง Request
     try {
       const response = await fetch(attachment.path, { method: 'HEAD' });
       const contentDisposition = response.headers.get('Content-Disposition');
       const contentType = response.headers.get('Content-Type') || '';
-      let realFilename = `attachment_${attachmentId}`;
+      
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (filenameMatch && filenameMatch[1]) { realFilename = filenameMatch[1].replace(/['"]/g, ''); realFilename = decodeURIComponent(realFilename); }
+        if (filenameMatch && filenameMatch[1]) { 
+            realFilename = filenameMatch[1].replace(/['"]/g, ''); 
+            realFilename = decodeURIComponent(realFilename); 
+        }
       }
-      const extension = this.getFileExtensionHelper(realFilename) || this.getExtensionFromMimeType(contentType);
-      this.attachmentTypes[attachmentId] = { type: this.determineFileCategoryByMimeType(contentType), extension: extension, filename: realFilename, isLoading: false, isAnalyzed: true };
-    } catch (error) { this.attachmentTypes[attachmentId] = { type: 'file', extension: '', filename: `attachment_${attachmentId}`, isLoading: false, isAnalyzed: true }; }
+      
+      extension = this.getFileExtensionHelper(realFilename) || this.getExtensionFromMimeType(contentType);
+      
+      this.attachmentTypes[attachmentId] = { 
+          type: this.determineFileCategoryByMimeType(contentType), 
+          extension: extension, 
+          filename: realFilename, 
+          isLoading: false, 
+          isAnalyzed: true 
+      };
+    } catch (error) { 
+      this.attachmentTypes[attachmentId] = { 
+          type: 'file', 
+          extension: '', 
+          filename: realFilename, 
+          isLoading: false, 
+          isAnalyzed: true 
+      }; 
+    }
+  }
+
+  // ✅ Helper Function ใหม่
+  private guessMimeTypeFromExtension(ext: string): string {
+      const map: {[key:string]: string} = {
+          'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png', 'gif': 'image/gif',
+          'pdf': 'application/pdf', 
+          'doc': 'application/msword', 'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'xls': 'application/vnd.ms-excel', 'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'txt': 'text/plain'
+      };
+      return map[ext.toLowerCase()] || 'application/octet-stream';
   }
 
   private getExtensionFromMimeType(mimeType: string): string {
@@ -932,11 +991,12 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
   }
 
   private setupFormPersistence(): void {
-    let saveTimeout: any = null;
-    this.formChangeSubscription = this.supporterForm.valueChanges.subscribe(() => {
-      if (saveTimeout) clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => { this.persistAllFormData(); }, 2000);
-    });
+    // ✅ ใช้ debounceTime 2 วินาทีแทน setTimeout แบบเดิม
+    this.formChangeSubscription = this.supporterForm.valueChanges
+      .pipe(debounceTime(2000))
+      .subscribe(() => {
+        this.persistAllFormData();
+      });
   }
 
   onAssigneeChanged(): void {
@@ -1559,7 +1619,11 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     }
 
     const currentActionId = parseInt(formValue.action.toString());
-    const needsResolution = (currentActionId === TICKET_STATUS_IDS.IN_PROGRESS || currentActionId === TICKET_STATUS_IDS.RESOLVED || currentActionId === TICKET_STATUS_IDS.COMPLETED);
+
+    // ✅ NEW: บังคับกรอกเฉพาะ "Resolved" (4) หรือ "Completed" (5) เท่านั้น
+    // ตัด TICKET_STATUS_IDS.IN_PROGRESS ออกไป
+    const needsResolution = (currentActionId === TICKET_STATUS_IDS.RESOLVED || currentActionId === TICKET_STATUS_IDS.COMPLETED);
+
     if (needsResolution && (!formValue.fix_issue_description || formValue.fix_issue_description.trim() === '' || formValue.fix_issue_description.trim() === '<br>')) {
       this.supporterFormValidation.fix_issue_description = { isValid: false, error: this.translate('supportInformation.errors.resolutionRequired') };
     } else {
@@ -1703,8 +1767,9 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     }
   }
 
+  // ✅ FIX 2: ใช้ getRawValue เพื่อให้ได้ค่าครบทุก Field แม้จะ disabled
   private createSupporterFormData(): SaveSupporterFormData {
-    const formValue = this.supporterForm.value;
+    const formValue = this.supporterForm.getRawValue();
     const formData: SaveSupporterFormData = {};
     if (formValue.action !== null && formValue.action !== '' && formValue.action !== undefined) {
       const statusId = parseInt(formValue.action.toString());
@@ -1718,16 +1783,26 @@ export class SupportInformationFormComponent implements OnInit, OnChanges, OnDes
     if (formValue.due_date) formData.due_date = formValue.due_date;
     if (this.leadTime > 0) formData.lead_time = Math.round(this.leadTime);
     if (formValue.close_estimate) formData.close_estimate = formValue.close_estimate;
-    if (formValue.fix_issue_description) formData.fix_issue_description = formValue.fix_issue_description.trim();
+    
+    // ✅ ส่งค่า description เสมอถ้ามีค่า
+    if (formValue.fix_issue_description) {
+         formData.fix_issue_description = formValue.fix_issue_description.toString().trim();
+    }
+    
     if (formValue.related_ticket_id) formData.related_ticket_id = formValue.related_ticket_id.trim();
     return formData;
   }
 
+  // ✅ FIX 3: ปรับปรุงการเช็ค Change
   hasSupporterFormChanges(): boolean {
     if (!this.supporterForm) return false;
-    const formValue = this.supporterForm.value;
+    const formValue = this.supporterForm.getRawValue(); // ใช้ getRawValue เพื่อความชัวร์
     if (formValue.action && formValue.action !== '') return true;
-    const isFixIssueDescriptionChanged = formValue.fix_issue_description && formValue.fix_issue_description.trim() !== '' && formValue.fix_issue_description.trim() !== '<br>';
+
+    // เช็ค description ให้ครอบคลุม
+    const desc = formValue.fix_issue_description;
+    const isFixIssueDescriptionChanged = desc && desc.toString().trim().length > 0 && desc !== '<br>';
+
     const hasOptionalChanges = (formValue.priority !== null && formValue.priority !== '') ||
       (formValue.estimate_time && formValue.estimate_time !== '') || (formValue.due_date && formValue.due_date !== '') ||
       (formValue.lead_time && formValue.lead_time !== '') || (formValue.close_estimate && formValue.close_estimate !== '') ||
