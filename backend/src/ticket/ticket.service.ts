@@ -442,6 +442,7 @@ export class TicketService {
         .leftJoin('ticket_status', 'ts', 'ts.id = t.status_id')
         .leftJoin('ticket_status_language', 'tsl', 'tsl.status_id = ts.id')
         .leftJoin('ticket_priority', 'tp', 'tp.id = t.priority_id')
+        .leftJoin('ticket_satisfaction', 'tsat', 'tsat.ticket_id = t.id')
         .select([
           't.id AS id',
           't.ticket_no AS ticket_no',
@@ -467,6 +468,8 @@ export class TicketService {
           'tsl.name AS status_name',
           `uc.firstname || ' ' || uc.lastname AS create_by`,
           `uu.firstname || ' ' || uu.lastname AS update_by`,
+          'tsat.id AS satisfaction_id',
+          'tsat.rating AS satisfaction_rating',
         ])
         .where('UPPER(t.ticket_no) = UPPER(:ticket_no)', { ticket_no: normalizedTicketNo })
         .andWhere('t.isenabled = true')
@@ -546,6 +549,8 @@ export class TicketService {
           update_date: ticket.update_date,
           update_by: ticket.update_by,
           priority_id: ticket.priority_id,
+          satisfaction_id: ticket.satisfaction_id,
+          satisfaction_rating: ticket.satisfaction_rating,
           isenabled: ticket.isenabled,
         },
         issue_attachment: issueAttachment.map(a => ({
